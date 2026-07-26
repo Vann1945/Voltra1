@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the VisualCraft marketplace.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "photoURL": { "type": "string", "format": "uri", "description": "The user's profile picture URL." },
+        "bio": { "type": "string", "description": "The user's bio." },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "The user's role." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user was created." }
+      },
+      "required": ["uid", "displayName", "email", "role", "createdAt"]
+    },
+    "Addon": {
+      "title": "Addon",
+      "description": "A Minecraft add-on (resource pack, behavior pack, etc.).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The add-on's unique ID." },
+        "title": { "type": "string", "description": "The title of the add-on." },
+        "description": { "type": "string", "description": "A detailed description of the add-on." },
+        "category": { "type": "string", "enum": ["Resource Pack", "Behavior Pack", "World", "Skin Pack", "Mod"], "description": "The category of the add-on." },
+        "imageUrl": { "type": "string", "format": "uri", "description": "A cover image for the add-on." },
+        "downloadUrl": { "type": "string", "format": "uri", "description": "The URL to download the add-on." },
+        "authorId": { "type": "string", "description": "The UID of the user who uploaded the add-on." },
+        "authorName": { "type": "string", "description": "The display name of the author." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the add-on was uploaded." },
+        "likesCount": { "type": "number", "description": "The number of likes the add-on has received." },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "The approval status of the add-on." },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tags for searching and categorizing."
+        },
+        "averageRating": { "type": "number", "description": "The average rating of the add-on." },
+        "ratingCount": { "type": "number", "description": "The total number of ratings." }
+      },
+      "required": ["id", "title", "description", "category", "imageUrl", "downloadUrl", "authorId", "authorName", "createdAt", "likesCount", "status", "tags"]
+    },
+    "Like": {
+      "title": "Like",
+      "description": "A record of a user liking an add-on.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "addonId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "addonId", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "A review and rating for an add-on.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "addonId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "addonId", "userId", "userName", "rating", "text", "createdAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "A report submitted by a user for an add-on.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "addonId": { "type": "string" },
+        "userId": { "type": "string" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "reviewed", "resolved"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "addonId", "userId", "reason", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/addons/{addonId}": {
+      "schema": { "$ref": "#/entities/Addon" },
+      "description": "Stores the uploaded Minecraft add-ons."
+    },
+    "/likes/{likeId}": {
+      "schema": { "$ref": "#/entities/Like" },
+      "description": "Stores likes to prevent duplicate voting. ID is usually userId_addonId."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Stores user reviews for add-ons."
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "Stores user reports for moderation."
+    }
+  }
+}

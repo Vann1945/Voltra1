@@ -1,0 +1,301 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required) - The user's unique ID.
+    //   - displayName: string (required) - The user's display name.
+    //   - email: string (required) - The user's email address.
+    //   - photoURL: string (optional) - The user's profile picture URL.
+    //   - role: string (required) - 'user' or 'admin'.
+    //   - createdAt: string (required) - ISO 8601 date string.
+    //
+    // Collection: addons
+    // Document ID: {addonId}
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required)
+    //   - description: string (required)
+    //   - category: string (required)
+    //   - imageUrl: string (required)
+    //   - downloadUrl: string (required)
+    //   - authorId: string (required)
+    //   - authorName: string (required)
+    //   - createdAt: string (required)
+    //   - likesCount: number (required)
+    //   - status: string (required) - 'pending', 'approved', 'rejected'
+    //   - tags: list of strings (required)
+    //
+    // Collection: likes
+    // Document ID: {userId}_{addonId}
+    // Fields:
+    //   - userId: string (required)
+    //   - addonId: string (required)
+    //   - createdAt: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "unknownfeed76@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() >= minLen &&
+             request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !('field' in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() >= minLen &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.matches("^https://.*") || url.matches("^http://.*")) && url.size() < 1000;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") && email.size() < 256;
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    function isValidList(list, maxSize) {
+      return list is list && list.size() <= maxSize;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'displayName', 'email', 'photoURL', 'bio', 'role', 'createdAt']) &&
+             (data.uid == request.auth.uid || isAdmin()) &&
+             isValidString('displayName', 1, 100) &&
+             isValidEmail(data.email) &&
+             (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
+             (!('bio' in data) || isValidString('bio', 0, 500)) &&
+             data.role in ['user', 'admin', 'banned', 'suspended'] &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidAddon(data) {
+      return hasOnlyAllowedFields(['id', 'title', 'description', 'category', 'imageUrl', 'imageUrls', 'downloadUrl', 'authorId', 'authorName', 'createdAt', 'likesCount', 'status', 'tags', 'averageRating', 'ratingCount', 'downloadsCount', 'isFeatured', 'versionHistory', 'compatibilityNotes', 'changelog', 'demoUrl']) &&
+             isValidString('id', 1, 100) &&
+             isValidString('title', 1, 100) &&
+             isValidString('description', 1, 5000) &&
+             data.category in ['Resource Pack', 'Behavior Pack', 'World', 'Skin Pack', 'Mod'] &&
+             isValidUrl(data.imageUrl) &&
+             (!('imageUrls' in data) || isValidList(data.imageUrls, 10)) &&
+             isValidUrl(data.downloadUrl) &&
+             data.authorId == request.auth.uid &&
+             isValidString('authorName', 1, 100) &&
+             isValidDateString(data.createdAt) &&
+             data.likesCount is number && data.likesCount >= 0 &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             (!('averageRating' in data) || (data.averageRating is number && data.averageRating >= 0 && data.averageRating <= 5)) &&
+             (!('ratingCount' in data) || (data.ratingCount is number && data.ratingCount >= 0)) &&
+             (!('downloadsCount' in data) || (data.downloadsCount is number && data.downloadsCount >= 0)) &&
+             (!('isFeatured' in data) || data.isFeatured is bool) &&
+             (!('versionHistory' in data) || isValidString('versionHistory', 0, 1000)) &&
+             (!('compatibilityNotes' in data) || isValidString('compatibilityNotes', 0, 1000)) &&
+             (!('changelog' in data) || isValidString('changelog', 0, 5000)) &&
+             (!('demoUrl' in data) || data.demoUrl == '' || isValidUrl(data.demoUrl)) &&
+             isValidList(data.tags, 20);
+    }
+
+    function isValidLike(data, userId, addonId) {
+      return hasOnlyAllowedFields(['userId', 'addonId', 'createdAt']) &&
+             data.userId == userId &&
+             data.addonId == addonId &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidReview(data) {
+      return hasOnlyAllowedFields(['id', 'addonId', 'userId', 'userName', 'rating', 'text', 'createdAt']) &&
+             isValidString('id', 1, 100) &&
+             isValidString('addonId', 1, 100) &&
+             data.userId == request.auth.uid &&
+             isValidString('userName', 1, 100) &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             isValidString('text', 1, 2000) &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidReport(data) {
+      return hasOnlyAllowedFields(['id', 'addonId', 'userId', 'reason', 'status', 'createdAt']) &&
+             isValidString('id', 1, 100) &&
+             isValidString('addonId', 1, 100) &&
+             data.userId == request.auth.uid &&
+             isValidString('reason', 1, 500) &&
+             data.status in ['pending', 'reviewed', 'resolved'] &&
+             isValidDateString(data.createdAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users collection contains PII (email), so only the owner can read it.
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Create: Must be owner. Cannot self-assign admin unless already admin.
+      allow create: if isAuthenticated() && 
+                    isValidUser(request.resource.data) && 
+                    isOwner(userId) && 
+                    (request.resource.data.role == 'user' || isAdmin());
+                    
+      // Update: Must be owner. Cannot change uid, email, createdAt. Cannot self-assign admin.
+      allow update: if isAuthenticated() && 
+                    isValidUser(request.resource.data) && 
+                    (isOwner(userId) || isAdmin()) && 
+                    request.resource.data.uid == resource.data.uid &&
+                    request.resource.data.email == resource.data.email &&
+                    request.resource.data.createdAt == resource.data.createdAt &&
+                    (request.resource.data.role == resource.data.role || isAdmin());
+                    
+      allow delete: if isAdmin();
+    }
+
+    match /addons/{addonId} {
+      // Add-ons are public if approved, or readable by author/admin
+      allow read: if resource.data.status == 'approved' || 
+                  (isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin()));
+      
+      // Create: Any authenticated user can create an add-on. Status must be pending.
+      allow create: if isAuthenticated() && 
+                    isValidAddon(request.resource.data) &&
+                    request.resource.data.authorId == request.auth.uid &&
+                    request.resource.data.likesCount == 0 &&
+                    request.resource.data.status == 'pending';
+                    
+      // Update: Author can update details, OR anyone can increment/decrement likesCount
+      allow update: if isAuthenticated() && (
+                      // Case 1: Author updating content
+                      (
+                        request.auth.uid == resource.data.authorId &&
+                        isValidAddon(request.resource.data) &&
+                        request.resource.data.id == resource.data.id &&
+                        request.resource.data.authorId == resource.data.authorId &&
+                        request.resource.data.createdAt == resource.data.createdAt &&
+                        request.resource.data.likesCount == resource.data.likesCount &&
+                        request.resource.data.status == resource.data.status &&
+                        request.resource.data.averageRating == resource.data.averageRating &&
+                        request.resource.data.ratingCount == resource.data.ratingCount
+                      )
+                      ||
+                      // Case 1.5: Admin approving/rejecting
+                      (
+                        isAdmin() &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) &&
+                        request.resource.data.status in ['pending', 'approved', 'rejected']
+                      )
+                      ||
+                      // Case 2: Any user liking/unliking
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount']) &&
+                        math.abs(request.resource.data.likesCount - resource.data.likesCount) == 1 &&
+                        (
+                          // Increment: Vote must NOT exist before, but MUST exist after
+                          (request.resource.data.likesCount > resource.data.likesCount &&
+                           !exists(/databases/$(database)/documents/likes/$(request.auth.uid + '_' + addonId)) &&
+                           getAfter(/databases/$(database)/documents/likes/$(request.auth.uid + '_' + addonId)) != null) ||
+                          // Decrement: Vote MUST exist before, but must NOT exist after
+                          (request.resource.data.likesCount < resource.data.likesCount &&
+                           exists(/databases/$(database)/documents/likes/$(request.auth.uid + '_' + addonId)) &&
+                           getAfter(/databases/$(database)/documents/likes/$(request.auth.uid + '_' + addonId)) == null)
+                        )
+                      )
+                      ||
+                      // Case 3: Any user rating
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['averageRating', 'ratingCount']) &&
+                        request.resource.data.averageRating is number && request.resource.data.averageRating >= 0 && request.resource.data.averageRating <= 5 &&
+                        request.resource.data.ratingCount is number && request.resource.data.ratingCount >= 0
+                      )
+                      ||
+                      // Case 4: Any user downloading
+                      (
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount']) &&
+                        request.resource.data.downloadsCount == resource.data.get('downloadsCount', 0) + 1
+                      )
+                    );
+                    
+      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.authorId || isAdmin());
+    }
+
+    match /likes/{likeId} {
+      // Anyone can read likes to see if they liked something
+      allow read: if true;
+      
+      // Create: User can only create a like for themselves. ID must be userId_addonId
+      allow create: if isAuthenticated() && 
+                    likeId == request.auth.uid + '_' + request.resource.data.addonId &&
+                    isValidLike(request.resource.data, request.auth.uid, request.resource.data.addonId);
+                    
+      // Delete: User can only delete their own like
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Likes cannot be updated, only created or deleted
+      allow update: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      
+      allow create: if isAuthenticated() && 
+                    isValidReview(request.resource.data) &&
+                    request.resource.data.userId == request.auth.uid;
+                    
+      allow update: if isAuthenticated() && 
+                    isValidReview(request.resource.data) &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.addonId == resource.data.addonId &&
+                    request.resource.data.userId == resource.data.userId &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+                    
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      
+      allow create: if isAuthenticated() && 
+                    isValidReport(request.resource.data) &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.status == 'pending';
+                    
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
