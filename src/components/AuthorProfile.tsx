@@ -59,7 +59,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         <div className="mb-8 w-32 h-6">
           <Skeleton className="w-full h-full" />
         </div>
-        <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-zinc-900/40 p-8 rounded-3xl border border-white/5">
+        <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-slate-900/40 p-8 rounded-3xl border border-white/5">
           <Skeleton className="h-28 w-28 rounded-full" />
           <div className="flex-1 w-full space-y-4">
             <Skeleton className="h-8 w-48" />
@@ -91,11 +91,11 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
 
   const getBorderClass = (borderType: string) => {
     switch (borderType) {
-      case 'gold': return 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(250,204,21,0.5)]';
-      case 'neon': return 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(34,211,238,0.6)]';
-      case 'fire': return 'ring-2 ring-rose-500 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(244,63,94,0.6)]';
-      case 'void': return 'ring-2 ring-purple-600 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(147,51,234,0.6)]';
-      default: return 'border border-white/10';
+      case 'gold': return 'ring-1 ring-amber-400';
+      case 'neon': return 'ring-1 ring-cyan-400';
+      case 'fire': return 'ring-1 ring-rose-500';
+      case 'void': return 'ring-1 ring-purple-500';
+      default: return 'border border-zinc-700/50';
     }
   };
 
@@ -103,19 +103,19 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <button 
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-lg p-1 -ml-1"
+        className="mb-6 flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors focus:outline-none rounded-md py-1"
         aria-label="Back to Marketplace"
       >
-        <ArrowLeft size={16} aria-hidden="true" />
+        <ArrowLeft size={14} aria-hidden="true" />
         Back to Marketplace
       </button>
 
-      <section className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-zinc-900/40 p-8 rounded-3xl border border-white/5" aria-labelledby="author-name">
-        <div className={`h-28 w-28 shrink-0 overflow-hidden rounded-full bg-zinc-900 flex items-center justify-center ${getBorderClass(authorBorder)}`} aria-hidden="true">
+      <section className="mb-10 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-zinc-900/80 p-6 sm:p-8 rounded-2xl border border-zinc-800/80 shadow-md" aria-labelledby="author-name">
+        <div className={`h-24 w-24 shrink-0 overflow-hidden rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-700/50 ${getBorderClass(authorBorder)}`} aria-hidden="true">
           {authorPhoto ? (
             <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-zinc-400">
+            <div className="flex h-full w-full items-center justify-center text-2xl font-medium text-zinc-300">
               {authorName.charAt(0).toUpperCase()}
             </div>
           )}
@@ -123,19 +123,19 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         
         <div className="flex-1 w-full">
           <div className="flex items-center justify-between w-full">
-            <h1 id="author-name" className="text-3xl font-bold tracking-tight text-white">{authorName}</h1>
+            <h1 id="author-name" className="text-2xl font-semibold tracking-tight text-white">{authorName}</h1>
           </div>
-          <div className="mt-4 flex items-center gap-4 text-sm text-zinc-500">
-            <span className="flex items-center gap-1.5" aria-label={`${authorAddons.length} Uploads`}><Package size={16} aria-hidden="true" /> {authorAddons.length} Uploads</span>
-            <span className="flex items-center gap-1.5" aria-label={`${totalLikes} Total Likes`}><Heart size={16} aria-hidden="true" /> {totalLikes} Total Likes</span>
+          <div className="mt-3 flex items-center gap-3 text-xs text-zinc-400">
+            <span className="flex items-center gap-1.5 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800 text-[11px]" aria-label={`${authorAddons.length} Uploads`}><Package size={13} aria-hidden="true" /> {authorAddons.length} Uploads</span>
+            <span className="flex items-center gap-1.5 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800 text-[11px]" aria-label={`${totalLikes} Total Likes`}><Heart size={13} aria-hidden="true" /> {totalLikes} Total Likes</span>
           </div>
         </div>
       </section>
 
-      <div className="space-y-16">
+      <div className="space-y-12">
         <section>
-          <h2 className="mb-6 text-xl font-medium tracking-tight text-white flex items-center gap-2">
-            <Package size={20} className="text-zinc-400" /> Uploads by {authorName}
+          <h2 className="mb-4 text-base font-semibold tracking-tight text-white flex items-center gap-2">
+            <Package size={18} className="text-zinc-400" /> Uploads by {authorName}
           </h2>
           
           <motion.div 

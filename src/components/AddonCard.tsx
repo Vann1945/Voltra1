@@ -146,83 +146,83 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
       }}
       tabIndex={0}
       aria-label={`View details for ${addon.title}`}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-zinc-900/60 border border-zinc-800/80 transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 shadow-sm hover:shadow-md"
     >
       
       {/* Inner Card Content */}
-      <div className="relative flex flex-col h-full w-full overflow-hidden rounded-[calc(24px-1px)]">
+      <div className="relative flex flex-col h-full w-full overflow-hidden">
         <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-950 relative group/carousel">
-        <FadeImage
-          src={images[currentImageIndex]}
-          alt={addon.title}
-          containerClassName="h-full w-full"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-          referrerPolicy="no-referrer"
-          loading="lazy"
-        />
+          <FadeImage
+            src={images[currentImageIndex]}
+            alt={addon.title}
+            containerClassName="h-full w-full"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            referrerPolicy="no-referrer"
+            loading="lazy"
+          />
         
         {images.length > 1 && (
           <>
             <button 
               onClick={prevImage}
               aria-label="Previous image"
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-black/60 text-zinc-200 opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/80 focus:outline-none"
             >
-              <ChevronLeft size={16} aria-hidden="true" />
+              <ChevronLeft size={14} aria-hidden="true" />
             </button>
             <button 
               onClick={nextImage}
               aria-label="Next image"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-black/60 text-zinc-200 opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/80 focus:outline-none"
             >
-              <ChevronRight size={16} aria-hidden="true" />
+              <ChevronRight size={14} aria-hidden="true" />
             </button>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5" aria-hidden="true">
+            <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1" aria-hidden="true">
               {images.map((_, idx) => (
                 <div 
                   key={idx} 
-                  className={`h-1.5 rounded-full transition-all ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
+                  className={`h-1 rounded-full transition-all ${idx === currentImageIndex ? 'w-3 bg-white' : 'w-1 bg-white/40'}`}
                 />
               ))}
             </div>
           </>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80 pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none pr-4">
-          <span className="inline-flex items-center rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 w-fit">
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent opacity-60 pointer-events-none" aria-hidden="true" />
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 pointer-events-none pr-3">
+          <span className="inline-flex items-center rounded-md bg-zinc-950/80 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-zinc-300 border border-zinc-800">
             {addon.category}
           </span>
           {addon.status === 'pending' && (
-            <span className="inline-flex items-center rounded-full bg-amber-500/20 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-300 border border-amber-500/30 w-fit">
-              Pending Approval
+            <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-amber-300 border border-amber-500/20">
+              Pending
             </span>
           )}
           {addon.status === 'rejected' && (
-            <span className="inline-flex items-center rounded-full bg-red-500/20 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-red-300 border border-red-500/30 w-fit">
+            <span className="inline-flex items-center rounded-md bg-red-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-red-300 border border-red-500/20">
               Rejected
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5 bg-zinc-900">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors line-clamp-1">
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base font-semibold tracking-tight text-zinc-100 group-hover:text-white transition-colors line-clamp-1">
             {addon.title}
           </h3>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button 
               onClick={toggleInfo}
               aria-expanded={showInfo}
               aria-label="Toggle addon details"
-              className={`p-1.5 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+              className={`p-1 rounded-md transition-colors focus:outline-none ${showInfo ? 'bg-zinc-800 text-zinc-200' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'}`}
             >
-              <Info size={16} aria-hidden="true" />
+              <Info size={14} aria-hidden="true" />
             </button>
             {addon.averageRating !== undefined && addon.averageRating > 0 && (
-              <div className="flex items-center gap-1 text-xs font-medium text-zinc-300 bg-zinc-800/50 px-2 py-1 rounded-full border border-white/5">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
+              <div className="flex items-center gap-1 text-[11px] font-medium text-zinc-300 bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-700/50">
+                <Star size={11} className="fill-amber-400 text-amber-400" />
                 <span>{addon.averageRating.toFixed(1)}</span>
               </div>
             )}
@@ -230,39 +230,40 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
         </div>
         
         {showInfo ? (
-          <div className="mt-3 flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-zinc-400 font-light custom-scrollbar">
+          <div className="mt-2.5 flex-1 overflow-y-auto pr-1 space-y-2 text-xs text-zinc-300 font-normal custom-scrollbar">
             {addon.demoUrl && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Demo / Preview</strong>
-                <p className="mt-1">
+                <strong className="text-zinc-400 text-[10px] uppercase tracking-wider">Demo / Preview</strong>
+                <p className="mt-0.5">
                   <a 
                     href={addon.demoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-violet-400 hover:text-violet-300 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
                     View Demo
-                    <ExternalLink size={12} />
+                    <ExternalLink size={11} />
                   </a>
                 </p>
               </div>
             )}
             {addon.versionHistory && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Version History</strong>
-                <p className="mt-1">{addon.versionHistory}</p>
+                <strong className="text-zinc-400 text-[10px] uppercase tracking-wider">Version History</strong>
+                <p className="mt-0.5 text-zinc-300">{addon.versionHistory}</p>
               </div>
             )}
             {addon.compatibilityNotes && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Compatibility</strong>
-                <p className="mt-1">{addon.compatibilityNotes}</p>
+                <strong className="text-zinc-400 text-[10px] uppercase tracking-wider">Compatibility</strong>
+                <p className="mt-0.5 text-zinc-300">{addon.compatibilityNotes}</p>
               </div>
             )}
             {addon.changelog && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Changelog</strong>
-                <p className="mt-1 whitespace-pre-wrap text-xs">{addon.changelog}</p>
+                <strong className="text-zinc-400 text-[10px] uppercase tracking-wider">Changelog</strong>
+                <p className="mt-0.5 whitespace-pre-wrap text-[11px] text-zinc-300">{addon.changelog}</p>
               </div>
             )}
             {!addon.versionHistory && !addon.compatibilityNotes && !addon.changelog && !addon.demoUrl && (
@@ -270,42 +271,42 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             )}
           </div>
         ) : (
-          <p className="mt-3 line-clamp-2 flex-1 text-sm text-zinc-400 leading-relaxed font-light">
+          <p className="mt-2 line-clamp-2 flex-1 text-xs text-zinc-400 leading-relaxed font-normal">
             {addon.description}
           </p>
         )}
 
-        <div className="mt-6 flex flex-col gap-4 border-t border-white/5 pt-5">
-          <div className="flex items-center justify-between gap-4">
+        <div className="mt-4 flex flex-col gap-3 border-t border-zinc-800/80 pt-3.5">
+          <div className="flex items-center justify-between gap-3">
             <button 
-              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pr-2 min-w-0"
+              className="flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer group/author focus:outline-none rounded-md min-w-0"
               onClick={handleAuthorClick}
               aria-label={`View ${addon.authorName}'s profile`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition-all group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
+              <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden border border-zinc-700/50 ${getBorderClass(authorBorder)}`} aria-hidden="true">
                 {authorPhoto ? (
                   <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
-                  <span className="text-xs font-medium">{addon.authorName.charAt(0)}</span>
+                  <span className="text-[10px] font-medium">{addon.authorName.charAt(0)}</span>
                 )}
               </div>
               <span className="truncate group-hover/author:text-white transition-colors">{addon.authorName}</span>
             </button>
             
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={handleLikeClick}
                 aria-label={isLiked ? "Unlike addon" : "Like addon"}
-                className={`flex items-center gap-1.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
-                  isLiked ? 'text-rose-500 bg-rose-500/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                className={`flex items-center gap-1 text-[11px] font-medium transition-colors focus:outline-none rounded-md px-2 py-1 ${
+                  isLiked ? 'text-rose-400 bg-rose-500/10' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
                 }`}
               >
-                <Heart size={16} className={isLiked ? 'fill-rose-500' : ''} aria-hidden="true" />
+                <Heart size={13} className={isLiked ? 'fill-rose-400' : ''} aria-hidden="true" />
                 <span>{addon.likesCount}</span>
               </button>
               
-              <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-1.5 rounded-full" aria-label={`${addon.downloadsCount || 0} downloads`} title={`${addon.downloadsCount || 0} downloads`}>
-                <ArrowDownToLine size={16} aria-hidden="true" />
+              <div className="flex items-center gap-1 text-[11px] font-medium text-zinc-400 bg-zinc-800/50 px-2 py-1 rounded-md" aria-label={`${addon.downloadsCount || 0} downloads`} title={`${addon.downloadsCount || 0} downloads`}>
+                <ArrowDownToLine size={13} aria-hidden="true" />
                 <span>{addon.downloadsCount || 0}</span>
               </div>
             </div>
@@ -315,10 +316,10 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             onClick={handleDownloadClick}
             disabled={isDownloading}
             aria-label={downloadSuccess ? "Downloaded" : isDownloading ? "Downloading..." : "Download Addon"}
-            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            className={`relative overflow-hidden flex w-full justify-center items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium transition-all focus:outline-none ${
               downloadSuccess 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-white text-black hover:bg-zinc-200'
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-zinc-100 text-zinc-900 hover:bg-white'
             }`}
           >
             {isDownloading && (
@@ -327,15 +328,15 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
                 style={{ width: `${downloadProgress}%` }} 
               />
             )}
-            <div className="relative z-10 flex items-center gap-2">
+            <div className="relative z-10 flex items-center gap-1.5">
               {isDownloading ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin" />
               ) : downloadSuccess ? (
-                <Check size={16} strokeWidth={2.5} />
+                <Check size={14} strokeWidth={2} />
               ) : (
-                <Download size={16} strokeWidth={2.5} />
+                <Download size={14} strokeWidth={2} />
               )}
-              <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Success!' : 'Get Add-on'}</span>
+              <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Downloaded!' : 'Get Add-on'}</span>
             </div>
           </button>
         </div>

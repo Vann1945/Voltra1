@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, LogIn, LogOut, Zap, User as UserIcon, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
@@ -13,92 +13,108 @@ interface NavbarProps {
 
 export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: NavbarProps) {
   const { user, logout } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 15);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const getBorderClass = (borderType?: string) => {
     switch (borderType) {
-      case 'gold': return 'ring-1 ring-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]';
-      case 'neon': return 'ring-1 ring-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]';
-      case 'fire': return 'ring-1 ring-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
-      case 'void': return 'ring-1 ring-purple-600 shadow-[0_0_8px_rgba(147,51,234,0.6)]';
-      default: return 'border border-white/10';
+      case 'gold': return 'ring-1 ring-amber-400';
+      case 'neon': return 'ring-1 ring-cyan-400';
+      case 'fire': return 'ring-1 ring-rose-500';
+      case 'void': return 'ring-1 ring-purple-500';
+      default: return 'border border-zinc-700/50';
     }
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-zinc-950/70 backdrop-blur-2xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" aria-hidden="true" />
-      <nav className="relative mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main Navigation">
+    <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      scrolled 
+        ? 'bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-800/80 shadow-lg shadow-black/20' 
+        : 'bg-transparent border-b border-transparent shadow-none'
+    }`}>
+      <nav 
+        className={`mx-auto flex items-center justify-between max-w-7xl px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? 'h-14' : 'h-16'}`} 
+        aria-label="Main Navigation"
+      >
         <button 
           onClick={() => onNavigate('home')} 
-          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-xl px-2 py-1.5 -ml-2 transition-all hover:bg-white/5"
+          className="flex items-center gap-2.5 group focus:outline-none rounded-lg px-2 py-1 transition-colors hover:bg-zinc-800/50"
           aria-label="Voltra Home"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-400 text-black shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105">
-            <Zap size={20} strokeWidth={2.5} className="fill-black/30" aria-hidden="true" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-800 text-white border border-zinc-700/60 shadow-sm transition-transform duration-200 group-hover:scale-105">
+            <Zap size={15} strokeWidth={2} className="fill-white/20 text-white" aria-hidden="true" />
           </div>
-          <span className="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-400">
+          <span className="text-base font-semibold tracking-tight text-white">
             Voltra
           </span>
         </button>
 
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           {user ? (
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={onOpenUpload}
-                className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition-all hover:scale-105 hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3.5 py-1.5 text-xs font-medium text-zinc-900 shadow-sm transition-all hover:bg-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
                 aria-label="Publish Add-on"
               >
-                <Upload size={18} aria-hidden="true" strokeWidth={2.5} />
+                <Upload size={13} aria-hidden="true" strokeWidth={2} />
                 <span className="hidden sm:inline-block">Publish</span>
               </button>
               
               {user.role === 'admin' && (
                 <button
                   onClick={() => onNavigate('admin')}
-                  className="flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/80 px-4 py-2.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-all hover:bg-zinc-800 hover:border-white/20 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/80 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
                   aria-label="Admin Panel"
                 >
-                  <Shield size={18} aria-hidden="true" />
+                  <Shield size={13} aria-hidden="true" />
                   <span className="hidden sm:inline-block">Admin</span>
                 </button>
               )}
               
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/80 py-1.5 pl-1.5 pr-5 text-sm font-bold text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-all hover:bg-zinc-800 hover:text-white hover:border-white/20 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/80 py-1 pl-1 pr-2.5 text-xs font-medium text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
                 aria-label={currentView === 'home' ? 'Go to Profile' : 'Go to Home'}
               >
                 {user.photoURL ? (
-                  <div className={`h-8 w-8 rounded-full overflow-hidden bg-zinc-800 border border-white/10 shadow-inner ${getBorderClass(user.profileBorder)}`}>
+                  <div className={`h-6 w-6 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700/50 ${getBorderClass(user.profileBorder)}`}>
                     <FadeImage src={user.photoURL} alt={`${user.displayName}'s avatar`} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                 ) : (
-                  <div className={`h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold border border-white/10 shadow-inner ${getBorderClass(user.profileBorder)}`} aria-hidden="true">
+                  <div className={`h-6 w-6 rounded-full bg-zinc-800 flex items-center justify-center text-[11px] font-medium border border-zinc-700/50 ${getBorderClass(user.profileBorder)}`} aria-hidden="true">
                     {user.displayName.charAt(0)}
                   </div>
                 )}
-                <span className="hidden sm:inline-block ml-0.5">{currentView === 'home' ? 'Profile' : 'Home'}</span>
+                <span className="hidden sm:inline-block">{currentView === 'home' ? 'Profile' : 'Home'}</span>
               </button>
 
-              <div className="h-8 w-[1px] bg-white/10 hidden sm:block mx-1 shadow-[1px_0_0_rgba(0,0,0,0.5)]" aria-hidden="true"></div>
+              <div className="h-4 w-[1px] bg-zinc-800 hidden sm:block mx-0.5" aria-hidden="true"></div>
 
               <button
                 onClick={logout}
-                className="rounded-full p-2.5 text-zinc-400 border border-transparent transition-all hover:bg-zinc-900/80 hover:text-white hover:border-white/10 hover:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800/80 hover:text-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
                 title="Logout"
                 aria-label="Logout"
               >
-                <LogOut size={20} aria-hidden="true" strokeWidth={2.5} />
+                <LogOut size={15} aria-hidden="true" strokeWidth={2} />
               </button>
             </div>
           ) : (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition-all hover:scale-105 hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3.5 py-1.5 text-xs font-medium text-zinc-900 shadow-sm transition-all hover:bg-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
               aria-label="Sign In"
             >
-              <LogIn size={18} aria-hidden="true" strokeWidth={2.5} />
+              <LogIn size={13} aria-hidden="true" strokeWidth={2} />
               <span>Sign In</span>
             </button>
           )}

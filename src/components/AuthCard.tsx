@@ -162,7 +162,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
   return (
     <div className="w-full max-w-[360px]">
-      <div className="bg-zinc-950/90 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+      <div className="bg-black/40/90 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
         
         <div className="mb-6">
           <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
@@ -171,7 +171,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             {view === 'forgot' && 'Reset password'}
             {view === 'unverified' && 'Verify your email'}
           </h1>
-          <p className="text-xs text-zinc-400 mt-1.5 font-normal">
+          <p className="text-xs text-slate-400 mt-1.5 font-normal">
             {view === 'login' && 'Enter your details to sign in.'}
             {view === 'register' && 'Sign up to get started.'}
             {view === 'forgot' && 'Enter your email to receive a reset link.'}
@@ -244,7 +244,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                 await signOut(auth);
                 switchView('login');
               }}
-              className="w-full bg-transparent hover:bg-white/5 text-zinc-400 hover:text-white font-medium rounded-full py-3 px-4 transition-all"
+              className="w-full bg-transparent hover:bg-white/5 text-slate-400 hover:text-white font-medium rounded-full py-3 px-4 transition-all"
             >
               Back to Sign In
             </button>
@@ -260,11 +260,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-1.5 overflow-hidden"
                 >
-                  <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest pl-1">
+                  <label className="text-[11px] font-medium text-slate-500 uppercase tracking-widest pl-1">
                     Name
                   </label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                       <UserIcon size={16} />
                     </div>
                     <input 
@@ -274,7 +274,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setNameError(validateName(name))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
+                        "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
                         nameError 
                           ? "border-red-500/30 focus:border-red-500/50 focus:ring-red-500/20" 
                           : "border-white/10 focus:border-white/30 focus:ring-white/20"
@@ -299,11 +299,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             </AnimatePresence>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest pl-1">
+              <label className="text-[11px] font-medium text-slate-500 uppercase tracking-widest pl-1">
                 Email
               </label>
               <div className="relative">
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                   <Mail size={16} />
                 </div>
                 <input 
@@ -313,7 +313,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   onBlur={() => setEmailError(validateEmail(email))}
                   disabled={loading}
                   className={cn(
-                    "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
+                    "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
                     emailError 
                       ? "border-red-500/30 focus:border-red-500/50 focus:ring-red-500/20" 
                       : "border-white/10 focus:border-white/30 focus:ring-white/20"
@@ -345,21 +345,21 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   className="space-y-1.5 overflow-hidden"
                 >
                   <div className="flex items-center justify-between pl-1">
-                    <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest">
+                    <label className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">
                       Password
                     </label>
                     {view === 'login' && (
                       <button 
                         type="button" 
                         onClick={() => switchView('forgot')}
-                        className="text-xs text-zinc-400 hover:text-white transition-colors font-medium"
+                        className="text-xs text-slate-400 hover:text-white transition-colors font-medium"
                       >
                         Forgot?
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                       <Lock size={16} />
                     </div>
                     <input 
@@ -369,7 +369,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setPasswordError(validatePassword(password))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
+                        "w-full bg-white/5 border rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 transition-all disabled:opacity-50",
                         passwordError 
                           ? "border-red-500/30 focus:border-red-500/50 focus:ring-red-500/20" 
                           : "border-white/10 focus:border-white/30 focus:ring-white/20"
@@ -418,7 +418,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           <>
             <div className="flex items-center gap-3 my-8">
               <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">or continue with</span>
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">or continue with</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
 
@@ -442,13 +442,13 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
       </div>
 
       {view !== 'unverified' && (
-        <div className="mt-6 text-center text-sm text-zinc-500">
+        <div className="mt-6 text-center text-sm text-slate-500">
           {view === 'login' && (
             <>
               Don't have an account?{' '}
               <button 
                 onClick={() => switchView('register')}
-                className="text-white hover:text-zinc-300 font-medium transition-colors"
+                className="text-white hover:text-slate-300 font-medium transition-colors"
               >
                 Sign up
               </button>
@@ -459,7 +459,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               Already have an account?{' '}
               <button 
                 onClick={() => switchView('login')}
-                className="text-white hover:text-zinc-300 font-medium transition-colors"
+                className="text-white hover:text-slate-300 font-medium transition-colors"
               >
                 Sign in
               </button>
@@ -470,7 +470,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               Remember your password?{' '}
               <button 
                 onClick={() => switchView('login')}
-                className="text-white hover:text-zinc-300 font-medium transition-colors"
+                className="text-white hover:text-slate-300 font-medium transition-colors"
               >
                 Back to sign in
               </button>
