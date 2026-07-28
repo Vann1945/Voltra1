@@ -195,63 +195,63 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40/80 "
+            className="absolute inset-0 bg-zinc-950/80 "
           />
           <motion.div
             initial={{ y: '100%', opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: '100%', opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm:rounded-2xl bg-zinc-900 shadow-2xl border border-zinc-800/80"
+            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm:rounded-[2rem] bg-zinc-950 shadow-2xl border-x border-t sm:border border-white/5"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4 sm:px-6 sm:py-5 bg-zinc-900 shrink-0 z-10">
+            <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-8 sm:py-6 bg-zinc-900 shrink-0 z-10 ">
               <div className="flex items-center gap-3">
-                <button onClick={onClose} className="sm:hidden rounded-lg p-2 bg-zinc-800 text-zinc-400 hover:text-white transition-colors border border-zinc-700/50">
-                  <X size={18} />
+                <button onClick={onClose} className="sm:hidden rounded-full p-2 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors border border-white/5">
+                  <X size={20} />
                 </button>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-white">Publish Add-on</h2>
-                  <p className="text-xs text-zinc-400 mt-0.5 font-normal">Share your creation with the community</p>
+                  <h2 className="text-xl sm:text-2xl font-medium tracking-tight text-white">Publish Add-on</h2>
+                  <p className="text-xs sm:text-sm text-zinc-500 mt-0.5 font-light">Share your creation with the community</p>
                 </div>
               </div>
-              <button onClick={onClose} className="hidden sm:block rounded-lg p-2 bg-zinc-800 text-zinc-400 hover:text-white transition-colors border border-zinc-700/50">
-                <X size={18} />
+              <button onClick={onClose} className="hidden sm:block rounded-full p-2.5 bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors border border-white/5">
+                <X size={20} />
               </button>
             </div>
 
             {/* Form Content */}
-            <div className="overflow-y-auto p-5 sm:p-6 flex-1">
+            <div className="overflow-y-auto p-4 sm:p-8 flex-1">
               {successMessage ? (
-                <div className="flex flex-col items-center justify-center text-center space-y-3 py-12">
-                  <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-400 border border-emerald-500/20 mb-1">
-                    <Check size={24} />
+                <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
+                  <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-2">
+                    <Check size={32} />
                   </div>
-                  <h3 className="text-lg font-semibold text-white">Upload Successful!</h3>
-                  <p className="text-zinc-400 text-xs max-w-sm font-normal">
+                  <h3 className="text-xl font-medium text-white">Upload Successful!</h3>
+                  <p className="text-zinc-400 max-w-sm font-light">
                     {successMessage}
                   </p>
                 </div>
               ) : (
-                <form id="upload-form" onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
+                <form id="upload-form" onSubmit={handleSubmit} className="grid grid-cols-1 gap-5 sm:gap-8 sm:grid-cols-2">
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Title</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2">Title</label>
                   <input
                     required
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-zinc-700 focus:outline-none transition-colors"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="e.g. Epic Dragons Mod"
                   />
                 </div>
 
                 <div className="col-span-1">
-                  <label className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><LayoutGrid size={13} /> Category</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LayoutGrid size={14} /> Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-white focus:border-zinc-700 focus:outline-none transition-colors appearance-none"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all appearance-none text-sm sm:text-base"
                   >
                     <option>Resource Pack</option>
                     <option>Behavior Pack</option>
@@ -262,30 +262,30 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 </div>
 
                 <div className="col-span-1">
-                  <label className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Tag size={13} /> Tags</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><Tag size={14} /> Tags</label>
                   <input
                     type="text"
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-zinc-700 focus:outline-none transition-colors"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="dragons, magic, survival"
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><FileText size={13} /> Description</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><FileText size={14} /> Description</label>
                   <textarea
                     required
-                    rows={4}
+                    rows={5}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-zinc-700 focus:outline-none transition-colors resize-none font-normal"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none text-sm sm:text-base font-light"
                     placeholder="Describe your add-on in detail..."
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><ImageIcon size={14} /> Images (Gallery or URLs)</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><ImageIcon size={14} /> Images (Gallery or URLs)</label>
                   
                   <div 
                     className={`grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 p-4 rounded-2xl border-2 border-dashed transition-colors ${isDragging ? 'border-violet-500 bg-violet-500/5' : 'border-white/10 bg-black/20'}`}
@@ -309,7 +309,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       <button 
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors text-slate-400 hover:text-white aspect-video"
+                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white aspect-video"
                       >
                         <Upload size={20} />
                         <span className="text-xs">Upload</span>
@@ -317,7 +317,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       <button 
                         type="button"
                         onClick={() => setShowUrlInput(!showUrlInput)}
-                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors text-slate-400 hover:text-white aspect-video"
+                        className="flex-1 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white aspect-video"
                       >
                         <LinkIcon size={20} />
                         <span className="text-xs">Add URL</span>
@@ -337,7 +337,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           type="url"
                           value={urlInput}
                           onChange={(e) => setUrlInput(e.target.value)}
-                          className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm"
+                          className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm"
                           placeholder="https://example.com/image.png"
                           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
                         />
@@ -364,14 +364,14 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <div className="space-y-2 mt-4 mb-4">
                       {Object.entries(uploadProgress).map(([fileName, progress]) => (
                         <div key={fileName} className="flex items-center gap-3">
-                          <span className="text-xs text-slate-400 truncate w-24">{fileName}</span>
+                          <span className="text-xs text-zinc-400 truncate w-24">{fileName}</span>
                           <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <div 
                               className="h-full bg-violet-500 transition-all duration-300"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <span className="text-xs text-slate-400 w-8">{Math.round(progress)}%</span>
+                          <span className="text-xs text-zinc-400 w-8">{Math.round(progress)}%</span>
                         </div>
                       ))}
                     </div>
@@ -381,63 +381,63 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="Or enter a main cover image URL directly..."
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LinkIcon size={14} /> Download URL</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LinkIcon size={14} /> Download URL</label>
                   <input
                     required
                     type="url"
                     value={formData.downloadUrl}
                     onChange={(e) => setFormData({ ...formData, downloadUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="https://..."
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LinkIcon size={14} /> Demo URL (Optional)</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5"><LinkIcon size={14} /> Demo URL (Optional)</label>
                   <input
                     type="url"
                     value={formData.demoUrl}
                     onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="https://youtube.com/watch?v=..."
                   />
                 </div>
 
                 <div className="col-span-1">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2">Version History</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2">Version History</label>
                   <input
                     type="text"
                     value={formData.versionHistory}
                     onChange={(e) => setFormData({ ...formData, versionHistory: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="e.g. v1.0.0, v1.1.0"
                   />
                 </div>
 
                 <div className="col-span-1">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2">Compatibility Notes</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2">Compatibility Notes</label>
                   <input
                     type="text"
                     value={formData.compatibilityNotes}
                     onChange={(e) => setFormData({ ...formData, compatibilityNotes: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
                     placeholder="e.g. Works with 1.20+"
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-[11px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest mb-2">Changelog</label>
+                  <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-widest mb-2">Changelog</label>
                   <textarea
                     rows={3}
                     value={formData.changelog}
                     onChange={(e) => setFormData({ ...formData, changelog: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-slate-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none text-sm sm:text-base font-light"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none text-sm sm:text-base font-light"
                     placeholder="What's new in this version..."
                   />
                 </div>
@@ -447,15 +447,15 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
             {/* Footer */}
             {!successMessage && (
-            <div className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 border-t border-white/5 p-4 sm:px-8 sm:py-6 bg-black/40/90  z-20">
-              <p className="text-xs text-slate-500 text-center sm:text-left max-w-xs font-light">
+            <div className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 border-t border-white/5 p-4 sm:px-8 sm:py-6 bg-zinc-950/90  z-20">
+              <p className="text-xs text-zinc-500 text-center sm:text-left max-w-xs font-light">
                 Add-ons require admin approval. For faster confirmation, contact WA <span className="text-white font-medium">081905077129</span>.
               </p>
               <div className="flex flex-col-reverse sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto rounded-full px-6 py-3.5 sm:py-3 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+                  className="w-full sm:w-auto rounded-full px-6 py-3.5 sm:py-3 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
                 >
                   Cancel
                 </button>

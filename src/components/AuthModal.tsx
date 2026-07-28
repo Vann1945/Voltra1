@@ -18,7 +18,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40/80 backdrop-blur-md"
+            className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -28,7 +28,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           >
             <button 
               onClick={onClose} 
-              className="absolute -top-12 right-0 rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="absolute -top-12 right-0 rounded-full p-2 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
             >
               <X size={24} />
             </button>

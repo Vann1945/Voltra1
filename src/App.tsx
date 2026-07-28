@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
-import { Breadcrumbs } from './components/Breadcrumbs';
 import { Marketplace } from './components/Marketplace';
 import { UserProfile } from './components/UserProfile';
 import { UploadModal } from './components/UploadModal';
@@ -91,22 +90,16 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07070a] text-slate-50 font-sans selection:bg-indigo-500/30 selection:text-white relative overflow-x-hidden">
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/10 blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-900/10 blur-[120px]" />
-      </div>
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar 
-          onOpenUpload={() => setIsUploadOpen(true)} 
-          onOpenAuth={() => setIsAuthOpen(true)} 
-          onNavigate={handleNavigate}
-          currentView={currentView}
-        />
-        
-        <main className="flex-1 relative">
-          <Breadcrumbs currentView={currentView} onNavigate={handleNavigate} addons={addons} />
-          <AnimatePresence mode="wait">
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans selection:bg-violet-500/30 selection:text-white">
+      <Navbar 
+        onOpenUpload={() => setIsUploadOpen(true)} 
+        onOpenAuth={() => setIsAuthOpen(true)} 
+        onNavigate={handleNavigate}
+        currentView={currentView}
+      />
+      
+      <main className="relative">
+        <AnimatePresence mode="wait">
           <motion.div
             key={getViewKey(currentView)}
             initial={{ opacity: 0, y: 10 }}
@@ -171,7 +164,6 @@ export default function App() {
         isOpen={isAuthOpen} 
         onClose={() => setIsAuthOpen(false)} 
       />
-      </div>
     </div>
   );
 }

@@ -151,30 +151,30 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
 
   const getBorderClass = (borderType: string) => {
     switch (borderType) {
-      case 'gold': return 'ring-1 ring-amber-400';
-      case 'neon': return 'ring-1 ring-cyan-400';
-      case 'fire': return 'ring-1 ring-rose-500';
-      case 'void': return 'ring-1 ring-purple-500';
-      default: return 'border border-zinc-700/50';
+      case 'gold': return 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(250,204,21,0.5)]';
+      case 'neon': return 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(34,211,238,0.6)]';
+      case 'fire': return 'ring-2 ring-rose-500 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(244,63,94,0.6)]';
+      case 'void': return 'ring-2 ring-purple-600 ring-offset-2 ring-offset-zinc-950 shadow-[0_0_15px_rgba(147,51,234,0.6)]';
+      default: return 'border border-white/10';
     }
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <section aria-label="User Profile" className="mb-10 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-zinc-900/80 p-6 sm:p-8 rounded-2xl border border-zinc-800/80 shadow-md">
-        <div className={`h-24 w-24 shrink-0 overflow-hidden rounded-full bg-zinc-950 flex items-center justify-center border border-zinc-700/50 ${getBorderClass(isEditing ? editProfileBorder : (user.profileBorder || 'none'))}`} aria-hidden="true">
+    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section aria-label="User Profile" className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-zinc-900 p-8 sm:p-10 rounded-[2rem] border border-white/5 shadow-2xl ">
+        <div className={`h-32 w-32 shrink-0 overflow-hidden rounded-full bg-black/40 flex items-center justify-center transition-all duration-500 ${getBorderClass(isEditing ? editProfileBorder : (user.profileBorder || 'none'))}`} aria-hidden="true">
           {isEditing ? (
             editPhotoURL ? (
               <FadeImage src={editPhotoURL} alt="" className="h-full w-full object-cover opacity-50" referrerPolicy="no-referrer" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-500 text-center p-2">
+              <div className="flex h-full w-full items-center justify-center text-xs text-zinc-500 text-center p-2">
                 Preview
               </div>
             )
           ) : user.photoURL ? (
             <FadeImage src={user.photoURL} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-medium text-zinc-300">
+            <div className="flex h-full w-full items-center justify-center text-4xl font-light text-zinc-400">
               {user.displayName.charAt(0)}
             </div>
           )}
@@ -182,27 +182,27 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
         
         <div className="flex-1 w-full">
           {isEditing ? (
-            <div className="space-y-4 max-w-md">
+            <div className="space-y-5 max-w-md">
               <div>
-                <label htmlFor="edit-display-name" className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Display Name</label>
+                <label htmlFor="edit-display-name" className="block text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2">Display Name</label>
                 <input 
                   id="edit-display-name"
                   type="text" 
                   value={editName} 
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 transition-colors"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-all"
                 />
               </div>
               <div>
-                <label htmlFor="edit-photo-url" className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Profile Picture</label>
+                <label htmlFor="edit-photo-url" className="block text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2">Profile Picture</label>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingPhoto}
-                    className="flex-shrink-0 flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-white px-3 py-2 rounded-xl text-xs font-medium transition-colors disabled:opacity-50 focus:outline-none"
+                    className="flex-shrink-0 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 rounded-xl text-sm font-medium transition-all disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
-                    {isUploadingPhoto ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Edit2 size={14} aria-hidden="true" />}
+                    {isUploadingPhoto ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Edit2 size={16} aria-hidden="true" />}
                     Upload
                   </button>
                   <input 
@@ -210,7 +210,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     type="url" 
                     value={editPhotoURL} 
                     onChange={e => setEditPhotoURL(e.target.value)}
-                    className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 transition-colors"
+                    className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-all"
                     placeholder="Or paste URL here..."
                   />
                   <input
@@ -224,12 +224,12 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 </div>
               </div>
               <div>
-                <label htmlFor="edit-profile-border" className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Settings size={12} aria-hidden="true" /> Profile Border</label>
+                <label htmlFor="edit-profile-border" className="block text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1.5"><Settings size={12} aria-hidden="true" /> Profile Border</label>
                 <select 
                   id="edit-profile-border"
                   value={editProfileBorder} 
                   onChange={e => setEditProfileBorder(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 transition-colors appearance-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-all appearance-none"
                 >
                   <option value="none">None</option>
                   <option value="gold">Gold (Premium)</option>
@@ -239,31 +239,31 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 </select>
               </div>
               <div>
-                <label htmlFor="edit-bio" className="block text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Bio</label>
+                <label htmlFor="edit-bio" className="block text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-2">Bio</label>
                 <textarea 
                   id="edit-bio"
                   value={editBio} 
                   onChange={e => setEditBio(e.target.value)}
-                  rows={2}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-zinc-700 transition-colors resize-none"
+                  rows={3}
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-all resize-none"
                   placeholder="Tell us about yourself..."
                 />
               </div>
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2 pt-2">
                 <button 
                   onClick={handleSaveProfile} 
                   disabled={savingProfile}
-                  className="flex items-center gap-1.5 bg-zinc-100 text-zinc-900 hover:bg-white px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 bg-white text-black hover:bg-zinc-200 px-5 py-2.5 rounded-full text-sm font-medium transition-all disabled:opacity-50"
                 >
-                  {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                  {savingProfile ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                   Save Changes
                 </button>
                 <button 
                   onClick={() => setIsEditing(false)} 
                   disabled={savingProfile}
-                  className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-zinc-300 px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all disabled:opacity-50"
                 >
-                  <X size={14} />
+                  <X size={16} />
                   Cancel
                 </button>
               </div>
@@ -271,34 +271,34 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           ) : (
             <>
               <div className="flex items-center justify-between w-full">
-                <h1 className="text-2xl font-semibold tracking-tight text-white">{user.displayName}</h1>
+                <h1 className="text-4xl font-medium tracking-tight text-white">{user.displayName}</h1>
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors border border-transparent"
+                  className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors border border-transparent hover:border-white/10"
                   title="Edit Profile"
                 >
-                  <Edit2 size={16} />
+                  <Edit2 size={18} />
                 </button>
               </div>
-              <p className="mt-1 text-xs text-zinc-500">{user.email}</p>
-              {user.bio && <p className="mt-3 text-xs text-zinc-300 max-w-2xl leading-relaxed font-normal">{user.bio}</p>}
-              <div className="mt-4 flex items-center gap-3 text-xs text-zinc-400">
-                <span className="flex items-center gap-1.5 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800 text-[11px]"><Package size={13} /> {myUploads.length} Uploads</span>
-                <span className="flex items-center gap-1.5 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800 text-[11px]"><Heart size={13} /> {myLikes.length} Likes</span>
+              <p className="mt-2 text-sm text-zinc-500">{user.email}</p>
+              {user.bio && <p className="mt-4 text-sm text-zinc-300 max-w-2xl leading-relaxed font-light">{user.bio}</p>}
+              <div className="mt-6 flex items-center gap-6 text-sm text-zinc-400">
+                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5"><Package size={14} /> {myUploads.length} Uploads</span>
+                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5"><Heart size={14} /> {myLikes.length} Likes</span>
               </div>
             </>
           )}
         </div>
       </section>
 
-      <div className="space-y-12">
+      <div className="space-y-16">
         <section>
-          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-base font-semibold tracking-tight text-white flex items-center gap-2">
-              <Package size={18} className="text-zinc-400" /> My Uploads
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <Package className="text-violet-500" /> My Uploads
             </h2>
-            <p className="text-[11px] text-zinc-400 bg-zinc-900 px-3 py-1 rounded-md border border-zinc-800">
-              Pending add-ons require admin approval. For assistance: WA <span className="text-zinc-200 font-medium">081905077129</span>.
+            <p className="text-xs text-zinc-500 bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800">
+              Pending add-ons must wait for admin confirmation or contact WA <span className="text-violet-400 font-medium">081905077129</span>.
             </p>
           </div>
           
@@ -309,8 +309,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               ))}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-black/40/20 py-16 text-center">
-              <p className="text-sm text-slate-400">You haven't uploaded any add-ons yet.</p>
+            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
+              <p className="text-sm text-zinc-400">You haven't uploaded any add-ons yet.</p>
             </div>
           ) : (
             <motion.div 
@@ -367,8 +367,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               ))}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-black/40/20 py-16 text-center">
-              <p className="text-sm text-slate-400">You haven't liked any add-ons yet.</p>
+            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
+              <p className="text-sm text-zinc-400">You haven't liked any add-ons yet.</p>
             </div>
           ) : (
             <motion.div 
@@ -413,25 +413,25 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           {loadingReports ? (
             <div className="space-y-4">
               {[...Array(2)].map((_, i) => (
-                <div key={i} className="h-20 animate-pulse rounded-xl bg-black/40/50" />
+                <div key={i} className="h-20 animate-pulse rounded-xl bg-zinc-900/50" />
               ))}
             </div>
           ) : reports.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-black/40/20 py-16 text-center">
-              <p className="text-sm text-slate-400">You haven't submitted any reports.</p>
+            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
+              <p className="text-sm text-zinc-400">You haven't submitted any reports.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {reports.map(report => {
                 const reportedAddon = addons.find(a => a.id === report.addonId);
                 return (
-                  <div key={report.id} className="bg-black/40/50 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div key={report.id} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-white">
-                        Reported: <span className="text-slate-300">{reportedAddon ? reportedAddon.title : 'Unknown Add-on'}</span>
+                        Reported: <span className="text-zinc-300">{reportedAddon ? reportedAddon.title : 'Unknown Add-on'}</span>
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">Reason: {report.reason}</p>
-                      <p className="text-xs text-slate-600 mt-1">{new Date(report.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-zinc-500 mt-1">Reason: {report.reason}</p>
+                      <p className="text-xs text-zinc-600 mt-1">{new Date(report.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
@@ -465,17 +465,17 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-black/40 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete Add-on?</h3>
-            <p className="text-slate-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-6">
               Are you sure you want to delete this add-on? This action cannot be undone and will remove it from the marketplace permanently.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setAddonToDelete(null)}
                 disabled={deletingAddon}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-black/40 transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>

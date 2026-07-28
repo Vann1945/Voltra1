@@ -195,44 +195,44 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <button 
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-white transition-colors"
+        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors"
       >
         <ArrowLeft size={16} />
         Back to Marketplace
       </button>
 
       <div className="mb-16 flex items-center gap-6">
-        <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-black/40 border border-white/5 text-white shadow-2xl ">
+        <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-zinc-900 border border-white/5 text-white shadow-2xl ">
           <Shield size={32} strokeWidth={1.5} />
         </div>
         <div>
           <h1 className="text-4xl font-medium tracking-tight text-white">Admin Dashboard</h1>
-          <p className="text-slate-500 mt-2 font-light">Manage add-ons, reports, and users.</p>
+          <p className="text-zinc-500 mt-2 font-light">Manage add-ons, reports, and users.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-black/40 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
+        <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Total Add-ons</p>
+            <p className="text-sm text-zinc-500 font-medium uppercase tracking-wider mb-1">Total Add-ons</p>
             <p className="text-3xl font-bold text-white">{addons.length}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center text-violet-400">
             <LayoutGrid size={24} />
           </div>
         </div>
-        <div className="bg-black/40 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
+        <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Pending Approval</p>
+            <p className="text-sm text-zinc-500 font-medium uppercase tracking-wider mb-1">Pending Approval</p>
             <p className="text-3xl font-bold text-amber-400">{pendingAddons.length}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400">
             <AlertTriangle size={24} />
           </div>
         </div>
-        <div className="bg-black/40 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
+        <div className="bg-zinc-900 border border-white/5 rounded-2xl p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Total Users</p>
+            <p className="text-sm text-zinc-500 font-medium uppercase tracking-wider mb-1">Total Users</p>
             <p className="text-3xl font-bold text-blue-400">{users.length > 0 ? users.length : '-'}</p>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
@@ -245,7 +245,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
         <button
           onClick={() => setActiveTab('addons')}
           className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'addons' ? 'border-violet-500 text-violet-400' : 'border-transparent text-slate-500 hover:text-white hover:border-white/20'
+            activeTab === 'addons' ? 'border-violet-500 text-violet-400' : 'border-transparent text-zinc-500 hover:text-white hover:border-white/20'
           }`}
         >
           Add-ons
@@ -253,7 +253,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
         <button
           onClick={() => setActiveTab('users')}
           className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'users' ? 'border-violet-500 text-violet-400' : 'border-transparent text-slate-500 hover:text-white hover:border-white/20'
+            activeTab === 'users' ? 'border-violet-500 text-violet-400' : 'border-transparent text-zinc-500 hover:text-white hover:border-white/20'
           }`}
         >
           Users
@@ -261,7 +261,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
         <button
           onClick={() => setActiveTab('reports')}
           className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'reports' ? 'border-violet-500 text-violet-400' : 'border-transparent text-slate-500 hover:text-white hover:border-white/20'
+            activeTab === 'reports' ? 'border-violet-500 text-violet-400' : 'border-transparent text-zinc-500 hover:text-white hover:border-white/20'
           }`}
         >
           Reports
@@ -277,7 +277,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             <AlertTriangle className="text-amber-400" size={24} /> Pending Approval ({pendingAddons.length})
           </h2>
           {pendingAddons.length === 0 ? (
-            <p className="text-slate-500 bg-black/40 p-8 rounded-[2rem] border border-white/5 text-center font-light">No pending add-ons.</p>
+            <p className="text-zinc-500 bg-zinc-900 p-8 rounded-[2rem] border border-white/5 text-center font-light">No pending add-ons.</p>
           ) : (
             <motion.div 
               initial="hidden"
@@ -300,13 +300,13 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                     hidden: { opacity: 0, y: 10 },
                     visible: { opacity: 1, y: 0 }
                   }}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-black/40 border border-white/5 p-5 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-5 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center gap-5">
                     <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 rounded-2xl object-cover bg-black/40 border border-white/5" referrerPolicy="no-referrer" />
                     <div>
                       <h3 className="font-medium text-lg text-white">{addon.title}</h3>
-                      <p className="text-sm text-slate-500 font-light mt-1">by {addon.authorName}</p>
+                      <p className="text-sm text-zinc-500 font-light mt-1">by {addon.authorName}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
@@ -359,10 +359,10 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                   hidden: { opacity: 0, y: 10 },
                   visible: { opacity: 1, y: 0 }
                 }}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-black/40/50 border border-zinc-800 p-4 rounded-2xl"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl"
               >
                 <div className="flex items-center gap-4">
-                  <FadeImage src={addon.imageUrl} alt={addon.title} className="w-16 h-16 rounded-xl object-cover bg-white/5" referrerPolicy="no-referrer" />
+                  <FadeImage src={addon.imageUrl} alt={addon.title} className="w-16 h-16 rounded-xl object-cover bg-zinc-800" referrerPolicy="no-referrer" />
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-white">{addon.title}</h3>
@@ -372,7 +372,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         {addon.status}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-400">by {addon.authorName}</p>
+                    <p className="text-sm text-zinc-400">by {addon.authorName}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -394,7 +394,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl transition-colors font-medium text-sm disabled:opacity-50 ${
                           addon.isFeatured 
                             ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30' 
-                            : 'bg-white/5 text-slate-300 hover:bg-zinc-700'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                         }`}
                       >
                         {processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
@@ -430,7 +430,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
               </motion.div>
             ))}
             {[...approvedAddons, ...rejectedAddons].length === 0 && (
-              <p className="text-slate-500 bg-black/40/30 p-6 rounded-2xl border border-zinc-800/50 text-center">No other add-ons found.</p>
+              <p className="text-zinc-500 bg-zinc-900/30 p-6 rounded-2xl border border-zinc-800/50 text-center">No other add-ons found.</p>
             )}
           </motion.div>
         </section>
@@ -443,9 +443,9 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
               <AlertTriangle className="text-rose-400" size={24} /> User Reports
             </h2>
           {loadingReports ? (
-            <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-slate-600" /></div>
+            <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-zinc-600" /></div>
           ) : reports.length === 0 ? (
-            <p className="text-slate-500 bg-black/40 p-8 rounded-[2rem] border border-white/5 text-center font-light">No reports found.</p>
+            <p className="text-zinc-500 bg-zinc-900 p-8 rounded-[2rem] border border-white/5 text-center font-light">No reports found.</p>
           ) : (
             <motion.div 
               initial="hidden"
@@ -470,7 +470,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                       hidden: { opacity: 0, y: 10 },
                       visible: { opacity: 1, y: 0 }
                     }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-black/40 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
                   >
                     <div>
                       <div className="flex items-center gap-3 mb-3">
@@ -479,11 +479,11 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         }`}>
                           {report.status}
                         </span>
-                        <span className="text-xs text-slate-500 font-light">{new Date(report.createdAt).toLocaleDateString()}</span>
+                        <span className="text-xs text-zinc-500 font-light">{new Date(report.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <p className="text-base text-slate-300 mb-3 font-light">"{report.reason}"</p>
-                      <p className="text-xs text-slate-500">
-                        Reported Add-on: <span className="text-slate-300 font-medium">{reportedAddon ? reportedAddon.title : 'Unknown (Deleted?)'}</span>
+                      <p className="text-base text-zinc-300 mb-3 font-light">"{report.reason}"</p>
+                      <p className="text-xs text-zinc-500">
+                        Reported Add-on: <span className="text-zinc-300 font-medium">{reportedAddon ? reportedAddon.title : 'Unknown (Deleted?)'}</span>
                       </p>
                     </div>
                     {report.status !== 'resolved' && (
@@ -491,7 +491,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         <button 
                           onClick={() => handleResolveReport(report.id)}
                           disabled={processingId === report.id}
-                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 text-slate-300 hover:bg-zinc-700 rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
                         >
                           {processingId === report.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                           Mark Resolved
@@ -522,9 +522,9 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
               <Users className="text-blue-400" size={24} /> User Management
             </h2>
             {loadingUsers ? (
-              <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-slate-600" /></div>
+              <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-zinc-600" /></div>
             ) : users.length === 0 ? (
-              <p className="text-slate-500 bg-black/40 p-8 rounded-[2rem] border border-white/5 text-center font-light">No users found.</p>
+              <p className="text-zinc-500 bg-zinc-900 p-8 rounded-[2rem] border border-white/5 text-center font-light">No users found.</p>
             ) : (
               <motion.div 
                 initial="hidden"
@@ -547,13 +547,13 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                       hidden: { opacity: 0, y: 10 },
                       visible: { opacity: 1, y: 0 }
                     }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-black/40 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
                   >
                     <div className="flex items-center gap-4">
                       {u.photoURL ? (
-                        <FadeImage src={u.photoURL} alt={u.displayName} className="w-12 h-12 rounded-full object-cover bg-white/5" referrerPolicy="no-referrer" />
+                        <FadeImage src={u.photoURL} alt={u.displayName} className="w-12 h-12 rounded-full object-cover bg-zinc-800" referrerPolicy="no-referrer" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-500">
+                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500">
                           <UserX size={24} />
                         </div>
                       )}
@@ -564,13 +564,13 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                             u.role === 'admin' ? 'bg-violet-500/20 text-violet-400' : 
                             u.role === 'banned' ? 'bg-rose-500/20 text-rose-400' :
                             u.role === 'suspended' ? 'bg-amber-500/20 text-amber-400' :
-                            'bg-zinc-500/20 text-slate-400'
+                            'bg-zinc-500/20 text-zinc-400'
                           }`}>
                             {u.role}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-400">{u.email}</p>
-                        <p className="text-xs text-slate-500 mt-1">Joined: {new Date(u.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-zinc-400">{u.email}</p>
+                        <p className="text-xs text-zinc-500 mt-1">Joined: {new Date(u.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
@@ -587,7 +587,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         <button 
                           onClick={() => handleUserRoleChange(u.uid, 'user')}
                           disabled={processingId === u.uid}
-                          className="flex items-center justify-center gap-2 px-3 py-1.5 bg-zinc-500/10 text-slate-400 hover:bg-zinc-500/20 rounded-lg transition-colors font-medium text-xs disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 px-3 py-1.5 bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20 rounded-lg transition-colors font-medium text-xs disabled:opacity-50"
                         >
                           Remove Admin
                         </button>
@@ -652,18 +652,18 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-black/40 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
           >
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <Edit2 size={20} className="text-violet-500" /> Edit Add-on
             </h3>
             <form onSubmit={handleSaveAddonEdit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Category</label>
+                <label className="block text-sm font-medium text-zinc-400 mb-1">Category</label>
                 <select
                   value={editingAddon.category}
                   onChange={(e) => setEditingAddon({ ...editingAddon, category: e.target.value as any })}
-                  className="w-full bg-black/40/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
                 >
                   <option value="Resource Pack">Resource Pack</option>
                   <option value="Behavior Pack">Behavior Pack</option>
@@ -673,12 +673,12 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Tags (comma separated)</label>
+                <label className="block text-sm font-medium text-zinc-400 mb-1">Tags (comma separated)</label>
                 <input
                   type="text"
                   value={typeof editingAddon.tags === 'string' ? editingAddon.tags : (editingAddon.tags || []).join(', ')}
                   onChange={(e) => setEditingAddon({ ...editingAddon, tags: e.target.value as any })}
-                  className="w-full bg-black/40/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
                   placeholder="e.g. pvp, realistic, 32x"
                 />
               </div>
@@ -687,7 +687,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                   type="button"
                   onClick={() => setEditingAddon(null)}
                   disabled={!!processingId}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-black/40 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -721,17 +721,17 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-black/40 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete Add-on?</h3>
-            <p className="text-slate-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-6">
               Are you sure you want to delete this add-on? This action cannot be undone and will remove it from the marketplace permanently.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmDeleteAddonId(null)}
                 disabled={!!processingId}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-black/40 transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -764,17 +764,17 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-black/40 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete User?</h3>
-            <p className="text-slate-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-6">
               Are you sure you want to delete this user? This action cannot be undone and will remove their profile permanently.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmDeleteUserId(null)}
                 disabled={!!processingId}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-black/40 transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
