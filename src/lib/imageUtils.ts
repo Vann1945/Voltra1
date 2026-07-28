@@ -1,10 +1,4 @@
-export const compressImage = async (
-  file: File,
-  maxWidth = 800,
-  maxHeight = 800,
-  initialQuality = 0.8,
-  maxSizeKb = 300 // Target max size in KB
-): Promise<string> => {
+export const compressImage = async (file: File, maxWidth = 800, maxHeight = 800, quality = 0.7): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -35,35 +29,10 @@ export const compressImage = async (
           reject(new Error('Failed to get canvas context'));
           return;
         }
-
         ctx.drawImage(img, 0, 0, width, height);
-
-        // Auto quality compression to hit target size
-        let quality = initialQuality;
-        let dataUrl = canvas.toDataURL('image/webp', quality);
-        let sizeKb = (dataUrl.length * (3 / 4)) / 1024;
-
-        // Iteratively reduce quality if the image is too large
-        while (sizeKb > maxSizeKb && quality > 0.1) {
-          quality -= 0.1;
-          dataUrl = canvas.toDataURL('image/webp', quality);
-          sizeKb = (dataUrl.length * (3 / 4)) / 1024;
-        }
         
-        // If still too large, try JPEG as a fallback for compression efficiency
-        if (sizeKb > maxSizeKb) {
-           let jpegQuality = 0.6;
-           while (sizeKb > maxSizeKb && jpegQuality > 0.1) {
-             const jpegDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
-             const jpegSizeKb = (jpegDataUrl.length * (3 / 4)) / 1024;
-             if (jpegSizeKb < sizeKb) {
-               dataUrl = jpegDataUrl;
-               sizeKb = jpegSizeKb;
-             }
-             jpegQuality -= 0.1;
-           }
-        }
-
+        // Use webp for better compression if supported, fallback to jpeg
+        const dataUrl = canvas.toDataURL('image/webp', quality);
         resolve(dataUrl);
       };
       img.onerror = (error) => reject(error);
