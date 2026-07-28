@@ -1,11 +1,10 @@
 {
-  "apiKey": "AIzaSyCUzT2ylwrf2zRuSPzbMNMxxmvpJfm49MQ",
-  "authDomain": "visualize-void.firebaseapp.com",
-  "databaseURL": "https://visualize-void-default-rtdb.firebaseio.com",
-  "projectId": "visualize-void",
-  "storageBucket": "visualize-void.appspot.com",
-  "messagingSenderId": "666807858431",
-  "appId": "1:666807858431:web:ac0c7ed1dee5220aee08ca",
-  "firestoreDatabaseId": "(default)",
-  "measurementId": "G-8Y0QP9GJ0B"
+  "projectId": "gen-lang-client-0170036890",
+  "appId": "1:1095239243754:web:f824b4a98922744c2d0493",
+  "apiKey": "AIzaSyBMJyvMNuZSBNVJCbp69il3kF8El-4n3k0",
+  "authDomain": "gen-lang-client-0170036890.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-6f10f94d-5b93-46fb-90f5-1e2c44465932",
+  "storageBucket": "gen-lang-client-0170036890.firebasestorage.app",
+  "messagingSenderId": "1095239243754",
+  "measurementId": ""
 }

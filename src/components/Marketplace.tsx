@@ -414,9 +414,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           ))}
         </div>
       ) : filteredAndSortedAddons.length === 0 ? (
-        <div className="rounded-3xl border border-zinc-800/50 bg-zinc-900/20 py-32 text-center">
-          <h3 className="mt-2 text-sm font-semibold text-white">No add-ons found</h3>
-          <p className="mt-1 text-sm text-zinc-400">Try adjusting your search or filters.</p>
+        <div className="rounded-[2.5rem] border border-white/5 bg-zinc-900/40 backdrop-blur-xl py-32 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <h3 className="mt-2 text-base font-bold text-white tracking-wide">No add-ons found</h3>
+          <p className="mt-1 text-sm text-zinc-400 font-medium">Try adjusting your search or filters.</p>
         </div>
       ) : (
         <motion.div 

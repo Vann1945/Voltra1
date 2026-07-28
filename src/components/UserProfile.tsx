@@ -309,8 +309,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               ))}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
-              <p className="text-sm text-zinc-400">You haven't uploaded any add-ons yet.</p>
+            <div className="rounded-3xl border border-white/5 bg-zinc-900/40 backdrop-blur-xl py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+              <p className="text-sm text-zinc-400 font-medium tracking-wide">You haven't uploaded any add-ons yet.</p>
             </div>
           ) : (
             <motion.div 
@@ -367,8 +367,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               ))}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
-              <p className="text-sm text-zinc-400">You haven't liked any add-ons yet.</p>
+            <div className="rounded-3xl border border-white/5 bg-zinc-900/40 backdrop-blur-xl py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+              <p className="text-sm text-zinc-400 font-medium tracking-wide">You haven't liked any add-ons yet.</p>
             </div>
           ) : (
             <motion.div 
@@ -417,15 +417,15 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               ))}
             </div>
           ) : reports.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/20 py-16 text-center">
-              <p className="text-sm text-zinc-400">You haven't submitted any reports.</p>
+            <div className="rounded-3xl border border-white/5 bg-zinc-900/40 backdrop-blur-xl py-20 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+              <p className="text-sm text-zinc-400 font-medium tracking-wide">You haven't submitted any reports.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {reports.map(report => {
                 const reportedAddon = addons.find(a => a.id === report.addonId);
                 return (
-                  <div key={report.id} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div key={report.id} className="bg-zinc-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-800/60 transition-colors shadow-sm">
                     <div>
                       <p className="text-sm font-medium text-white">
                         Reported: <span className="text-zinc-300">{reportedAddon ? reportedAddon.title : 'Unknown Add-on'}</span>
