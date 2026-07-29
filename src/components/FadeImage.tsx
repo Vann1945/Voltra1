@@ -21,7 +21,7 @@ export const FadeImage = React.memo(function FadeImage({ className, containerCla
         loading={loading}
         decoding="async"
         className={cn(
-          "transition-opacity duration-700 ease-in-out border border-white/10",
+          "transition-opacity duration-700 ease-in-out outline outline-1 -outline-offset-1 outline-white/10",
           isLoaded ? "opacity-100" : "opacity-0",
           className
         )}

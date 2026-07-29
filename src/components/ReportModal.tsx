@@ -67,9 +67,9 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
             className="absolute inset-0 bg-zinc-950/80 "
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
             className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-2"
           >
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -77,7 +77,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <AlertTriangle className="text-rose-500" size={20} />
                 Report Add-on
               </h2>
-              <button onClick={onClose} className="rounded-full p-2 text-zinc-400 hover:bg-white/5 hover:text-white transition-colors">
+              <button onClick={onClose} className="rounded-full p-2 text-zinc-400 hover:bg-white/5 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.96]">
                 <X size={20} />
               </button>
             </div>
@@ -89,7 +89,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] appearance-none"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition appearance-none"
                   >
                     {REPORT_REASONS.map(r => (
                       <option key={r} value={r} className="bg-zinc-900">{r}</option>
@@ -105,7 +105,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                       rows={3}
                       value={otherReason}
                       onChange={(e) => setOtherReason(e.target.value)}
-                      className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none"
+                      className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition resize-none"
                       placeholder="Provide more details..."
                     />
                   </div>
@@ -116,14 +116,14 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-full px-6 py-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                  className="rounded-full px-6 py-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.96]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                  className="flex items-center justify-center gap-2 rounded-full bg-rose-500 px-8 py-3 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96]"
+                  className="flex items-center justify-center gap-2 rounded-full bg-rose-500 px-8 py-3 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 active:not-disabled:scale-[0.96]"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Submitting...' : 'Submit Report'}

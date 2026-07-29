@@ -81,7 +81,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
   if (authorAddons.length === 0) {
     return (
       <div className="py-32 text-center">
-        <h3 className="text-lg font-semibold text-white">Author not found or has no add-ons.</h3>
+        <h3 className="text-lg font-semibold text-white text-balance">Author not found or has no add-ons.</h3>
         <button onClick={() => onNavigate('home')} className="mt-4 text-violet-500 hover:text-violet-400">
           Return to Marketplace
         </button>
@@ -123,7 +123,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         
         <div className="flex-1 w-full">
           <div className="flex items-center justify-between w-full">
-            <h1 id="author-name" className="text-3xl font-bold tracking-tight text-white">{authorName}</h1>
+            <h1 id="author-name" className="text-3xl font-bold tracking-tight text-white text-balance">{authorName}</h1>
           </div>
           <div className="mt-4 flex items-center gap-4 text-sm text-zinc-500">
             <span className="flex items-center gap-1.5" aria-label={`${authorAddons.length} Uploads`}><Package size={16} aria-hidden="true" /> {authorAddons.length} Uploads</span>
@@ -134,7 +134,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
 
       <div className="space-y-16">
         <section>
-          <h2 className="mb-6 text-xl font-medium tracking-tight text-white flex items-center gap-2">
+          <h2 className="mb-6 text-xl font-medium tracking-tight text-white flex items-center gap-2 text-balance">
             <Package size={20} className="text-zinc-400" /> Uploads by {authorName}
           </h2>
           
@@ -156,7 +156,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
               <motion.div
                 key={addon.id}
                 variants={{
-                  hidden: { opacity: 0, y: 20 },
+                  hidden: { opacity: 0, y: 12 },
                   visible: { opacity: 1, y: 0 }
                 }}
               >

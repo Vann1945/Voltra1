@@ -162,7 +162,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <section aria-label="User Profile" className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-zinc-900 p-8 sm:p-10 rounded-[2rem] border border-white/5 shadow-2xl ">
-        <div className={`h-32 w-32 shrink-0 overflow-hidden rounded-full bg-black/40 flex items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-500 ${getBorderClass(isEditing ? editProfileBorder : (user.profileBorder || 'none'))}`} aria-hidden="true">
+        <div className={`h-32 w-32 shrink-0 overflow-hidden rounded-full bg-black/40 flex items-center justify-center transition duration-500 ${getBorderClass(isEditing ? editProfileBorder : (user.profileBorder || 'none'))}`} aria-hidden="true">
           {isEditing ? (
             editPhotoURL ? (
               <FadeImage src={editPhotoURL} alt="" className="h-full w-full object-cover opacity-50" referrerPolicy="no-referrer" />
@@ -190,7 +190,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   type="text" 
                   value={editName} 
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow]"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition"
                 />
               </div>
               <div>
@@ -200,7 +200,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingPhoto}
-                    className="flex-shrink-0 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 rounded-xl text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="flex-shrink-0 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 rounded-xl text-sm font-medium transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white active:not-disabled:scale-[0.96]"
                   >
                     {isUploadingPhoto ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Edit2 size={16} aria-hidden="true" />}
                     Upload
@@ -210,7 +210,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     type="url" 
                     value={editPhotoURL} 
                     onChange={e => setEditPhotoURL(e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow]"
+                    className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition"
                     placeholder="Or paste URL here..."
                   />
                   <input
@@ -229,7 +229,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   id="edit-profile-border"
                   value={editProfileBorder} 
                   onChange={e => setEditProfileBorder(e.target.value)}
-                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow] appearance-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition appearance-none"
                 >
                   <option value="none">None</option>
                   <option value="gold">Gold (Premium)</option>
@@ -245,7 +245,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   value={editBio} 
                   onChange={e => setEditBio(e.target.value)}
                   rows={3}
-                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none"
+                  className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 transition resize-none"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -253,7 +253,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button 
                   onClick={handleSaveProfile} 
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-white text-black hover:bg-zinc-200 px-5 py-2.5 rounded-full text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50"
+                  className="flex items-center gap-2 bg-white text-black hover:bg-zinc-200 px-5 py-2.5 rounded-full text-sm font-medium transition disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:not-disabled:scale-[0.96]"
                 >
                   {savingProfile ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                   Save Changes
@@ -261,7 +261,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button 
                   onClick={() => setIsEditing(false)} 
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-5 py-2.5 rounded-full text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50"
+                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-5 py-2.5 rounded-full text-sm font-medium transition disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:not-disabled:scale-[0.96]"
                 >
                   <X size={16} />
                   Cancel
@@ -274,7 +274,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <h1 className="text-4xl font-medium tracking-tight text-white">{user.displayName}</h1>
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors border border-transparent hover:border-white/10"
+                  className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors border border-transparent hover:border-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.96]"
                   title="Edit Profile"
                 >
                   <Edit2 size={18} />
@@ -332,7 +332,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   key={addon.id} 
                   className="relative group"
                   variants={{
-                    hidden: { opacity: 0, y: 20 },
+                    hidden: { opacity: 0, y: 12 },
                     visible: { opacity: 1, y: 0 }
                   }}
                 >
@@ -344,7 +344,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   />
                   <button
                     onClick={(e) => { e.stopPropagation(); setAddonToDelete(addon.id); }}
-                    className="absolute top-2 right-2 p-2 bg-black/50 hover:bg-rose-600/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition-[transform,background-color,border-color,color,opacity,box-shadow] "
+                    className="absolute top-2 right-2 p-2 bg-black/50 hover:bg-rose-600/90 text-white rounded-full opacity-0 group-hover:opacity-100 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 active:scale-[0.96]"
                     title="Delete Add-on"
                   >
                     <Trash2 size={16} />
@@ -389,7 +389,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <motion.div
                   key={addon.id}
                   variants={{
-                    hidden: { opacity: 0, y: 20 },
+                    hidden: { opacity: 0, y: 12 },
                     visible: { opacity: 1, y: 0 }
                   }}
                 >
@@ -462,9 +462,9 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             className="absolute inset-0 bg-black/80 "
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
             className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete Add-on?</h3>
@@ -475,14 +475,14 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               <button
                 onClick={() => setAddonToDelete(null)}
                 disabled={deletingAddon}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:not-disabled:scale-[0.96]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAddon}
                 disabled={deletingAddon}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-rose-600 text-white hover:bg-rose-500 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-rose-600 text-white hover:bg-rose-500 transition-colors disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 active:not-disabled:scale-[0.96]"
               >
                 {deletingAddon ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                 Delete

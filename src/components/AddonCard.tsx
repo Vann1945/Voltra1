@@ -146,7 +146,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
       }}
       tabIndex={0}
       aria-label={`View details for ${addon.title}`}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
     >
       
       {/* Inner Card Content */}
@@ -166,14 +166,14 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             <button 
               onClick={prevImage}
               aria-label="Previous image"
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <ChevronLeft size={16} aria-hidden="true" />
             </button>
             <button 
               onClick={nextImage}
               aria-label="Next image"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <ChevronRight size={16} aria-hidden="true" />
             </button>
@@ -181,7 +181,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               {images.map((_, idx) => (
                 <div 
                   key={idx} 
-                  className={`h-1.5 rounded-full transition-[transform,background-color,border-color,color,opacity,box-shadow] ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
+                  className={`h-1.5 rounded-full transition ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
                 />
               ))}
             </div>
@@ -208,7 +208,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
 
       <div className="flex flex-1 flex-col p-5 bg-zinc-900">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors line-clamp-1">
+          <h3 className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors line-clamp-1 text-balance">
             {addon.title}
           </h3>
           <div className="flex items-center gap-2 shrink-0">
@@ -216,7 +216,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               onClick={toggleInfo}
               aria-expanded={showInfo}
               aria-label="Toggle addon details"
-              className={`p-1.5 rounded-full transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+              className={`p-1.5 rounded-full transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
             >
               <Info size={16} aria-hidden="true" />
             </button>
@@ -234,7 +234,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             {addon.demoUrl && (
               <div>
                 <strong className="text-zinc-300 text-xs uppercase tracking-wider">Demo / Preview</strong>
-                <p className="mt-1">
+                <p className="mt-1 text-pretty">
                   <a 
                     href={addon.demoUrl} 
                     target="_blank" 
@@ -250,23 +250,23 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             {addon.versionHistory && (
               <div>
                 <strong className="text-zinc-300 text-xs uppercase tracking-wider">Version History</strong>
-                <p className="mt-1">{addon.versionHistory}</p>
+                <p className="mt-1 text-pretty">{addon.versionHistory}</p>
               </div>
             )}
             {addon.compatibilityNotes && (
               <div>
                 <strong className="text-zinc-300 text-xs uppercase tracking-wider">Compatibility</strong>
-                <p className="mt-1">{addon.compatibilityNotes}</p>
+                <p className="mt-1 text-pretty">{addon.compatibilityNotes}</p>
               </div>
             )}
             {addon.changelog && (
               <div>
                 <strong className="text-zinc-300 text-xs uppercase tracking-wider">Changelog</strong>
-                <p className="mt-1 whitespace-pre-wrap text-xs">{addon.changelog}</p>
+                <p className="mt-1 whitespace-pre-wrap text-xs text-pretty">{addon.changelog}</p>
               </div>
             )}
             {!addon.versionHistory && !addon.compatibilityNotes && !addon.changelog && !addon.demoUrl && (
-              <p className="italic opacity-50">No additional info available.</p>
+              <p className="italic opacity-50 text-pretty">No additional info available.</p>
             )}
           </div>
         ) : (
@@ -278,11 +278,11 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
         <div className="mt-auto pt-6 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <button 
-              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pe-2 min-w-0"
+              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pe-2 min-w-0"
               onClick={handleAuthorClick}
               aria-label={`View ${addon.authorName}'s profile`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition-[transform,background-color,border-color,color,opacity,box-shadow] group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
                 {authorPhoto ? (
                   <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -296,7 +296,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               <button
                 onClick={handleLikeClick}
                 aria-label={isLiked ? "Unlike addon" : "Like addon"}
-                className={`flex items-center gap-1.5 text-xs font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
+                className={`flex items-center gap-1.5 text-xs font-medium transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
                   isLiked ? 'text-rose-500 bg-rose-500/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                 }`}
               >
@@ -315,7 +315,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             onClick={handleDownloadClick}
             disabled={isDownloading}
             aria-label={downloadSuccess ? "Downloaded" : isDownloading ? "Downloading..." : "Download Addon"}
-            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
               downloadSuccess 
                 ? 'bg-emerald-500 text-white' 
                 : 'bg-white text-black hover:bg-zinc-200'
@@ -323,7 +323,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
           >
             {isDownloading && (
               <div 
-                className="absolute inset-0 bg-black/10 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-200" 
+                className="absolute inset-0 bg-black/10 transition duration-200" 
                 style={{ width: `${downloadProgress}%` }} 
               />
             )}

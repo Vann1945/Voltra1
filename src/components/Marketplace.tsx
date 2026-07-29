@@ -136,26 +136,26 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
 
   return (
     <section id="explore" className="relative min-h-screen pb-12" aria-label="Marketplace Explore">
-      <h1 className="sr-only">Minecraft Marketplace Add-ons</h1>
+      <h1 className="sr-only text-balance">Minecraft Marketplace Add-ons</h1>
       {/* Premium Hero Section */}
       <div className="relative overflow-hidden bg-zinc-950 pt-28 pb-20 border-b border-white/5">
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center z-10">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="mb-10"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-6 text-balance">
               Minecraft Add-ons
             </h1>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto font-medium tracking-wide">
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto font-medium tracking-wide text-pretty">
               Explore resource packs, mods, and worlds crafted by the community.
             </p>
           </motion.div>
           {/* Search & Filter */}
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
             className="flex justify-center"
@@ -175,7 +175,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                className="w-full rounded-2xl bg-zinc-950 py-4 ps-12 pe-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-[transform,background-color,border-color,color,opacity,box-shadow] h-[56px]"
+                className="w-full rounded-2xl bg-zinc-950 py-4 ps-12 pe-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition h-[56px]"
               />
               <AnimatePresence>
                 {showSuggestions && searchSuggestions.length > 0 && (
@@ -193,7 +193,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         key={addon.id}
                         role="option"
                         aria-selected={false}
-                        className="w-full p-2 text-start text-sm text-zinc-300 hover:bg-white/5 hover:text-white rounded-xl transition-colors flex items-center gap-3 focus:outline-none focus-visible:bg-white/10"
+                        className="w-full p-2 text-start text-sm text-zinc-300 hover:bg-white/5 hover:text-white rounded-xl transition-colors flex items-center gap-3 active:scale-[0.96]  focus-visible:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 "
                         onClick={() => {
                           onNavigate({ type: 'addon', id: addon.id });
                           setShowSuggestions(false);
@@ -217,14 +217,14 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
               <div className="hidden sm:flex items-center gap-1 bg-zinc-950 rounded-2xl p-1 h-[56px] border border-white/5" role="group" aria-label="Quick Sort">
                 <button
                   onClick={() => setSortBy('newest')}
-                  className={`h-full px-5 rounded-xl text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none ${sortBy === 'newest' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
+                  className={`h-full px-5 rounded-xl text-sm font-medium transition active:scale-[0.96] focus:outline-none ${sortBy === 'newest' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
                   aria-pressed={sortBy === 'newest'}
                 >
                   Newest
                 </button>
                 <button
                   onClick={() => setSortBy('most_liked')}
-                  className={`h-full px-5 rounded-xl text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none ${sortBy === 'most_liked' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
+                  className={`h-full px-5 rounded-xl text-sm font-medium transition active:scale-[0.96] focus:outline-none ${sortBy === 'most_liked' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
                   aria-pressed={sortBy === 'most_liked'}
                 >
                   Popular
@@ -234,7 +234,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 onClick={() => setShowFilters(!showFilters)}
                 aria-expanded={showFilters}
                 aria-controls="filter-panel"
-                className={`flex flex-1 lg:flex-none items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-300 h-[56px] px-6 gap-2 rounded-2xl border focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showFilters || selectedCategory !== 'All' || tagFilter || authorFilter || dateRange !== 'all' ? 'border-white/20 bg-zinc-800 text-white shadow-md' : 'border-white/5 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                className={`flex flex-1 lg:flex-none items-center justify-center transition duration-300 h-[56px] px-6 gap-2 rounded-2xl border active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showFilters || selectedCategory !== 'All' || tagFilter || authorFilter || dateRange !== 'all' ? 'border-white/20 bg-zinc-800 text-white shadow-md' : 'border-white/5 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
               >
                 <SlidersHorizontal size={18} strokeWidth={2} aria-hidden="true" />
                 <span className="font-medium text-sm tracking-wide">Filters</span>
@@ -330,7 +330,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         setTagFilter('');
                         setAuthorFilter('');
                       }}
-                      className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+                      className="text-xs font-medium text-zinc-400 hover:text-white transition-colors active:scale-[0.96]"
                     >
                       Clear Filters
                     </button>
@@ -348,12 +348,12 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
       {/* Featured Section */}
       {!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All' && (
         <div className="mb-16">
-          <h2 className="mb-6 flex items-center gap-2 text-2xl font-medium tracking-tight text-white">
+          <h2 className="mb-6 flex items-center gap-2 text-2xl font-medium tracking-tight text-white text-balance">
             <Sparkles className="text-amber-400" size={20} /> Featured Add-ons
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredAddons.map((addon) => (
-              <div key={addon.id} className="relative rounded-[2rem] ring-1 ring-white/10 hover:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow]">
+              <div key={addon.id} className="relative rounded-[2rem] ring-1 ring-white/10 hover:ring-white/20 transition">
                 <AddonCard
                   addon={addon}
                   isLiked={userLikes.has(addon.id)}
@@ -372,7 +372,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
 
       <div className="mb-8 flex flex-col gap-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-2xl font-medium tracking-tight text-white">Marketplace</h2>
+          <h2 className="text-2xl font-medium tracking-tight text-white text-balance">Marketplace</h2>
         </div>
 
         {/* Active Filters Display */}
@@ -415,8 +415,8 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
         </div>
       ) : filteredAndSortedAddons.length === 0 ? (
         <div className="rounded-[2.5rem] border border-white/5 bg-zinc-900/40 backdrop-blur-xl py-32 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-          <h3 className="mt-2 text-base font-bold text-white tracking-wide">No add-ons found</h3>
-          <p className="mt-1 text-sm text-zinc-400 font-medium">Try adjusting your search or filters.</p>
+          <h3 className="mt-2 text-base font-bold text-white tracking-wide text-balance">No add-ons found</h3>
+          <p className="mt-1 text-sm text-zinc-400 font-medium text-pretty">Try adjusting your search or filters.</p>
         </div>
       ) : (
         <motion.div 
@@ -440,7 +440,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 layout
                 key={addon.id}
                 variants={{
-                  hidden: { opacity: 0, scale: 0.9, y: 20 },
+                  hidden: { opacity: 0, scale: 0.9, y: 12 },
                   visible: { opacity: 1, scale: 1, y: 0 }
                 }}
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}

@@ -176,9 +176,9 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           {error && (
             <motion.div 
               key="error"
-              initial={{ opacity: 0, y: -10, height: 0 }}
+              initial={{ opacity: 0, y: -12, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -10, height: 0 }}
+              exit={{ opacity: 0, y: -12, height: 0 }}
               className="mb-4 overflow-hidden"
             >
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
@@ -190,9 +190,9 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           {successMsg && (
             <motion.div 
               key="success"
-              initial={{ opacity: 0, y: -10, height: 0 }}
+              initial={{ opacity: 0, y: -12, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -10, height: 0 }}
+              exit={{ opacity: 0, y: -12, height: 0 }}
               className="mb-4 overflow-hidden"
             >
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-2">
@@ -226,7 +226,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                 }
               }}
               disabled={loading}
-              className="w-full bg-white text-black hover:bg-zinc-200 hover:scale-105 active:scale-[0.96] text-sm font-bold rounded-full py-4 flex items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[0_4px_16px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="w-full bg-white text-black hover:bg-zinc-200 hover:scale-105 active:scale-[0.96] text-sm font-bold rounded-full py-4 flex items-center justify-center transition disabled:opacity-50 shadow-[0_4px_16px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : 'Resend Email'}
             </button>
@@ -235,7 +235,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                 await signOut(auth);
                 switchView('login');
               }}
-              className="w-full text-xs text-zinc-400 hover:text-white transition-colors"
+              className="w-full text-xs text-zinc-400 hover:text-white transition-colors active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded px-2 py-1"
             >
               Back to Sign In
             </button>
@@ -262,7 +262,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setNameError(validateName(name))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         nameError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                       }
@@ -285,7 +285,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   onBlur={() => setEmailError(validateEmail(email))}
                   disabled={loading}
                   className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         emailError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                   }
@@ -314,7 +314,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setPasswordError(validatePassword(password))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         passwordError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                       }
@@ -328,7 +328,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-white hover:bg-zinc-200 hover:scale-105 active:scale-[0.96] text-black text-sm font-bold rounded-full py-4 flex items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[0_4px_16px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="w-full bg-white hover:bg-zinc-200 hover:scale-105 active:scale-[0.96] text-black text-sm font-bold rounded-full py-4 flex items-center justify-center transition disabled:opacity-50 shadow-[0_4px_16px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -355,7 +355,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               type="button" 
               onClick={handleGoogle}
               disabled={loading}
-              className="w-full bg-zinc-950/80 hover:bg-zinc-900 border border-white/5 text-white text-sm font-bold rounded-full py-4 flex items-center justify-center gap-3 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="w-full bg-zinc-950/80 hover:bg-zinc-900 border border-white/5 text-white text-sm font-bold rounded-full py-4 flex items-center justify-center gap-3 transition disabled:opacity-50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
               <svg width="14" height="14" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -375,14 +375,14 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           {view === 'login' && (
             <div className="flex items-center justify-center gap-4">
               <button onClick={() => switchView('forgot')} className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded px-2 py-1">Forgot password?</button>
-              <button onClick={() => switchView('register')} className="hover:text-white transition-colors">Sign up</button>
+              <button onClick={() => switchView('register')} className="hover:text-white transition-colors active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded px-2 py-1">Sign up</button>
             </div>
           )}
           {view === 'register' && (
-            <button onClick={() => switchView('login')} className="hover:text-white transition-colors">Sign in instead</button>
+            <button onClick={() => switchView('login')} className="hover:text-white transition-colors active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded px-2 py-1">Sign in instead</button>
           )}
           {view === 'forgot' && (
-            <button onClick={() => switchView('login')} className="hover:text-white transition-colors">Back to sign in</button>
+            <button onClick={() => switchView('login')} className="hover:text-white transition-colors active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded px-2 py-1">Back to sign in</button>
           )}
         </div>
       )}

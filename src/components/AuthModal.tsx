@@ -21,14 +21,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
             className="relative"
           >
             <button 
               onClick={onClose} 
-              className="absolute -top-12 right-0 rounded-full p-2 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="absolute -top-12 right-0 rounded-full p-2 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors active:scale-[0.96]    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 "
             >
               <X size={24} />
             </button>

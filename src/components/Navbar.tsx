@@ -30,7 +30,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
       <nav className="relative mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main Navigation">
         <button 
           onClick={() => onNavigate('home')} 
-          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-xl px-2 py-1.5 -ms-2 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/5"
+          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-xl px-2 py-1.5 -ms-2 transition hover:bg-white/5"
           aria-label="Voltra Home"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-400 text-black shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105 active:scale-[0.96]">
@@ -46,7 +46,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
             <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={onOpenUpload}
-                className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96] hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)] active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition hover:scale-105 active:scale-[0.96] hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)]    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 "
                 aria-label="Publish Add-on"
               >
                 <Upload size={18} aria-hidden="true" strokeWidth={2} />
@@ -56,7 +56,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
               {user.role === 'admin' && (
                 <button
                   onClick={() => onNavigate('admin')}
-                  className="flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/80 px-4 py-2.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-800 hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  className="flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/80 px-4 py-2.5 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition hover:bg-zinc-800 hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                   aria-label="Admin Panel"
                 >
                   <Shield size={18} aria-hidden="true" />
@@ -66,7 +66,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
               
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/80 py-1.5 ps-1.5 pe-5 text-sm font-bold text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-800 hover:text-white hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/80 py-1.5 ps-1.5 pe-5 text-sm font-bold text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition hover:bg-zinc-800 hover:text-white hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                 aria-label={currentView === 'home' ? 'Go to Profile' : 'Go to Home'}
               >
                 {user.photoURL ? (
@@ -85,7 +85,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
 
               <button
                 onClick={logout}
-                className="rounded-full p-2.5 text-zinc-400 border border-transparent transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-900/80 hover:text-white hover:border-white/10 hover:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="rounded-full p-2.5 text-zinc-400 border border-transparent transition hover:bg-zinc-900/80 hover:text-white hover:border-white/10 hover:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-[0.96]    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 "
                 title="Logout"
                 aria-label="Logout"
               >
@@ -95,7 +95,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
           ) : (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-2 rounded-full bg-white px-5 sm:px-6 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96] hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)] active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="flex items-center gap-2 rounded-full bg-white px-5 sm:px-6 py-2.5 text-sm font-bold text-black shadow-[0_2px_10px_rgba(255,255,255,0.2),inset_0_1px_0_rgba(255,255,255,1)] transition hover:scale-105 active:scale-[0.96] hover:bg-zinc-100 hover:shadow-[0_4px_20px_rgba(255,255,255,0.3)]    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 "
               aria-label="Sign In"
             >
               <LogIn size={18} aria-hidden="true" strokeWidth={2} />
