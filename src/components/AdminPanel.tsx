@@ -203,7 +203,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
 
       <div className="mb-16 flex items-center gap-6">
         <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-zinc-900 border border-white/5 text-white shadow-2xl ">
-          <Shield size={32} strokeWidth={1.5} />
+          <Shield size={32} strokeWidth={2} />
         </div>
         <div>
           <h1 className="text-4xl font-medium tracking-tight text-white">Admin Dashboard</h1>
@@ -300,7 +300,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                     hidden: { opacity: 0, y: 10 },
                     visible: { opacity: 1, y: 0 }
                   }}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-5 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-5 rounded-[2rem]  transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center gap-5">
                     <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 rounded-2xl object-cover bg-black/40 border border-white/5" referrerPolicy="no-referrer" />
@@ -470,7 +470,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                       hidden: { opacity: 0, y: 10 },
                       visible: { opacity: 1, y: 0 }
                     }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/[0.04]"
                   >
                     <div>
                       <div className="flex items-center gap-3 mb-3">
@@ -547,7 +547,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                       hidden: { opacity: 0, y: 10 },
                       visible: { opacity: 1, y: 0 }
                     }}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-all hover:bg-white/[0.04]"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-zinc-900 border border-white/5 p-6 rounded-[2rem]  transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/[0.04]"
                   >
                     <div className="flex items-center gap-4">
                       {u.photoURL ? (
@@ -652,7 +652,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8"
           >
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <Edit2 size={20} className="text-violet-500" /> Edit Add-on
@@ -663,7 +663,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                 <select
                   value={editingAddon.category}
                   onChange={(e) => setEditingAddon({ ...editingAddon, category: e.target.value as any })}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-[transform,background-color,border-color,color,opacity,box-shadow]"
                 >
                   <option value="Resource Pack">Resource Pack</option>
                   <option value="Behavior Pack">Behavior Pack</option>
@@ -678,7 +678,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                   type="text"
                   value={typeof editingAddon.tags === 'string' ? editingAddon.tags : (editingAddon.tags || []).join(', ')}
                   onChange={(e) => setEditingAddon({ ...editingAddon, tags: e.target.value as any })}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-[transform,background-color,border-color,color,opacity,box-shadow]"
                   placeholder="e.g. pvp, realistic, 32x"
                 />
               </div>
@@ -721,7 +721,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete Add-on?</h3>
             <p className="text-zinc-400 text-sm mb-6">
@@ -764,7 +764,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl p-6"
+            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8"
           >
             <h3 className="text-xl font-bold text-white mb-2">Delete User?</h3>
             <p className="text-zinc-400 text-sm mb-6">

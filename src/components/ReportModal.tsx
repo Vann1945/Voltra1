@@ -70,7 +70,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950 shadow-2xl"
+            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-2"
           >
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
               <h2 className="text-xl font-medium text-white flex items-center gap-2">
@@ -89,7 +89,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all appearance-none"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] appearance-none"
                   >
                     {REPORT_REASONS.map(r => (
                       <option key={r} value={r} className="bg-zinc-900">{r}</option>
@@ -105,7 +105,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                       rows={3}
                       value={otherReason}
                       onChange={(e) => setOtherReason(e.target.value)}
-                      className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none"
+                      className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none"
                       placeholder="Provide more details..."
                     />
                   </div>
@@ -123,7 +123,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <button
                   type="submit"
                   disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                  className="flex items-center justify-center gap-2 rounded-full bg-rose-500 px-8 py-3 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 rounded-full bg-rose-500 px-8 py-3 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96]"
                 >
                   {loading ? <Loader2 size={16} className="animate-spin" /> : null}
                   {loading ? 'Submitting...' : 'Submit Report'}

@@ -198,9 +198,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             className="absolute inset-0 bg-zinc-950/80 "
           />
           <motion.div
-            initial={{ y: '100%', opacity: 0, scale: 0.95 }}
+            initial={{ y: 20, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: '100%', opacity: 0, scale: 0.95 }}
+            exit={{ y: 20, opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm:rounded-[2rem] bg-zinc-950 shadow-2xl border-x border-t sm:border border-white/5"
           >
@@ -241,7 +241,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="e.g. Epic Dragons Mod"
                   />
                 </div>
@@ -251,7 +251,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all appearance-none text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] appearance-none text-sm sm:text-base"
                   >
                     <option>Resource Pack</option>
                     <option>Behavior Pack</option>
@@ -267,7 +267,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="text"
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="dragons, magic, survival"
                   />
                 </div>
@@ -279,7 +279,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     rows={5}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none text-sm sm:text-base font-light"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none text-sm sm:text-base font-light"
                     placeholder="Describe your add-on in detail..."
                   />
                 </div>
@@ -299,7 +299,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         <button 
                           type="button"
                           onClick={() => removeImage(idx)}
-                          className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-rose-500/80 text-white rounded-lg  opacity-0 group-hover:opacity-100 transition-all"
+                          className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-rose-500/80 text-white rounded-lg  opacity-0 group-hover:opacity-100 transition-[transform,background-color,border-color,color,opacity,box-shadow]"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -337,7 +337,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           type="url"
                           value={urlInput}
                           onChange={(e) => setUrlInput(e.target.value)}
-                          className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm"
+                          className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm"
                           placeholder="https://example.com/image.png"
                           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
                         />
@@ -367,7 +367,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           <span className="text-xs text-zinc-400 truncate w-24">{fileName}</span>
                           <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-violet-500 transition-all duration-300"
+                              className="h-full bg-violet-500 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-300"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -381,7 +381,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="Or enter a main cover image URL directly..."
                   />
                 </div>
@@ -393,7 +393,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="url"
                     value={formData.downloadUrl}
                     onChange={(e) => setFormData({ ...formData, downloadUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="https://..."
                   />
                 </div>
@@ -404,7 +404,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="url"
                     value={formData.demoUrl}
                     onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="https://youtube.com/watch?v=..."
                   />
                 </div>
@@ -415,7 +415,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="text"
                     value={formData.versionHistory}
                     onChange={(e) => setFormData({ ...formData, versionHistory: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="e.g. v1.0.0, v1.1.0"
                   />
                 </div>
@@ -426,7 +426,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     type="text"
                     value={formData.compatibilityNotes}
                     onChange={(e) => setFormData({ ...formData, compatibilityNotes: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all text-sm sm:text-base"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] text-sm sm:text-base"
                     placeholder="e.g. Works with 1.20+"
                   />
                 </div>
@@ -437,7 +437,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     rows={3}
                     value={formData.changelog}
                     onChange={(e) => setFormData({ ...formData, changelog: e.target.value })}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-all resize-none text-sm sm:text-base font-light"
+                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 sm:px-5 sm:py-3.5 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none text-sm sm:text-base font-light"
                     placeholder="What's new in this version..."
                   />
                 </div>
@@ -463,7 +463,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   type="submit"
                   form="upload-form"
                   disabled={loading}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-white px-8 py-3.5 sm:py-3 text-sm font-medium text-black hover:bg-zinc-200 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-white px-8 py-3.5 sm:py-3 text-sm font-medium text-black hover:bg-zinc-200 disabled:opacity-50 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96]"
                 >
                   {loading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
                   Publish Add-on

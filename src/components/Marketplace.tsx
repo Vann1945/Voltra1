@@ -175,7 +175,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                className="w-full rounded-2xl bg-zinc-950 py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-all h-[56px]"
+                className="w-full rounded-2xl bg-zinc-950 py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-[transform,background-color,border-color,color,opacity,box-shadow] h-[56px]"
               />
               <AnimatePresence>
                 {showSuggestions && searchSuggestions.length > 0 && (
@@ -217,14 +217,14 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
               <div className="hidden sm:flex items-center gap-1 bg-zinc-950 rounded-2xl p-1 h-[56px] border border-white/5" role="group" aria-label="Quick Sort">
                 <button
                   onClick={() => setSortBy('newest')}
-                  className={`h-full px-5 rounded-xl text-sm font-medium transition-all focus:outline-none ${sortBy === 'newest' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
+                  className={`h-full px-5 rounded-xl text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none ${sortBy === 'newest' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
                   aria-pressed={sortBy === 'newest'}
                 >
                   Newest
                 </button>
                 <button
                   onClick={() => setSortBy('most_liked')}
-                  className={`h-full px-5 rounded-xl text-sm font-medium transition-all focus:outline-none ${sortBy === 'most_liked' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
+                  className={`h-full px-5 rounded-xl text-sm font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none ${sortBy === 'most_liked' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}
                   aria-pressed={sortBy === 'most_liked'}
                 >
                   Popular
@@ -234,7 +234,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 onClick={() => setShowFilters(!showFilters)}
                 aria-expanded={showFilters}
                 aria-controls="filter-panel"
-                className={`flex flex-1 lg:flex-none items-center justify-center transition-all duration-300 h-[56px] px-6 gap-2 rounded-2xl border focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showFilters || selectedCategory !== 'All' || tagFilter || authorFilter || dateRange !== 'all' ? 'border-white/20 bg-zinc-800 text-white shadow-md' : 'border-white/5 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                className={`flex flex-1 lg:flex-none items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-300 h-[56px] px-6 gap-2 rounded-2xl border focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showFilters || selectedCategory !== 'All' || tagFilter || authorFilter || dateRange !== 'all' ? 'border-white/20 bg-zinc-800 text-white shadow-md' : 'border-white/5 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
               >
                 <SlidersHorizontal size={18} strokeWidth={2} aria-hidden="true" />
                 <span className="font-medium text-sm tracking-wide">Filters</span>
@@ -353,7 +353,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredAddons.map((addon) => (
-              <div key={addon.id} className="relative rounded-[2rem] ring-1 ring-white/10 hover:ring-white/20 transition-all">
+              <div key={addon.id} className="relative rounded-[2rem] ring-1 ring-white/10 hover:ring-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow]">
                 <AddonCard
                   addon={addon}
                   isLiked={userLikes.has(addon.id)}
@@ -444,7 +444,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                   visible: { opacity: 1, scale: 1, y: 0 }
                 }}
                 exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 <AddonCard
                   addon={addon}

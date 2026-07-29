@@ -146,7 +146,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
       }}
       tabIndex={0}
       aria-label={`View details for ${addon.title}`}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
     >
       
       {/* Inner Card Content */}
@@ -156,7 +156,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
           src={images[currentImageIndex]}
           alt={addon.title}
           containerClassName="h-full w-full"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 active:scale-[0.96]"
           referrerPolicy="no-referrer"
           loading="lazy"
         />
@@ -181,7 +181,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               {images.map((_, idx) => (
                 <div 
                   key={idx} 
-                  className={`h-1.5 rounded-full transition-all ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
+                  className={`h-1.5 rounded-full transition-[transform,background-color,border-color,color,opacity,box-shadow] ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
                 />
               ))}
             </div>
@@ -216,7 +216,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               onClick={toggleInfo}
               aria-expanded={showInfo}
               aria-label="Toggle addon details"
-              className={`p-1.5 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+              className={`p-1.5 rounded-full transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
             >
               <Info size={16} aria-hidden="true" />
             </button>
@@ -282,7 +282,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               onClick={handleAuthorClick}
               aria-label={`View ${addon.authorName}'s profile`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition-all group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition-[transform,background-color,border-color,color,opacity,box-shadow] group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
                 {authorPhoto ? (
                   <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -296,7 +296,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               <button
                 onClick={handleLikeClick}
                 aria-label={isLiked ? "Unlike addon" : "Like addon"}
-                className={`flex items-center gap-1.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
+                className={`flex items-center gap-1.5 text-xs font-medium transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
                   isLiked ? 'text-rose-500 bg-rose-500/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                 }`}
               >
@@ -315,7 +315,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
             onClick={handleDownloadClick}
             disabled={isDownloading}
             aria-label={downloadSuccess ? "Downloaded" : isDownloading ? "Downloading..." : "Download Addon"}
-            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
+            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
               downloadSuccess 
                 ? 'bg-emerald-500 text-white' 
                 : 'bg-white text-black hover:bg-zinc-200'
@@ -323,7 +323,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
           >
             {isDownloading && (
               <div 
-                className="absolute inset-0 bg-black/10 transition-all duration-200" 
+                className="absolute inset-0 bg-black/10 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-200" 
                 style={{ width: `${downloadProgress}%` }} 
               />
             )}
@@ -331,9 +331,9 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
               {isDownloading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : downloadSuccess ? (
-                <Check size={16} strokeWidth={2.5} />
+                <Check size={16} strokeWidth={2} />
               ) : (
-                <Download size={16} strokeWidth={2.5} />
+                <Download size={16} strokeWidth={2} />
               )}
               <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Success!' : 'Get Add-on'}</span>
             </div>

@@ -219,7 +219,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
           <FadeImage
             src={images[currentImageIndex]}
             alt=""
-            containerClassName="h-full w-full cursor-zoom-in transition-transform duration-700 hover:scale-105"
+            containerClassName="h-full w-full cursor-zoom-in transition-transform duration-700 hover:scale-105 active:scale-[0.96]"
             className="h-full w-full object-contain bg-black/20"
             referrerPolicy="no-referrer"
             onClick={() => setIsImageExpanded(true)}
@@ -230,14 +230,14 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
               <button 
                 onClick={prevImage}
                 aria-label="Previous image"
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/40 backdrop-blur-md text-white opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-black/60 hover:scale-110 shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:opacity-100"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/40 backdrop-blur-md text-white opacity-0 group-hover/carousel:opacity-100 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-black/60 hover:scale-110 active:scale-[0.96] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:opacity-100"
               >
                 <ChevronLeft size={24} aria-hidden="true" />
               </button>
               <button 
                 onClick={nextImage}
                 aria-label="Next image"
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/40 backdrop-blur-md text-white opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-black/60 hover:scale-110 shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:opacity-100"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full bg-black/40 backdrop-blur-md text-white opacity-0 group-hover/carousel:opacity-100 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-black/60 hover:scale-110 active:scale-[0.96] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:opacity-100"
               >
                 <ChevronRight size={24} aria-hidden="true" />
               </button>
@@ -249,7 +249,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                     aria-selected={idx === currentImageIndex}
                     aria-label={`View image ${idx + 1}`}
                     onClick={() => setCurrentImageIndex(idx)}
-                    className={`h-2 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${idx === currentImageIndex ? 'w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'w-2 bg-white/40 hover:bg-white/80'}`}
+                    className={`h-2 rounded-full transition-[transform,background-color,border-color,color,opacity,box-shadow] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${idx === currentImageIndex ? 'w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'w-2 bg-white/40 hover:bg-white/80'}`}
                   />
                 ))}
               </div>
@@ -263,7 +263,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
           {isImageExpanded && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 ">
               <button 
-                className="absolute top-6 right-6 p-4 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-110 hover:rotate-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white z-50"
+                className="absolute top-6 right-6 p-4 rounded-full bg-white/10 text-white hover:bg-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-110 active:scale-[0.96] hover:rotate-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white z-50"
                 onClick={() => setIsImageExpanded(false)}
                 aria-label="Close image preview"
               >
@@ -282,14 +282,14 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                     <button 
                       onClick={prevImage}
                       aria-label="Previous image"
-                      className="absolute left-4 sm:left-12 top-1/2 -translate-y-1/2 p-4 sm:p-5 rounded-full bg-white/10 text-white transition-all hover:bg-white/20 hover:scale-110  focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="absolute left-4 sm:left-12 top-1/2 -translate-y-1/2 p-4 sm:p-5 rounded-full bg-white/10 text-white transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/20 hover:scale-110 active:scale-[0.96]  focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     >
                       <ChevronLeft size={32} />
                     </button>
                     <button 
                       onClick={nextImage}
                       aria-label="Next image"
-                      className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 p-4 sm:p-5 rounded-full bg-white/10 text-white transition-all hover:bg-white/20 hover:scale-110  focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                      className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 p-4 sm:p-5 rounded-full bg-white/10 text-white transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/20 hover:scale-110 active:scale-[0.96]  focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     >
                       <ChevronRight size={32} />
                     </button>
@@ -329,7 +329,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                   onClick={handleAuthorClick}
                   aria-label={`View ${addon.authorName}'s profile`}
                 >
-                  <div className={`h-12 w-12 shrink-0 overflow-hidden rounded-full bg-zinc-800 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5),0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center transition-all group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
+                  <div className={`h-12 w-12 shrink-0 overflow-hidden rounded-full bg-zinc-800 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5),0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center transition-[transform,background-color,border-color,color,opacity,box-shadow] group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
                     {authorPhoto ? (
                       <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                     ) : (
@@ -383,7 +383,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
               >
                 {isDownloading && (
                   <div 
-                    className="absolute inset-0 bg-black/10 transition-all duration-200" 
+                    className="absolute inset-0 bg-black/10 transition-[transform,background-color,border-color,color,opacity,box-shadow] duration-200" 
                     style={{ width: `${downloadProgress}%` }} 
                   />
                 )}
@@ -411,14 +411,14 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
               {addon.demoUrl && (
                 <div className="bg-zinc-900/60 backdrop-blur-xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] rounded-3xl p-8 ">
                   <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                    <ExternalLink size={18} className="text-white" strokeWidth={2.5} />
+                    <ExternalLink size={18} className="text-white" strokeWidth={2} />
                     Demo / Preview
                   </h3>
                   <a 
                     href={addon.demoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 transition-all px-4 py-2 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 transition-[transform,background-color,border-color,color,opacity,box-shadow] px-4 py-2 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
                   >
                     View Demo
                     <ExternalLink size={14} />
@@ -475,7 +475,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
       {/* Reviews Section */}
       <div className="mt-20">
         <h2 className="text-4xl font-extrabold tracking-tighter text-white mb-10 flex items-center gap-4">
-          <MessageSquare className="text-white" size={32} strokeWidth={2.5} /> Reviews
+          <MessageSquare className="text-white" size={32} strokeWidth={2} /> Reviews
         </h2>
 
         {/* Add Review Form */}
@@ -490,7 +490,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                     key={star}
                     type="button"
                     onClick={() => setNewReviewRating(star)}
-                    className="p-1 focus:outline-none transition-transform hover:scale-110 active:scale-95"
+                    className="p-1 focus:outline-none transition-transform hover:scale-110 active:scale-[0.96]"
                   >
                     <Star
                       size={28}
@@ -507,7 +507,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                 rows={4}
                 value={newReviewText}
                 onChange={(e) => setNewReviewText(e.target.value)}
-                className="block w-full rounded-2xl border border-transparent bg-zinc-950/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] px-6 py-5 text-white placeholder-zinc-600 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-all resize-none font-medium"
+                className="block w-full rounded-2xl border border-transparent bg-zinc-950/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] px-6 py-5 text-white placeholder-zinc-600 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-[transform,background-color,border-color,color,opacity,box-shadow] resize-none font-medium"
                 placeholder="What do you think about this add-on?"
               />
             </div>
@@ -515,7 +515,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
               <button
                 type="submit"
                 disabled={submittingReview || !newReviewText.trim()}
-                className="rounded-full bg-white px-10 py-4 text-sm font-extrabold text-black hover:bg-zinc-200 disabled:opacity-50 transition-all hover:scale-105 hover:shadow-[0_4px_16px_rgba(255,255,255,0.2)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="rounded-full bg-white px-10 py-4 text-sm font-extrabold text-black hover:bg-zinc-200 disabled:opacity-50 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:scale-105 active:scale-[0.96] hover:shadow-[0_4px_16px_rgba(255,255,255,0.2)] active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               >
                 {submittingReview ? 'Submitting...' : 'Submit Review'}
               </button>
@@ -559,11 +559,11 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
                     hidden: { opacity: 0, y: 20 },
                     visible: { opacity: 1, y: 0 }
                   }}
-                  className="group rounded-[2.5rem] border border-white/5 bg-zinc-900/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8 transition-all hover:bg-zinc-800 flex flex-col h-full"
+                  className="group rounded-[2.5rem] border border-white/5 bg-zinc-900/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-8 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-800 flex flex-col h-full"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${authorColor} font-extrabold shadow-[inset_0_1px_4px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.3)] transition-all`}>
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${authorColor} font-extrabold shadow-[inset_0_1px_4px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.3)] transition-[transform,background-color,border-color,color,opacity,box-shadow]`}>
                         {review.userName.charAt(0).toUpperCase()}
                       </div>
                       <div>
