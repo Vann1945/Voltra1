@@ -262,7 +262,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setNameError(validateName(name))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 pl-12 pr-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         nameError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                       }
@@ -285,7 +285,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   onBlur={() => setEmailError(validateEmail(email))}
                   disabled={loading}
                   className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 pl-12 pr-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         emailError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                   }
@@ -314,7 +314,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       onBlur={() => setPasswordError(validatePassword(password))}
                       disabled={loading}
                       className={cn(
-                        "w-full bg-zinc-950/80 border rounded-full py-4 pl-12 pr-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
+                        "w-full bg-zinc-950/80 border rounded-full py-4 ps-12 pe-4 text-sm font-medium text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/20 focus:bg-zinc-900 transition-[transform,background-color,border-color,color,opacity,box-shadow] disabled:opacity-50 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]",
                         passwordError ? "border-red-500/50 focus:border-red-500" : "border-transparent"
                       )
                       }

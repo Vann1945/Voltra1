@@ -103,7 +103,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <button 
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-lg p-1 -ml-1"
+        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-lg p-1 -ms-1"
         aria-label="Back to Marketplace"
       >
         <ArrowLeft size={16} aria-hidden="true" />

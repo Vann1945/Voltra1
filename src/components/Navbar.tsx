@@ -30,7 +30,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
       <nav className="relative mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8" aria-label="Main Navigation">
         <button 
           onClick={() => onNavigate('home')} 
-          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-xl px-2 py-1.5 -ml-2 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/5"
+          className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-xl px-2 py-1.5 -ms-2 transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-white/5"
           aria-label="Voltra Home"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-400 text-black shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_12px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105 active:scale-[0.96]">
@@ -66,7 +66,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
               
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/80 py-1.5 pl-1.5 pr-5 text-sm font-bold text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-800 hover:text-white hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="flex items-center gap-2.5 rounded-full border border-white/10 bg-zinc-900/80 py-1.5 ps-1.5 pe-5 text-sm font-bold text-zinc-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_8px_rgba(0,0,0,0.5)] transition-[transform,background-color,border-color,color,opacity,box-shadow] hover:bg-zinc-800 hover:text-white hover:border-white/20 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                 aria-label={currentView === 'home' ? 'Go to Profile' : 'Go to Home'}
               >
                 {user.photoURL ? (
@@ -78,7 +78,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
                     {user.displayName.charAt(0)}
                   </div>
                 )}
-                <span className="hidden sm:inline-block ml-0.5">{currentView === 'home' ? 'Profile' : 'Home'}</span>
+                <span className="hidden sm:inline-block ms-0.5">{currentView === 'home' ? 'Profile' : 'Home'}</span>
               </button>
 
               <div className="h-8 w-[1px] bg-white/10 hidden sm:block mx-1 shadow-[1px_0_0_rgba(0,0,0,0.5)]" aria-hidden="true"></div>

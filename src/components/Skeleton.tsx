@@ -25,7 +25,7 @@ export function SkeletonCard() {
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
         </div>
-        <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-5">
+        <div className="mt-auto flex items-center justify-between pt-6">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-4 w-24" />

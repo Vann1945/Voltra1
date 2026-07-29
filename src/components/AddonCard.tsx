@@ -189,7 +189,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80 pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none pr-4">
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none pe-4">
           <span className="inline-flex items-center rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 w-fit">
             {addon.category}
           </span>
@@ -230,7 +230,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
         </div>
         
         {showInfo ? (
-          <div className="mt-3 flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-zinc-400 font-light custom-scrollbar">
+          <div className="mt-3 flex-1 overflow-y-auto pe-2 space-y-3 text-sm text-zinc-400 font-light custom-scrollbar">
             {addon.demoUrl && (
               <div>
                 <strong className="text-zinc-300 text-xs uppercase tracking-wider">Demo / Preview</strong>
@@ -275,10 +275,10 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
           </p>
         )}
 
-        <div className="mt-6 flex flex-col gap-4 border-t border-white/5 pt-5">
+        <div className="mt-auto pt-6 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <button 
-              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pr-2 min-w-0"
+              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pe-2 min-w-0"
               onClick={handleAuthorClick}
               aria-label={`View ${addon.authorName}'s profile`}
             >

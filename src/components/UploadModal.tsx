@@ -448,7 +448,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             {/* Footer */}
             {!successMessage && (
             <div className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 border-t border-white/5 p-4 sm:px-8 sm:py-6 bg-zinc-950/90  z-20">
-              <p className="text-xs text-zinc-500 text-center sm:text-left max-w-xs font-light">
+              <p className="text-xs text-zinc-500 text-center sm:text-start max-w-xs font-light">
                 Add-ons require admin approval. For faster confirmation, contact WA <span className="text-white font-medium">081905077129</span>.
               </p>
               <div className="flex flex-col-reverse sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">

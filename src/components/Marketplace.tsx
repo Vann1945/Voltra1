@@ -160,7 +160,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             transition={{ delay: 0.1, duration: 0.5 }}
             className="flex justify-center"
           >
-            <div className="relative flex flex-col gap-4 bg-zinc-900/80 backdrop-blur-xl border border-white/10 shadow-2xl rounded-[24px] p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left">
+            <div className="relative flex flex-col gap-4 bg-zinc-900/80 backdrop-blur-xl border border-white/10 shadow-2xl rounded-[24px] p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-start">
               <div className="flex flex-col lg:flex-row items-center gap-3">
                 <div className="relative w-full flex-1">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400" size={20} aria-hidden="true" strokeWidth={2} />
@@ -175,7 +175,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                className="w-full rounded-2xl bg-zinc-950 py-4 pl-12 pr-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-[transform,background-color,border-color,color,opacity,box-shadow] h-[56px]"
+                className="w-full rounded-2xl bg-zinc-950 py-4 ps-12 pe-4 text-sm font-medium text-white placeholder-zinc-500 border border-white/5 focus:border-white/20 focus:bg-zinc-900 focus:outline-none transition-[transform,background-color,border-color,color,opacity,box-shadow] h-[56px]"
               />
               <AnimatePresence>
                 {showSuggestions && searchSuggestions.length > 0 && (
@@ -193,7 +193,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         key={addon.id}
                         role="option"
                         aria-selected={false}
-                        className="w-full p-2 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white rounded-xl transition-colors flex items-center gap-3 focus:outline-none focus-visible:bg-white/10"
+                        className="w-full p-2 text-start text-sm text-zinc-300 hover:bg-white/5 hover:text-white rounded-xl transition-colors flex items-center gap-3 focus:outline-none focus-visible:bg-white/10"
                         onClick={() => {
                           onNavigate({ type: 'addon', id: addon.id });
                           setShowSuggestions(false);
@@ -266,7 +266,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       id="category-select"
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value as CategoryOption)}
-                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 pl-3 pr-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
+                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 ps-3 pe-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
                     >
                       <option value="All">All Categories</option>
                       <option value="Resource Pack">Resource Packs</option>
@@ -283,7 +283,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       id="sort-select"
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as SortOption)}
-                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 pl-3 pr-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
+                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 ps-3 pe-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
                     >
                       <option value="newest">Newest First</option>
                       <option value="most_liked">Most Liked</option>
@@ -298,7 +298,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       id="date-select"
                       value={dateRange}
                       onChange={(e) => setDateRange(e.target.value as DateRangeOption)}
-                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 pl-3 pr-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
+                      className="w-full rounded-xl border border-white/5 bg-black/40 py-2.5 ps-3 pe-8 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20 transition-colors appearance-none"
                     >
                       <option value="all">Any Time</option>
                       <option value="today">Past 24 Hours</option>
@@ -382,25 +382,25 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             {selectedCategory !== 'All' && (
               <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-400 border border-violet-500/20">
                 {selectedCategory}
-                <button onClick={() => setSelectedCategory('All')} className="ml-1 hover:text-white"><X size={12} /></button>
+                <button onClick={() => setSelectedCategory('All')} className="ms-1 hover:text-white"><X size={12} /></button>
               </span>
             )}
             {tagFilter && (
               <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 border border-blue-500/20">
                 Tag: {tagFilter}
-                <button onClick={() => setTagFilter('')} className="ml-1 hover:text-white"><X size={12} /></button>
+                <button onClick={() => setTagFilter('')} className="ms-1 hover:text-white"><X size={12} /></button>
               </span>
             )}
             {authorFilter && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/20">
                 Author: {authorFilter}
-                <button onClick={() => setAuthorFilter('')} className="ml-1 hover:text-white"><X size={12} /></button>
+                <button onClick={() => setAuthorFilter('')} className="ms-1 hover:text-white"><X size={12} /></button>
               </span>
             )}
             {dateRange !== 'all' && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400 border border-amber-500/20">
                 Date: {dateRange}
-                <button onClick={() => setDateRange('all')} className="ml-1 hover:text-white"><X size={12} /></button>
+                <button onClick={() => setDateRange('all')} className="ms-1 hover:text-white"><X size={12} /></button>
               </span>
             )}
           </div>

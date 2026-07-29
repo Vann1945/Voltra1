@@ -208,7 +208,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
       <button 
         onClick={() => onNavigate('home')}
         aria-label="Back to Marketplace"
-        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-lg p-1 -ml-1"
+        className="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded-lg p-1 -ms-1"
       >
         <ArrowLeft size={16} aria-hidden="true" />
         Back to Marketplace
@@ -325,7 +325,7 @@ export function AddonDetail({ addonId, addons, userLikes, onToggleLike, onRequir
               
               <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-zinc-400">
                 <button 
-                  className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pr-2"
+                  className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer group/author focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pe-2"
                   onClick={handleAuthorClick}
                   aria-label={`View ${addon.authorName}'s profile`}
                 >
