@@ -31,11 +31,12 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
+              // Keep react/react-dom and motion (which depends on react)
+              // together to avoid a circular chunk dependency between
+              // 'vendor' and 'animation' that crashes on load in production.
               if (id.includes('firebase')) return 'firebase';
-              if (id.includes('react')) return 'vendor';
               if (id.includes('lucide-react')) return 'icons';
-              if (id.includes('motion')) return 'animation';
-              return 'deps';
+              return 'vendor';
             }
           },
         },
