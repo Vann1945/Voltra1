@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,12 +12,26 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Catatan: Firestore (firebase/firestore) sengaja TIDAK diimpor di sini.
-// Aplikasi ini sudah migrasi data utama ke TiDB (lihat MySQL/schema.sql,
-// api/*.ts) — Firebase sekarang HANYA dipakai untuk Auth (signInWithCustomToken
-// di useAuth.ts, menjembatani sesi Auth.js ke Firebase Auth). Firestore SDK
-// itu sendiri berkontribusi signifikan ke ukuran bundle client tanpa dipakai
-// sama sekali — menghapusnya memangkas bundle tanpa kehilangan fungsi apa pun.
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+// Firebase hanya dipakai untuk menjembatani sesi Auth.js ke Firebase Auth.
+// Konfigurasi VITE_* tidak selalu tersedia pada preview/deployment baru. Jangan
+// memanggil initializeApp/getAuth dengan konfigurasi kosong karena Firebase akan
+// melempar auth/invalid-api-key sebelum React sempat merender halaman.
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId,
+);
+
+export const firebaseConfigured = hasFirebaseConfig;
+
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+
+if (hasFirebaseConfig) {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+}
+
+export { auth };
 export default app;

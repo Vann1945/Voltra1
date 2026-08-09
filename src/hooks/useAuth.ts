@@ -37,7 +37,7 @@ export function useAuth() {
     setUser(session.user as unknown as User);
     setLoading(false);
 
-    if (session.firebaseToken) {
+    if (session.firebaseToken && auth) {
       try {
         await signInWithCustomToken(auth, session.firebaseToken);
       } catch (err) {
@@ -105,7 +105,7 @@ export function useAuth() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ csrfToken, json: 'true' }),
       });
-      await firebaseSignOut(auth);
+      if (auth) await firebaseSignOut(auth);
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
