@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/upload-sign",
+      "destination": "/api/upload-image"
+    },
+    {
       "source": "/api/auth/:path*",
       "destination": "/api/auth"
     },
