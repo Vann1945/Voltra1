@@ -1,17 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --animate-electric: electric 3s linear infinite;
-  
+
   @keyframes electric {
     0% { background-position: 0% 50%; }
     100% { background-position: 200% 50%; }
   }
+
+  /* ===============================================================
+     Design tokens — Voltra Marketplace
+     Warm parchment palette with a terracotta accent. These are the
+     ONLY colors that should appear in the app; every raw hex value
+     that used to be scattered across components now resolves to one
+     of these names (bg-ink, text-accent, border-ink/10, etc.).
+     Keeping a single source of truth here is what prevents the
+     "two near-identical blacks" / "two near-identical accents" drift
+     that existed before (see #141413 vs #1A1A1A, #c96442 vs #d97757).
+     =============================================================== */
+
+  /* Surfaces */
+  --color-paper: #f0eee2;        /* primary app background & card surface */
+  --color-paper-soft: #f5f4ed;   /* subtle alternate surface (hover rows, inputs) */
+  --color-paper-deep: #e8e5d6;   /* recessed surface (wells, track backgrounds) */
+
+  /* Ink (text & high-contrast surfaces) — single canonical near-black */
+  --color-ink: #141413;
+  --color-ink-soft: color-mix(in srgb, var(--color-ink) 60%, transparent);
+  --color-ink-faint: color-mix(in srgb, var(--color-ink) 40%, transparent);
+  --color-ink-hairline: color-mix(in srgb, var(--color-ink) 8%, transparent);
+
+  /* Accent — terracotta. -deep is the ONLY shade allowed to carry white
+     text (it's the one shade in the family that clears WCAG AA 4.5:1
+     against white); -DEFAULT and -soft always pair with --color-ink text. */
+  --color-accent: #c96442;
+  --color-accent-soft: #d97757;
+  --color-accent-deep: #a8543a;
+
+  /* Semantic status colors */
+  --color-danger: #b3261e;
+  --color-success: #6b8f5c;
+  --color-gold: #b8860b;
+
+  /* Card shadow signature — the app's one repeated "soft card" elevation.
+     Named here instead of being retyped as an arbitrary value ~180 times. */
+  --shadow-card: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 6px 20px rgba(0, 0, 0, 0.1);
+  --shadow-card-float: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 20px 50px rgba(0, 0, 0, 0.15);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+}
+
+/* Visible keyboard-focus ring, app-wide fallback. Any element still using
+   `focus:outline-none` without its own focus:shadow-[...]/focus:ring-*
+   replacement will fall back to this instead of losing focus visibility
+   entirely (WCAG 2.4.7) — keyboard users must always be able to see where
+   focus is. Only applies for :focus-visible (keyboard/programmatic focus),
+   not mouse clicks, so it never looks like unwanted "highlighting" on click. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-deep);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

@@ -1,4 +1,11 @@
 rules_version = '2';
+// CATATAN MIGRASI: data utama aplikasi ini (users, addons, likes, reviews, reports)
+// sekarang disimpan di TiDB (lihat MySQL/schema.sql dan api/*.ts), bukan lagi di
+// Firestore. Firestore saat ini hanya dipakai sebagai jembatan sesi Auth.js →
+// Firebase (signInWithCustomToken di src/hooks/useAuth.ts). Rules di bawah ini
+// dipertahankan sebagai lapisan pertahanan kalau-kalau ada kode lama yang masih
+// menulis ke Firestore secara langsung (jangan pernah menulis data addon/user/report
+// langsung ke Firestore dari client — selalu lewat /api/* di server).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -96,18 +103,27 @@ service cloud.firestore {
     // ===============================================================
 
     function isValidUser(data) {
-      return hasOnlyAllowedFields(['uid', 'displayName', 'email', 'photoURL', 'bio', 'role', 'createdAt']) &&
+      return hasOnlyAllowedFields(['uid', 'displayName', 'email', 'photoURL', 'bio', 'role', 'createdAt', 'profileBorder']) &&
              (data.uid == request.auth.uid || isAdmin()) &&
              isValidString('displayName', 1, 100) &&
              isValidEmail(data.email) &&
              (!('photoURL' in data) || isValidUrl(data.photoURL)) &&
              (!('bio' in data) || isValidString('bio', 0, 500)) &&
+             (!('profileBorder' in data) || data.profileBorder in ['none', 'sparkle-white', 'sparkle-gold', 'sparkle-cyan', 'sparkle-toxic', 'sparkle-pink', 'orbit-classic', 'orbit-fire', 'orbit-void', 'orbit-ocean', 'orbit-platinum', 'shine-white', 'shine-gold', 'shine-crimson', 'shine-emerald', 'shine-sapphire', 'pulse-violet', 'pulse-rose', 'pulse-azure', 'pulse-jade', 'pulse-amber', 'confetti-mix', 'confetti-gold', 'confetti-pastel', 'electric-blue', 'electric-violet', 'comet-gold', 'comet-cyan', 'comet-rose', 'firefly-amber', 'firefly-emerald', 'ripple-silver', 'ripple-teal', 'aurora', 'rainbow', 'halo-white', 'halo-ruby', 'shadow-pulse', 'meteor', 'starburst-gold']) &&
              data.role in ['user', 'admin', 'banned', 'suspended'] &&
              isValidDateString(data.createdAt);
     }
 
     function isValidAddon(data) {
-      return hasOnlyAllowedFields(['id', 'title', 'description', 'category', 'imageUrl', 'imageUrls', 'downloadUrl', 'authorId', 'authorName', 'createdAt', 'likesCount', 'status', 'tags', 'averageRating', 'ratingCount', 'downloadsCount', 'isFeatured', 'versionHistory', 'compatibilityNotes', 'changelog', 'demoUrl']) &&
+      return hasOnlyAllowedFields([
+               'id', 'title', 'description', 'category', 'imageUrl', 'imageUrls', 'downloadUrl',
+               'authorId', 'authorName', 'createdAt', 'likesCount', 'status', 'tags',
+               'averageRating', 'ratingCount', 'downloadsCount', 'isFeatured', 'versionHistory',
+               'compatibilityNotes', 'changelog', 'demoUrl',
+               // Upload-form metadata (added to match the client's actual write shape)
+               'projectClass', 'additionalCategory', 'license', 'distributionPref',
+               'unlisted', 'allowComments', 'socials'
+             ]) &&
              isValidString('id', 1, 100) &&
              isValidString('title', 1, 100) &&
              isValidString('description', 1, 5000) &&
@@ -120,6 +136,7 @@ service cloud.firestore {
              isValidDateString(data.createdAt) &&
              data.likesCount is number && data.likesCount >= 0 &&
              data.status in ['pending', 'approved', 'rejected'] &&
+             isValidList(data.tags, 20) &&
              (!('averageRating' in data) || (data.averageRating is number && data.averageRating >= 0 && data.averageRating <= 5)) &&
              (!('ratingCount' in data) || (data.ratingCount is number && data.ratingCount >= 0)) &&
              (!('downloadsCount' in data) || (data.downloadsCount is number && data.downloadsCount >= 0)) &&
@@ -128,7 +145,13 @@ service cloud.firestore {
              (!('compatibilityNotes' in data) || isValidString('compatibilityNotes', 0, 1000)) &&
              (!('changelog' in data) || isValidString('changelog', 0, 5000)) &&
              (!('demoUrl' in data) || data.demoUrl == '' || isValidUrl(data.demoUrl)) &&
-             isValidList(data.tags, 20);
+             (!('projectClass' in data) || isValidString('projectClass', 1, 100)) &&
+             (!('additionalCategory' in data) || data.additionalCategory == '' || isValidString('additionalCategory', 1, 100)) &&
+             (!('license' in data) || isValidString('license', 1, 200)) &&
+             (!('distributionPref' in data) || isValidString('distributionPref', 1, 200)) &&
+             (!('unlisted' in data) || data.unlisted is bool) &&
+             (!('allowComments' in data) || data.allowComments is bool) &&
+             (!('socials' in data) || isValidList(data.socials, 10));
     }
 
     function isValidLike(data, userId, addonId) {
@@ -187,8 +210,9 @@ service cloud.firestore {
 
     match /addons/{addonId} {
       // Add-ons are public if approved, or readable by author/admin
-      allow read: if resource.data.status == 'approved' || 
-                  (isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin()));
+      allow read: if resource.data.status == 'approved'
+              || (request.auth != null && request.auth.uid == resource.data.authorId)
+              || (request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
       
       // Create: Any authenticated user can create an add-on. Status must be pending.
       allow create: if isAuthenticated() && 

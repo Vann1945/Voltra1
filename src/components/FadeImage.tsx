@@ -6,7 +6,7 @@ interface FadeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   containerClassName?: string;
 }
 
-export const FadeImage = React.memo(function FadeImage({ className, containerClassName, src, alt, loading = "lazy", ...props }: FadeImageProps) {
+export function FadeImage({ className, containerClassName, src, alt, ...props }: FadeImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -17,11 +17,10 @@ export const FadeImage = React.memo(function FadeImage({ className, containerCla
       )}
       <img
         src={src}
-        alt={alt || "Image"}
-        loading={loading}
+        alt={alt}
         decoding="async"
         className={cn(
-          "transition-opacity duration-700 ease-in-out outline outline-1 -outline-offset-1 outline-white/10",
+          "transition-opacity duration-700 ease-in-out",
           isLoaded ? "opacity-100" : "opacity-0",
           className
         )}
@@ -34,4 +33,4 @@ export const FadeImage = React.memo(function FadeImage({ className, containerCla
       />
     </div>
   );
-});
+}

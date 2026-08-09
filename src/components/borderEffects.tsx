@@ -1,0 +1,504 @@
+import React from 'react';
+import { Check } from 'lucide-react';
+import { FadeImage } from './FadeImage';
+
+export interface BorderEffect {
+  value: string;
+  label: string;
+  family:
+    | 'none' | 'sparkle' | 'orbit' | 'shine' | 'pulse' | 'confetti'
+    | 'electric' | 'comet' | 'firefly' | 'ripple' | 'aurora' | 'rainbow'
+    | 'halo' | 'meteor' | 'starburst';
+  colors: string[];
+}
+
+export const BORDER_OPTIONS: BorderEffect[] = [
+  { value: 'none', label: 'None', family: 'none', colors: [] },
+
+  // --- Sparkle: titik kecil kelap-kelip posisi tetap tapi "muncul-ilang" acak
+  { value: 'sparkle-white', label: 'Sparkle', family: 'sparkle', colors: ['#ffffff'] },
+  { value: 'sparkle-gold', label: 'Golden Sparkle', family: 'sparkle', colors: ['#facc15'] },
+  { value: 'sparkle-cyan', label: 'Frost Sparkle', family: 'sparkle', colors: ['#67e8f9'] },
+  { value: 'sparkle-toxic', label: 'Toxic Sparkle', family: 'sparkle', colors: ['#a3e635'] },
+  { value: 'sparkle-pink', label: 'Pink Sparkle', family: 'sparkle', colors: ['#f472b6'] },
+
+  // --- Orbit: 3 titik warna mengorbit muter di sekeliling foto
+  { value: 'orbit-classic', label: 'Orbit', family: 'orbit', colors: ['#22d3ee', '#e879f9', '#fcd34d'] },
+  { value: 'orbit-fire', label: 'Fire Orbit', family: 'orbit', colors: ['#ef4444', '#f97316', '#facc15'] },
+  { value: 'orbit-void', label: 'Void Orbit', family: 'orbit', colors: ['#a855f7', '#6366f1', '#f472b6'] },
+  { value: 'orbit-ocean', label: 'Ocean Orbit', family: 'orbit', colors: ['#2dd4bf', '#3b82f6', '#34d399'] },
+  { value: 'orbit-platinum', label: 'Platinum Orbit', family: 'orbit', colors: ['#e5e7eb', '#9ca3af', '#f8fafc'] },
+
+  // --- Shine Sweep: cincin kilau yang muter kayak lampu sorot
+  { value: 'shine-white', label: 'Shine Sweep', family: 'shine', colors: ['#ffffff'] },
+  { value: 'shine-gold', label: 'Golden Shine', family: 'shine', colors: ['#fbbf24'] },
+  { value: 'shine-crimson', label: 'Crimson Shine', family: 'shine', colors: ['#ef4444'] },
+  { value: 'shine-emerald', label: 'Emerald Shine', family: 'shine', colors: ['#34d399'] },
+  { value: 'shine-sapphire', label: 'Sapphire Shine', family: 'shine', colors: ['#60a5fa'] },
+
+  // --- Pulse: cincin membesar & memudar (efek radar/ping)
+  { value: 'pulse-violet', label: 'Pulse', family: 'pulse', colors: ['#8b5cf6'] },
+  { value: 'pulse-rose', label: 'Rose Pulse', family: 'pulse', colors: ['#fb7185'] },
+  { value: 'pulse-azure', label: 'Azure Pulse', family: 'pulse', colors: ['#38bdf8'] },
+  { value: 'pulse-jade', label: 'Jade Pulse', family: 'pulse', colors: ['#4ade80'] },
+  { value: 'pulse-amber', label: 'Amber Pulse', family: 'pulse', colors: ['#fbbf24'] },
+
+  // --- Confetti: partikel kotak kecil tersebar acak, muncul-timbul
+  { value: 'confetti-mix', label: 'Confetti', family: 'confetti', colors: ['#f43f5e', '#facc15', '#22d3ee', '#a855f7', '#34d399', '#fb923c', '#60a5fa', '#f472b6'] },
+  { value: 'confetti-gold', label: 'Golden Confetti', family: 'confetti', colors: ['#fbbf24', '#fde68a', '#f59e0b', '#fcd34d'] },
+  { value: 'confetti-pastel', label: 'Pastel Confetti', family: 'confetti', colors: ['#fbcfe8', '#bfdbfe', '#bbf7d0', '#fef08a', '#ddd6fe'] },
+
+  // --- Electric: kilat menyambar berkedip di sekitar foto
+  { value: 'electric-blue', label: 'Electric Blue', family: 'electric', colors: ['#38bdf8'] },
+  { value: 'electric-violet', label: 'Electric Violet', family: 'electric', colors: ['#a78bfa'] },
+
+  // --- Comet: bola terang + ekor memudar yang muter kayak komet
+  { value: 'comet-gold', label: 'Golden Comet', family: 'comet', colors: ['#fbbf24'] },
+  { value: 'comet-cyan', label: 'Cyan Comet', family: 'comet', colors: ['#22d3ee'] },
+  { value: 'comet-rose', label: 'Rose Comet', family: 'comet', colors: ['#fb7185'] },
+
+  // --- Firefly: titik cahaya melayang pelan sambil kelap-kelip
+  { value: 'firefly-amber', label: 'Amber Firefly', family: 'firefly', colors: ['#fbbf24'] },
+  { value: 'firefly-emerald', label: 'Emerald Firefly', family: 'firefly', colors: ['#34d399'] },
+
+  // --- Ripple: gelombang cincin tipis melebar berulang (mirip pulse, lebih banyak lapis)
+  { value: 'ripple-silver', label: 'Silver Ripple', family: 'ripple', colors: ['#d1d5db'] },
+  { value: 'ripple-teal', label: 'Teal Ripple', family: 'ripple', colors: ['#2dd4bf'] },
+
+  // --- Aurora: gradient ring yang ngalir, KHUSUS warna dingin (teal-biru-ungu)
+  { value: 'aurora', label: 'Aurora', family: 'aurora', colors: ['#2dd4bf', '#3b82f6', '#6366f1', '#8b5cf6'] },
+
+  // --- Rainbow: cincin gradasi pelangi penuh yang muter
+  { value: 'rainbow', label: 'Rainbow', family: 'rainbow', colors: [] },
+
+  // --- Halo: cahaya lembut yang "bernapas" (membesar-mengecil intensitasnya)
+  { value: 'halo-white', label: 'Halo', family: 'halo', colors: ['#ffffff'] },
+  { value: 'halo-ruby', label: 'Ruby Halo', family: 'halo', colors: ['#f43f5e'] },
+  { value: 'shadow-pulse', label: 'Shadow', family: 'halo', colors: ['#52525b'] },
+
+  // --- Meteor: garis cahaya melintas diagonal sesekali
+  { value: 'meteor', label: 'Meteor Shower', family: 'meteor', colors: ['#7dd3fc'] },
+
+  // --- Starburst: paku-paku cahaya berputar pelan kayak bintang
+  { value: 'starburst-gold', label: 'Starburst', family: 'starburst', colors: ['#fbbf24'] },
+];
+
+export function getBorderEffect(value?: string | null): BorderEffect {
+  return BORDER_OPTIONS.find(o => o.value === value) || BORDER_OPTIONS[0];
+}
+
+// Ubah sudut (derajat) + radius (%) jadi posisi left/top (%) relatif ke pusat,
+// biar elemen dekorasinya otomatis nyesuain ukuran avatar berapa pun.
+function polarToPercent(angleDeg: number, radiusPercent: number) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return {
+    left: 50 + radiusPercent * Math.cos(rad),
+    top: 50 + radiusPercent * Math.sin(rad),
+  };
+}
+
+const SPARKLE_ANGLES = [0, 60, 120, 180, 240, 300];
+const FIREFLY_ANGLES = [20, 90, 160, 230, 300];
+const ELECTRIC_ANGLES = [30, 120, 210, 300];
+const STARBURST_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+const CONFETTI_SPOTS = [
+  { angle: 10, radius: 62, size: 6, delay: 0 },
+  { angle: 55, radius: 58, size: 5, delay: 0.2 },
+  { angle: 95, radius: 64, size: 7, delay: 0.4 },
+  { angle: 140, radius: 57, size: 5, delay: 0.1 },
+  { angle: 180, radius: 63, size: 6, delay: 0.5 },
+  { angle: 220, radius: 59, size: 5, delay: 0.3 },
+  { angle: 265, radius: 65, size: 6, delay: 0.6 },
+  { angle: 310, radius: 58, size: 5, delay: 0.15 },
+];
+
+// Semua elemen dekorasi di sini render DI LUAR lingkaran foto (harus dipasang
+// di wrapper yang TIDAK overflow-hidden, lihat ProfileAvatar di bawah).
+// Efek animasi ini dipertahankan apa adanya (unsur "playful" cocok dengan
+// semangat neubrutalism) — hanya kontras warna avatar itu sendiri yang diubah.
+export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
+  const { family, colors } = effect;
+  const c0 = colors[0] || '#000000';
+
+  switch (family) {
+    case 'sparkle':
+      return SPARKLE_ANGLES.map((angle, i) => {
+        const { left, top } = polarToPercent(angle, 54);
+        return (
+          <span
+            key={i}
+            className="absolute h-1.5 w-1.5 rounded-full profile-sparkle pointer-events-none"
+            style={{ left: `${left}%`, top: `${top}%`, backgroundColor: c0, boxShadow: `0 0 6px 1px ${c0}cc`, animationDelay: `${i * 0.25}s` }}
+          />
+        );
+      });
+
+    case 'orbit':
+      return (
+        <>
+          <div className="absolute inset-0 profile-orbit-a pointer-events-none">
+            <span className="absolute h-2 w-2 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[0] }} />
+          </div>
+          <div className="absolute inset-0 profile-orbit-b pointer-events-none">
+            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[1] || c0 }} />
+          </div>
+          <div className="absolute inset-0 profile-orbit-c pointer-events-none">
+            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[2] || c0 }} />
+          </div>
+        </>
+      );
+
+    case 'shine':
+      return (
+        <div
+          className="absolute -inset-1 rounded-full profile-ring-mask pointer-events-none"
+          style={{ background: `conic-gradient(from 0deg, transparent 0%, transparent 75%, ${c0} 88%, transparent 100%)` }}
+        />
+      );
+
+    case 'rainbow':
+      return (
+        <div
+          className="absolute -inset-1 rounded-full profile-ring-mask pointer-events-none"
+          style={{ background: 'conic-gradient(#ef4444, #f97316, #facc15, #4ade80, #22d3ee, #3b82f6, #a855f7, #ef4444)' }}
+        />
+      );
+
+    case 'aurora':
+      return (
+        <div
+          className="absolute -inset-1 rounded-full profile-ring-mask profile-ring-mask-slow pointer-events-none"
+          style={{ background: `conic-gradient(${colors.join(', ')}, ${colors[0]})` }}
+        />
+      );
+
+    case 'pulse':
+      return (
+        <>
+          <div className="absolute inset-0 rounded-full profile-pulse-ring pointer-events-none" style={{ borderColor: c0 }} />
+          <div className="absolute inset-0 rounded-full profile-pulse-ring pointer-events-none" style={{ borderColor: c0, animationDelay: '1s' }} />
+        </>
+      );
+
+    case 'ripple':
+      return (
+        <>
+          <div className="absolute inset-0 rounded-full profile-ripple-ring pointer-events-none" style={{ borderColor: c0 }} />
+          <div className="absolute inset-0 rounded-full profile-ripple-ring pointer-events-none" style={{ borderColor: c0, animationDelay: '0.8s' }} />
+          <div className="absolute inset-0 rounded-full profile-ripple-ring pointer-events-none" style={{ borderColor: c0, animationDelay: '1.6s' }} />
+        </>
+      );
+
+    case 'halo':
+      return <div className="absolute -inset-1 rounded-full profile-halo pointer-events-none" style={{ boxShadow: `0 0 12px 3px ${c0}` }} />;
+
+    case 'confetti':
+      return CONFETTI_SPOTS.map((p, i) => {
+        const { left, top } = polarToPercent(p.angle, p.radius);
+        return (
+          <span
+            key={i}
+            className="absolute profile-confetti pointer-events-none border border-ink"
+            style={{ left: `${left}%`, top: `${top}%`, width: p.size, height: p.size, backgroundColor: colors[i % colors.length], animationDelay: `${p.delay}s` }}
+          />
+        );
+      });
+
+    case 'electric':
+      return ELECTRIC_ANGLES.map((angle, i) => {
+        const { left, top } = polarToPercent(angle, 58);
+        return (
+          <span
+            key={i}
+            className="absolute profile-electric-bolt pointer-events-none"
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              width: 8,
+              height: 14,
+              backgroundColor: c0,
+              clipPath: 'polygon(50% 0%, 20% 45%, 45% 45%, 30% 100%, 80% 40%, 55% 40%, 70% 0%)',
+              transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
+              filter: `drop-shadow(0 0 4px ${c0})`,
+              animationDelay: `${i * 0.18}s`,
+            }}
+          />
+        );
+      });
+
+    case 'comet':
+      return (
+        <div className="absolute inset-0 profile-orbit-a pointer-events-none">
+          {[0, -12, -24, -36].map((offset, i) => (
+            <div key={i} className="absolute inset-0" style={{ transform: `rotate(${offset}deg)` }}>
+              <span
+                className="absolute rounded-full"
+                style={{
+                  top: 0,
+                  left: '50%',
+                  width: `${8 - i * 1.5}px`,
+                  height: `${8 - i * 1.5}px`,
+                  backgroundColor: c0,
+                  opacity: 1 - i * 0.22,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      );
+
+    case 'firefly':
+      return FIREFLY_ANGLES.map((angle, i) => {
+        const { left, top } = polarToPercent(angle, i % 2 === 0 ? 56 : 46);
+        return (
+          <span
+            key={i}
+            className="absolute h-1.5 w-1.5 rounded-full profile-firefly pointer-events-none"
+            style={{ left: `${left}%`, top: `${top}%`, backgroundColor: c0, boxShadow: `0 0 5px 1px ${c0}aa`, animationDelay: `${i * 0.4}s` }}
+          />
+        );
+      });
+
+    case 'meteor':
+      return (
+        <div className="absolute -inset-2 pointer-events-none" style={{ overflow: 'visible' }}>
+          <span
+            className="absolute profile-meteor"
+            style={{ width: 3, height: 22, background: `linear-gradient(to bottom, transparent, ${c0})`, left: '50%', top: '50%' }}
+          />
+        </div>
+      );
+
+    case 'starburst':
+      return (
+        <div className="absolute inset-0 profile-orbit-c pointer-events-none">
+          {STARBURST_ANGLES.map((angle, i) => (
+            <div key={i} className="absolute inset-0" style={{ transform: `rotate(${angle}deg)` }}>
+              <span
+                className="absolute"
+                style={{ top: '-8%', left: '50%', width: 2, height: '10%', backgroundColor: c0, transform: 'translateX(-50%)', boxShadow: `0 0 4px ${c0}` }}
+              />
+            </div>
+          ))}
+        </div>
+      );
+
+    default:
+      return null;
+  }
+}
+
+// Cincin dasar avatar: hairline tipis khas editorial (bukan border tebal lagi)
+// di semua kondisi — efek animasi tambahan di atasnya, cincin dasar tetap halus.
+export function getBorderRingClass(effect: BorderEffect): string {
+  return effect.family === 'none' ? 'border border-ink/10' : 'border border-ink/10 ring-1 ring-accent/40';
+}
+
+// ============================================================================
+// Komponen CSS global — cukup di-mount SEKALI di root app (di-mount di Navbar,
+// karena selalu ke-render di semua halaman).
+// ============================================================================
+export function BorderEffectStyles() {
+  return (
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+      :root {
+        /* Hanya dua variable yang benar-benar dipakai (lihat body{} di bawah).
+           Variable lain yang sebelumnya ada di sini (--color-accent, --color-gold,
+           dst) sudah dihapus karena namanya bentrok secara makna dengan token
+           Tailwind global di src/index.css (mis. --color-accent di sana = terracotta,
+           sedangkan di sini dulu = abu-abu) padahal tidak dipakai di manapun —
+           berpotensi membingungkan siapa pun yang baca kode ini nanti.
+           Source of truth warna sekarang HANYA src/index.css @theme. */
+        --color-primary: #f5f4ed;
+        --color-ink: #141413;
+      }
+
+      body, .font-display {
+        font-family: Georgia, 'Times New Roman', serif;
+      }
+      .font-accent {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .font-meta {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+      body {
+        background-color: var(--color-primary);
+        color: var(--color-ink);
+      }
+      body.dark, .dark body {
+        background-color: #2a2824;
+        color: #f0eee2;
+      }
+
+      /* ═══ Dark mode overrides ═══
+         Terapkan lewat class .dark di root wrapper (App.tsx). Menargetkan
+         literal string className Tailwind arbitrary-value lewat attribute
+         selector, jadi tidak perlu ubah tiap komponen satu-satu. */
+
+      /* halaman (background utama) */
+      .dark [class*="bg-paper-soft"], .dark[class*="bg-paper-soft"] { background-color: #2a2824 !important; }
+
+      /* kartu / modal / form (surface) — urutan: umum dulu, varian opacity setelahnya */
+      .dark [class*="bg-paper"], .dark[class*="bg-paper"] { background-color: #1c1a17 !important; }
+      .dark [class*="bg-paper/20"], .dark[class*="bg-paper/20"] { background-color: rgba(28,26,23,0.2) !important; }
+      .dark [class*="bg-paper/60"], .dark[class*="bg-paper/60"] { background-color: rgba(28,26,23,0.6) !important; }
+      .dark [class*="bg-paper/70"], .dark[class*="bg-paper/70"] { background-color: rgba(28,26,23,0.7) !important; }
+
+      /* teks ink -> teks terang */
+      .dark [class*="text-ink"], .dark[class*="text-ink"] { color: #f0eee2 !important; }
+      .dark [class*="text-ink/30"], .dark[class*="text-ink/30"] { color: rgba(240,238,226,0.3) !important; }
+      .dark [class*="text-ink/40"], .dark[class*="text-ink/40"] { color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="text-ink/50"], .dark[class*="text-ink/50"] { color: rgba(240,238,226,0.5) !important; }
+      .dark [class*="text-ink/60"], .dark[class*="text-ink/60"] { color: rgba(240,238,226,0.6) !important; }
+      .dark [class*="text-ink/70"], .dark[class*="text-ink/70"] { color: rgba(240,238,226,0.7) !important; }
+      .dark [class*="text-ink/80"], .dark[class*="text-ink/80"] { color: rgba(240,238,226,0.8) !important; }
+
+      /* border ink -> border terang tipis (umum dulu, baru varian opacity spesifik) */
+      .dark [class*="border-ink"], .dark[class*="border-ink"] { border-color: rgba(240,238,226,0.3) !important; }
+      .dark [class*="border-ink/10"], .dark[class*="border-ink/10"] { border-color: rgba(240,238,226,0.1) !important; }
+      .dark [class*="border-ink/15"], .dark[class*="border-ink/15"] { border-color: rgba(240,238,226,0.15) !important; }
+      .dark [class*="border-ink/25"], .dark[class*="border-ink/25"] { border-color: rgba(240,238,226,0.25) !important; }
+      .dark [class*="border-ink/40"], .dark[class*="border-ink/40"] { border-color: rgba(240,238,226,0.4) !important; }
+
+      /* fill tipis / skeleton pulse / divider kecil (bukan scrim modal besar) */
+      .dark [class*="bg-ink/5"], .dark[class*="bg-ink/5"] { background-color: rgba(240,238,226,0.06) !important; }
+      .dark [class*="bg-ink/10"], .dark[class*="bg-ink/10"] { background-color: rgba(240,238,226,0.1) !important; }
+      .dark [class*="bg-ink/20"], .dark[class*="bg-ink/20"] { background-color: rgba(240,238,226,0.15) !important; }
+
+      /* placeholder & bintang rating */
+      .dark [class*="placeholder-ink/40"]::placeholder, .dark[class*="placeholder-ink/40"]::placeholder { color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="fill-ink"], .dark[class*="fill-ink"] { fill: #f0eee2 !important; }
+
+      /* ring-shadow: ganti warna ring dari gelap ke terang biar tetap kelihatan di atas surface gelap */
+      .dark [class*="shadow-card"],
+      .dark[class*="shadow-card"] {
+        box-shadow: 0 0 0 1px rgba(240,238,226,0.08), 0 2px 12px rgba(0,0,0,0.35) !important;
+      }
+      .dark [class*="shadow-card-hover"],
+      .dark[class*="shadow-card-hover"] {
+        box-shadow: 0 0 0 1px rgba(240,238,226,0.1), 0 6px 20px rgba(0,0,0,0.45) !important;
+      }
+      .dark [class*="hover:shadow-card-hover"]:hover,
+      .dark[class*="hover:shadow-card-hover"]:hover {
+        box-shadow: 0 0 0 1px rgba(240,238,226,0.1), 0 6px 20px rgba(0,0,0,0.45) !important;
+      }
+
+      @keyframes sparkleTwinkle {
+        0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      }
+      .profile-sparkle { animation: sparkleTwinkle 1.8s ease-in-out infinite; }
+
+      @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .profile-orbit-a { animation: orbitSpin 3s linear infinite; }
+      .profile-orbit-b { animation: orbitSpin 4.5s linear infinite reverse; }
+      .profile-orbit-c { animation: orbitSpin 8s linear infinite; }
+
+      .profile-ring-mask {
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+        animation: orbitSpin 2.5s linear infinite;
+      }
+      .profile-ring-mask-slow { animation: orbitSpin 7s linear infinite; filter: blur(1px); }
+
+      @keyframes pulseRingAnim {
+        0% { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(1.35); opacity: 0; }
+      }
+      .profile-pulse-ring { border-width: 2px; border-style: solid; animation: pulseRingAnim 2s ease-out infinite; }
+
+      @keyframes rippleRingAnim {
+        0% { transform: scale(0.9); opacity: 0.55; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+      .profile-ripple-ring { border-width: 1px; border-style: solid; animation: rippleRingAnim 2.4s ease-out infinite; }
+
+      @keyframes haloBreathe {
+        0%, 100% { opacity: 0.35; filter: blur(1px); }
+        50% { opacity: 0.9; filter: blur(0px); }
+      }
+      .profile-halo { animation: haloBreathe 2.6s ease-in-out infinite; }
+
+      @keyframes confettiPop {
+        0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(0deg); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(20deg); }
+      }
+      .profile-confetti { animation: confettiPop 2.2s ease-in-out infinite; border-radius: 1px; }
+
+      @keyframes electricFlicker {
+        0%, 19%, 21%, 23%, 100% { opacity: 0.12; }
+        20%, 22%, 50%, 52%, 74% { opacity: 1; }
+        51%, 73%, 75% { opacity: 0.3; }
+      }
+      .profile-electric-bolt { animation: electricFlicker 1.6s steps(1) infinite; }
+
+      @keyframes fireflyDrift {
+        0%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(0, 0); }
+        30% { opacity: 1; }
+        50% { opacity: 0.7; transform: translate(-50%, -50%) translate(3px, -4px); }
+        70% { opacity: 1; }
+      }
+      .profile-firefly { animation: fireflyDrift 3s ease-in-out infinite; }
+
+      @keyframes meteorStreak {
+        0% { transform: translate(-160%, -160%) rotate(45deg); opacity: 0; }
+        8% { opacity: 1; }
+        30% { transform: translate(140%, 140%) rotate(45deg); opacity: 0; }
+        100% { opacity: 0; }
+      }
+      .profile-meteor { animation: meteorStreak 3.2s linear infinite; }
+    `}</style>
+  );
+}
+
+// ============================================================================
+// ProfileAvatar — pembungkus siap pakai: foto (atau huruf depan nama kalau
+// belum ada foto) + border animasi, dipakai di semua tempat yang nampilin
+// avatar user (Navbar, UserProfile, AuthorProfile, AddonCard, AddonDetail).
+// Neubrutalism: fallback background kuning + huruf hitam tebal, cincin dasar
+// border hitam solid — kontras dan konsisten dengan sisa UI.
+// ============================================================================
+interface ProfileAvatarProps {
+  photoURL?: string | null;
+  displayName?: string | null;
+  borderValue?: string | null;
+  sizeClassName?: string;
+  textSizeClassName?: string;
+  selected?: boolean;
+  className?: string;
+}
+
+export function ProfileAvatar({
+  photoURL,
+  displayName,
+  borderValue,
+  sizeClassName = 'h-10 w-10',
+  textSizeClassName = 'text-sm',
+  selected,
+  className = '',
+}: ProfileAvatarProps) {
+  const effect = getBorderEffect(borderValue);
+  const fallback = (displayName || '?').charAt(0).toUpperCase();
+
+  return (
+    <div className={`relative ${sizeClassName} shrink-0 ${className}`}>
+      {renderBorderDecoration(effect)}
+      <div className={`relative h-full w-full overflow-hidden rounded-full bg-paper flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
+        {photoURL ? (
+          <FadeImage src={photoURL} alt={displayName || 'avatar'} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+        ) : (
+          <span className={`font-bold text-ink ${textSizeClassName}`}>{fallback}</span>
+        )}
+        {selected && (
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/60">
+            <Check size={16} className="text-accent-deep" strokeWidth={3} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

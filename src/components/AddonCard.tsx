@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, Download, User as UserIcon, Star, ArrowDownToLine, ChevronLeft, ChevronRight, Info, Loader2, Check, ExternalLink } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState } from 'react';
+import {
+  Heart, Download, Star, ArrowDownToLine,
+  Info, Loader2, Check, ExternalLink
+} from 'lucide-react';
 import { Addon } from '../types';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { ViewState } from '../App';
-import { db } from '../firebase';
-import { doc, updateDoc, increment } from 'firebase/firestore';
 import { FadeImage } from './FadeImage';
+import { ProfileAvatar } from './borderEffects';
+
+function stripHtml(html: string): string {
+  if (!html) return '';
+  return html
+    .replace(/<(br|\/p|\/div|\/li)>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 interface AddonCardProps {
   addon: Addon;
@@ -14,95 +26,76 @@ interface AddonCardProps {
   onToggleLike: (addonId: string, isLiked: boolean) => void;
   onRequireAuth?: () => void;
   onNavigate?: (view: ViewState) => void;
+  priority?: boolean;
 }
 
-export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate }: AddonCardProps) {
+export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate, priority = false }: AddonCardProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
-  const [authorBorder, setAuthorBorder] = useState<string>('none');
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [authorPhoto, setAuthorPhoto] = useState<string | null>(addon.authorPhoto ?? null);
+  const [authorBorder, setAuthorBorder] = useState<string>(addon.authorBorder ?? 'none');
   const [showInfo, setShowInfo] = useState(false);
 
-  const images = addon.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls : [addon.imageUrl];
+  const coverImage = addon.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls[0] : addon.imageUrl;
 
   React.useEffect(() => {
-    let mounted = true;
+    if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) return;
+    let cancelled = false;
     const fetchAuthor = async () => {
       try {
-        const { fetchUserCached } = await import('../lib/userCache');
-        const userData = await fetchUserCached(addon.authorId);
-        if (mounted && userData) {
-          setAuthorPhoto(userData.photoURL || null);
-          setAuthorBorder(userData.profileBorder || 'none');
+        const res = await fetch(`/api/users?id=${addon.authorId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled) {
+            setAuthorPhoto(data.photoURL || null);
+            setAuthorBorder(data.profileBorder || 'none');
+          }
         }
-      } catch (e) {
-        console.error("Failed to fetch author", e);
-      }
+      } catch (e) {}
     };
     fetchAuthor();
-    return () => { mounted = false; };
-  }, [addon.authorId]);
+    return () => { cancelled = true; };
+  }, [addon.authorId, addon.authorPhoto, addon.authorBorder]);
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) {
-      if (onRequireAuth) onRequireAuth();
-      return;
-    }
+    if (!user) { if (onRequireAuth) onRequireAuth(); return; }
     onToggleLike(addon.id, isLiked);
   };
 
   const handleCardClick = () => {
-    if (onNavigate) {
-      onNavigate({ type: 'addon', id: addon.id });
-    }
+    if (onNavigate) onNavigate({ type: 'addon', id: addon.id });
   };
 
   const handleAuthorClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onNavigate) {
-      onNavigate({ type: 'author', id: addon.authorId });
-    }
+    if (onNavigate) onNavigate({ type: 'author', id: addon.authorId });
   };
 
   const handleDownloadClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (isDownloading || downloadSuccess) return;
-    
     setIsDownloading(true);
     setDownloadProgress(0);
-
-    // Simulate download progress
     const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 10;
-      });
+      setDownloadProgress(prev => { if (prev >= 100) { clearInterval(interval); return 100; } return prev + 10; });
     }, 200);
-
     try {
-      const addonRef = doc(db, 'addons', addon.id);
-      await updateDoc(addonRef, {
-        downloadsCount: increment(1)
-      });
-      
-      // Wait for progress to reach 100
+      try {
+        await fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' });
+      } catch (countError) {}
       await new Promise(resolve => setTimeout(resolve, 2200));
-      
       setDownloadSuccess(true);
       window.open(addon.downloadUrl, '_blank');
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (error) {
-      console.error("Failed to increment download count:", error);
+      showToast('Download failed. Please try again.', 'error');
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
@@ -110,237 +103,164 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
     }
   };
 
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-
   const toggleInfo = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowInfo(!showInfo);
   };
 
-  const getBorderClass = (borderType: string) => {
-    switch (borderType) {
-      case 'gold': return 'ring-1 ring-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]';
-      case 'neon': return 'ring-1 ring-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]';
-      case 'fire': return 'ring-1 ring-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]';
-      case 'void': return 'ring-1 ring-purple-600 shadow-[0_0_8px_rgba(147,51,234,0.6)]';
-      default: return 'border border-white/10';
-    }
-  };
-
   return (
-    <article 
+    <div
       onClick={handleCardClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleCardClick();
-        }
-      }}
-      tabIndex={0}
-      aria-label={`View details for ${addon.title}`}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[24px] bg-zinc-900 border border-white/5 transition duration-300 hover:border-white/20 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 shadow-lg hover:shadow-2xl"
+      className="group relative flex cursor-pointer flex-col overflow-hidden bg-paper rounded-lg shadow-card transition-all duration-200 hover:scale-[1.03] hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
     >
-      
-      {/* Inner Card Content */}
-      <div className="relative flex flex-col h-full w-full overflow-hidden rounded-[calc(24px-1px)]">
-        <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-950 relative group/carousel">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink">
         <FadeImage
-          src={images[currentImageIndex]}
+          src={coverImage}
           alt={addon.title}
           containerClassName="h-full w-full"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 active:scale-[0.96]"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           referrerPolicy="no-referrer"
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
         />
-        
-        {images.length > 1 && (
-          <>
-            <button 
-              onClick={prevImage}
-              aria-label="Previous image"
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <ChevronLeft size={16} aria-hidden="true" />
-            </button>
-            <button 
-              onClick={nextImage}
-              aria-label="Next image"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <ChevronRight size={16} aria-hidden="true" />
-            </button>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5" aria-hidden="true">
-              {images.map((_, idx) => (
-                <div 
-                  key={idx} 
-                  className={`h-1.5 rounded-full transition ${idx === currentImageIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40'}`}
-                />
-              ))}
-            </div>
-          </>
-        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80 pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none pe-4">
-          <span className="inline-flex items-center rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 w-fit">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
+          <span className="inline-flex items-center bg-accent rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-card">
             {addon.category}
           </span>
           {addon.status === 'pending' && (
-            <span className="inline-flex items-center rounded-full bg-amber-500/20 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-300 border border-amber-500/30 w-fit">
-              Pending Approval
+            <span className="inline-flex items-center bg-paper rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-card">
+              Pending
             </span>
           )}
           {addon.status === 'rejected' && (
-            <span className="inline-flex items-center rounded-full bg-red-500/20 backdrop-blur-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-red-300 border border-red-500/30 w-fit">
+            <span className="inline-flex items-center bg-danger rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-card">
               Rejected
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5 bg-zinc-900">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-200 transition-colors line-clamp-1 text-balance">
+      {/* Body */}
+      <div className="flex flex-1 flex-col p-5 bg-paper">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base font-bold text-ink leading-tight line-clamp-1 uppercase tracking-tight">
             {addon.title}
           </h3>
           <div className="flex items-center gap-2 shrink-0">
-            <button 
+            <button
               onClick={toggleInfo}
-              aria-expanded={showInfo}
-              aria-label="Toggle addon details"
-              className={`p-1.5 rounded-full transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${showInfo ? 'bg-zinc-800 text-white' : 'bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+              aria-label={showInfo ? 'Hide additional info' : 'Show additional info'}
+              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-accent-deep text-white shadow-none' : 'bg-paper text-ink shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'}`}
             >
-              <Info size={16} aria-hidden="true" />
+              <Info size={14} />
             </button>
             {addon.averageRating !== undefined && addon.averageRating > 0 && (
-              <div className="flex items-center gap-1 text-xs font-medium text-zinc-300 bg-zinc-800/50 px-2 py-1 rounded-full border border-white/5">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
+              <div className="flex items-center gap-1 bg-accent rounded-lg px-2 py-1 text-xs font-bold text-ink shadow-card">
+                <Star size={11} className="fill-ink" />
                 <span>{addon.averageRating.toFixed(1)}</span>
               </div>
             )}
           </div>
         </div>
-        
+
+        {addon.tags && addon.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {addon.tags.slice(0, 3).map((tag, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center border border-ink/10 rounded-lg bg-paper px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/70"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {showInfo ? (
-          <div className="mt-3 flex-1 overflow-y-auto pe-2 space-y-3 text-sm text-zinc-400 font-light custom-scrollbar">
+          <div className="mt-3 flex-1 overflow-y-auto pr-1 space-y-3 text-sm text-ink/70 custom-scrollbar">
             {addon.demoUrl && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Demo / Preview</strong>
-                <p className="mt-1 text-pretty">
-                  <a 
-                    href={addon.demoUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-violet-400 hover:text-violet-300 transition-colors"
-                  >
-                    View Demo
-                    <ExternalLink size={12} />
+                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Demo</strong>
+                <p className="mt-1">
+                  <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent-soft font-bold underline hover:no-underline">
+                    View Demo <ExternalLink size={12} />
                   </a>
                 </p>
               </div>
             )}
             {addon.versionHistory && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Version History</strong>
-                <p className="mt-1 text-pretty">{addon.versionHistory}</p>
+                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Version History</strong>
+                <p className="mt-1 font-medium">{addon.versionHistory}</p>
               </div>
             )}
             {addon.compatibilityNotes && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Compatibility</strong>
-                <p className="mt-1 text-pretty">{addon.compatibilityNotes}</p>
+                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Compatibility</strong>
+                <p className="mt-1 font-medium">{addon.compatibilityNotes}</p>
               </div>
             )}
             {addon.changelog && (
               <div>
-                <strong className="text-zinc-300 text-xs uppercase tracking-wider">Changelog</strong>
-                <p className="mt-1 whitespace-pre-wrap text-xs text-pretty">{addon.changelog}</p>
+                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Changelog</strong>
+                <p className="mt-1 whitespace-pre-wrap text-xs font-medium">{addon.changelog}</p>
               </div>
             )}
             {!addon.versionHistory && !addon.compatibilityNotes && !addon.changelog && !addon.demoUrl && (
-              <p className="italic opacity-50 text-pretty">No additional info available.</p>
+              <p className="italic opacity-50 font-medium">No additional info available.</p>
             )}
           </div>
         ) : (
-          <p className="mt-3 line-clamp-2 flex-1 text-sm text-zinc-400 leading-relaxed font-light">
-            {addon.description}
+          <p className="mt-2.5 line-clamp-2 flex-1 text-sm text-ink/60 leading-relaxed font-medium">
+            {stripHtml(addon.description)}
           </p>
         )}
 
-        <div className="mt-auto pt-6 flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <button 
-              className="flex items-center gap-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer group/author active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg pe-2 min-w-0"
-              onClick={handleAuthorClick}
-              aria-label={`View ${addon.authorName}'s profile`}
-            >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 overflow-hidden transition group-hover/author:border-white/30 border border-white/5 ${getBorderClass(authorBorder)}`} aria-hidden="true">
-                {authorPhoto ? (
-                  <FadeImage src={authorPhoto} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                ) : (
-                  <span className="text-xs font-medium">{addon.authorName.charAt(0)}</span>
-                )}
-              </div>
-              <span className="truncate group-hover/author:text-white transition-colors">{addon.authorName}</span>
-            </button>
-            
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={handleLikeClick}
-                aria-label={isLiked ? "Unlike addon" : "Like addon"}
-                className={`flex items-center gap-1.5 text-xs font-medium transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-full px-2 py-1.5 ${
-                  isLiked ? 'text-rose-500 bg-rose-500/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-                }`}
-              >
-                <Heart size={16} className={isLiked ? 'fill-rose-500' : ''} aria-hidden="true" />
-                <span>{addon.likesCount}</span>
-              </button>
-              
-              <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-1.5 rounded-full" aria-label={`${addon.downloadsCount || 0} downloads`} title={`${addon.downloadsCount || 0} downloads`}>
-                <ArrowDownToLine size={16} aria-hidden="true" />
-                <span>{addon.downloadsCount || 0}</span>
-              </div>
-            </div>
-          </div>
-          
-          <button
-            onClick={handleDownloadClick}
-            disabled={isDownloading}
-            aria-label={downloadSuccess ? "Downloaded" : isDownloading ? "Downloading..." : "Download Addon"}
-            className={`relative overflow-hidden flex w-full justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition active:scale-[0.96] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${
-              downloadSuccess 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-white text-black hover:bg-zinc-200'
-            }`}
+        <div className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4">
+          <div
+            className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer hover:text-accent-deep transition-colors"
+            onClick={handleAuthorClick}
           >
-            {isDownloading && (
-              <div 
-                className="absolute inset-0 bg-black/10 transition duration-200" 
-                style={{ width: `${downloadProgress}%` }} 
-              />
-            )}
-            <div className="relative z-10 flex items-center gap-2">
-              {isDownloading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : downloadSuccess ? (
-                <Check size={16} strokeWidth={2} />
-              ) : (
-                <Download size={16} strokeWidth={2} />
-              )}
-              <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Success!' : 'Get Add-on'}</span>
+            <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName="h-7 w-7" textSizeClassName="text-xs" />
+            <span className="truncate max-w-[100px]">{addon.authorName}</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLikeClick}
+              className={`flex items-center gap-1 text-xs font-bold transition-colors ${isLiked ? 'text-accent-deep' : 'text-ink hover:text-accent-deep'}`}
+            >
+              <Heart size={15} className={isLiked ? 'fill-current' : ''} />
+              <span>{addon.likesCount}</span>
+            </button>
+            <div className="flex items-center gap-1 text-xs font-bold text-ink">
+              <ArrowDownToLine size={15} />
+              <span>{addon.downloadsCount || 0}</span>
             </div>
-          </button>
+            <button
+              onClick={handleDownloadClick}
+              disabled={isDownloading}
+              className={`relative overflow-hidden flex items-center gap-1.5 border border-ink/10 rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all ${
+                downloadSuccess
+                  ? 'bg-paper text-success shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
+                  : 'bg-accent text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'
+              }`}
+            >
+              {isDownloading && (
+                <div
+                  className="absolute inset-0 origin-left bg-accent-soft/30 transition-transform duration-200 ease-linear will-change-transform"
+                  style={{ transform: `scaleX(${downloadProgress / 100})` }}
+                />
+              )}
+              <div className="relative z-10 flex items-center gap-1">
+                {isDownloading ? <Loader2 size={13} className="animate-spin" /> : downloadSuccess ? <Check size={13} /> : <Download size={13} />}
+                <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Done!' : 'Get'}</span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
-      </div>
-    </article>
+    </div>
   );
-});
+}

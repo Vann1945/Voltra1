@@ -9,28 +9,42 @@ export interface User {
   profileBorder?: string;
 }
 
+export interface AddonSocial {
+  platform: string;
+  url: string;
+}
+
 export interface Addon {
   id: string;
   title: string;
   description: string;
   category: 'Resource Pack' | 'Behavior Pack' | 'World' | 'Skin Pack' | 'Mod';
+  projectClass: 'Bukkit Plugins' | 'Modpack' | 'Customization' | 'Add-Ons' | 'Shaders' | 'Mods' | 'Resource Packs' | 'Data Pack' | 'World' | 'Skin Pack';
+  additionalCategory?: string;
   imageUrl: string;
   imageUrls?: string[];
   downloadUrl: string;
+  demoUrl?: string;
   authorId: string;
   authorName: string;
+  authorPhoto?: string | null;
+  authorBorder?: string;
   createdAt: string;
   likesCount: number;
+  downloadsCount?: number;
   tags: string[];
   averageRating?: number;
   ratingCount?: number;
-  downloadsCount?: number;
   status?: 'pending' | 'approved' | 'rejected';
   isFeatured?: boolean;
   versionHistory?: string;
   compatibilityNotes?: string;
   changelog?: string;
-  demoUrl?: string;
+  license?: string;
+  distributionPref?: string;
+  unlisted?: boolean;
+  allowComments?: boolean;
+  socials?: AddonSocial[];
 }
 
 export interface Like {
@@ -44,8 +58,9 @@ export interface Review {
   addonId: string;
   userId: string;
   userName: string;
+  userPhoto?: string | null;
   rating: number;
-  text: string;
+  comment: string | null;
   createdAt: string;
 }
 
@@ -54,6 +69,6 @@ export interface Report {
   addonId: string;
   userId: string;
   reason: string;
-  status: 'pending' | 'reviewed' | 'resolved';
+  status: 'pending' | 'resolved';
   createdAt: string;
 }

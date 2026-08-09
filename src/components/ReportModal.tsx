@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { X, AlertTriangle, Loader2 } from 'lucide-react';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, AlertTriangle, Loader2, ChevronDown, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../hooks/useToast';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -16,40 +15,49 @@ const REPORT_REASONS = [
   'Spam or Misleading',
   'Copyright Violation',
   'Malware or Virus',
-  'Other'
+  'Other',
 ];
 
 export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState(REPORT_REASONS[0]);
   const [otherReason, setOtherReason] = useState('');
+  const [isReasonOpen, setIsReasonOpen] = useState(false);
+  const reasonDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (reasonDropdownRef.current && !reasonDropdownRef.current.contains(e.target as Node)) setIsReasonOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
+    if (!user) {
+      showToast('You need to sign in to report an add-on.', 'error');
+      return;
+    }
     setLoading(true);
     try {
-      const reportId = crypto.randomUUID();
       const finalReason = reason === 'Other' ? otherReason : reason;
-
-      await setDoc(doc(db, 'reports', reportId), {
-        id: reportId,
-        addonId,
-        userId: user.uid,
-        reason: finalReason,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addonId, reason: finalReason }),
       });
-
-      alert('Report submitted successfully. Thank you.');
-      onClose();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to submit report.');
+      showToast('Report submitted. Thank you.', 'success');
       setReason(REPORT_REASONS[0]);
       setOtherReason('');
-    } catch (error) {
-      console.error('Error submitting report:', error);
-      alert('Failed to submit report. Please try again.');
+      onClose();
+    } catch (error: any) {
+      showToast(error?.message || 'Failed to submit report. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -58,74 +66,114 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-zinc-950/80 "
+            className="absolute inset-0 bg-ink/70"
           />
+
+          {/* Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
-            className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] border border-white/5 bg-zinc-950 shadow-[0_16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] p-2"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-md bg-paper rounded-lg shadow-card"
           >
-            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
-              <h2 className="text-xl font-medium text-white flex items-center gap-2">
-                <AlertTriangle className="text-rose-500" size={20} />
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-danger/20 px-7 py-5 bg-danger/[0.06]">
+              <h2 className="text-lg font-bold text-ink flex items-center gap-2">
+                <AlertTriangle size={20} className="text-danger" />
                 Report Add-on
               </h2>
-              <button onClick={onClose} className="rounded-full p-2 text-zinc-400 hover:bg-white/5 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.96]">
-                <X size={20} />
+              <button
+                onClick={onClose}
+ className="p-1.5 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              >
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-3">Reason for reporting</label>
-                  <select
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition appearance-none"
-                  >
-                    {REPORT_REASONS.map(r => (
-                      <option key={r} value={r} className="bg-zinc-900">{r}</option>
-                    ))}
-                  </select>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-7">
+              <div className="space-y-5">
+                {/* Reason dropdown */}
+                <div ref={reasonDropdownRef}>
+                  <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">
+                    Reason
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsReasonOpen(prev => !prev)}
+ className="flex w-full items-center justify-between rounded-lg bg-paper px-5 py-3.5 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px focus:outline-none"
+                    >
+                      <span>{reason}</span>
+                      <ChevronDown size={15} className={`transition-transform duration-200 ${isReasonOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {isReasonOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.12 }}
+ className="absolute z-30 mt-1 w-full overflow-hidden rounded-lg bg-paper shadow-card"
+                        >
+                          {REPORT_REASONS.map(r => (
+                            <button
+                              key={r}
+                              type="button"
+                              onClick={() => { setReason(r); setIsReasonOpen(false); }}
+                              className={`flex w-full items-center justify-between px-5 py-3 text-left text-sm font-bold border-b border-ink/10 last:border-b-0 transition-colors ${
+                                r === reason ? 'bg-accent text-ink' : 'text-ink hover:bg-accent/50'
+                              }`}
+                            >
+                              {r}
+                              {r === reason && <Check size={13} />}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
 
+                {/* Other reason textarea */}
                 {reason === 'Other' && (
                   <div>
-                    <label className="block text-sm font-medium text-zinc-400 mb-3">Please specify</label>
+                    <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">
+                      Please specify
+                    </label>
                     <textarea
                       required
                       rows={3}
                       value={otherReason}
-                      onChange={(e) => setOtherReason(e.target.value)}
-                      className="block w-full rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-white placeholder-zinc-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 transition resize-none"
+                      onChange={e => setOtherReason(e.target.value)}
+                      className="block w-full border border-ink/10 rounded-lg bg-paper px-4 py-3 text-sm font-medium text-ink placeholder-ink/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
                       placeholder="Provide more details..."
                     />
                   </div>
                 )}
               </div>
 
-              <div className="mt-8 flex justify-end gap-3">
+              {/* Actions */}
+              <div className="mt-7 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-full px-6 py-3 text-sm font-medium text-zinc-400 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.96]"
+ className="px-5 py-3 text-sm font-bold text-ink rounded-lg bg-paper shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                  className="flex items-center justify-center gap-2 rounded-full bg-rose-500 px-8 py-3 text-sm font-medium text-white hover:bg-rose-600 disabled:opacity-50 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 active:not-disabled:scale-[0.96]"
+                  className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? <Loader2 size={16} className="animate-spin" /> : null}
+                  {loading && <Loader2 size={15} className="animate-spin" />}
                   {loading ? 'Submitting...' : 'Submit Report'}
                 </button>
               </div>

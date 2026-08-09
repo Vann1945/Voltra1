@@ -1,8 +1,35 @@
 node_modules/
-build/
 dist/
-coverage/
-.DS_Store
-*.log
-.env*
+build/
+.env
+.env.*
 !.env.example
+.DS_Store
+npm-debug.log*
+*.local
+coverage/
+.vercel/
+.firebase/
+.firebase/
+*.pem
+**/serviceAccountKey.json
+**/*service-account*.json
+
+# Local tooling and generated artifacts
+*.log
+.vscode/
+.idea/
+__pycache__/
+
+# Temporary project archives
+*.zip
+*.tar.gz
+
+# Keep source assets tracked
+!important-assets/
+
+# Git metadata
+.git/
+
+# OS files
+Thumbs.db
