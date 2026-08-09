@@ -169,7 +169,7 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
       return;
     }
 
-    fetch('/api/upload-sign', { method: 'POST', credentials: 'include' })
+    fetch('/api/upload-image?type=sign', { method: 'POST', credentials: 'include' })
       .then(async signRes => {
         const signData = await signRes.json();
         if (!signRes.ok) throw new Error(signData?.error || 'Failed to prepare upload.');
