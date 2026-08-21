@@ -35,6 +35,15 @@
   --shadow-card: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 2px 12px rgba(0, 0, 0, 0.06);
   --shadow-card-hover: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 6px 20px rgba(0, 0, 0, 0.1);
   --shadow-card-float: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 20px 50px rgba(0, 0, 0, 0.15);
+  
+  /* Cool colors for modern UI */
+  --color-cool-bg: #e2e8f0;
+  --color-cool-surface: #f8fafc;
+  --color-cool-primary: #3b82f6;
+  --color-cool-secondary: #0ea5e9;
+  --color-cool-accent: #6366f1;
+  --color-cool-text: #0f172a;
+  --color-cool-text-muted: #475569;
 
   --color-parchment: #f5f4ed;
   --color-parchment-raised: #faf9f5;
@@ -69,6 +78,57 @@
   --shadow-card: 0 0 0 1px rgba(216,213,201,0.05), 0 2px 12px rgba(0,0,0,0.6);
   --shadow-card-hover: 0 0 0 1px rgba(216,213,201,0.05), 0 6px 20px rgba(0,0,0,0.7);
   --shadow-card-float: 0 0 0 1px rgba(216,213,201,0.05), 0 20px 50px rgba(0,0,0,0.75);
+  
+  --color-cool-bg: #020617;
+  --color-cool-surface: #0f172a;
+  --color-cool-text: #f8fafc;
+  --color-cool-text-muted: #94a3b8;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass, .oled .glass {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Neumorphism Utilities */
+.neumorph {
+  background: var(--color-paper);
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+}
+
+.dark .neumorph {
+  background: var(--color-paper);
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5), -5px -5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.oled .neumorph {
+  background: #0c0c0c;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.7), -5px -5px 10px rgba(255, 255, 255, 0.02);
+}
+
+/* 3D Button Effect */
+.btn-3d {
+  transition: all 0.2s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-accent) 70%, black);
+}
+
+.btn-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 70%, black);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -124,14 +184,11 @@ body {
   animation: cell-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/*
- * Bug: Skeleton.tsx sudah lama memakai `animate-[shimmer_1.5s_infinite]`
- * tapi keyframe `shimmer` ini tidak pernah didefinisikan di mana pun di
- * project — jadi tiap skeleton loading di seluruh aplikasi (card
- * marketplace, halaman detail, admin panel, dst.) selama ini cuma tampil
- * sebagai kotak abu-abu statis, bukan efek shimmer yang mengalir.
- */
+/* Shimmer animation for Skeleton */
 @keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
   100% {
     transform: translateX(100%);
   }

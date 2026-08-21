@@ -59,7 +59,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         <h3 className="text-lg font-bold text-ink uppercase">This author has no public add-ons yet</h3>
         <button
           onClick={() => onNavigate('home')}
-          className="mt-5 inline-flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+          className="mt-5 inline-flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
         >
           Return to Marketplace
         </button>
@@ -78,7 +78,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
       </button>
 
       {/* Author header */}
-      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-paper p-8 rounded-lg shadow-card">
+      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-paper p-8 rounded-lg shadow-card neumorph glass">
         <ProfileAvatar
           photoURL={authorPhoto}
           displayName={authorName}

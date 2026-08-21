@@ -53,15 +53,15 @@ function isSafeUrl(v: unknown): v is string {
   }
 }
 
-export function validateAddonPatch(body: Record<string, any>, isAdmin: boolean): string {
-  if (isAdmin && 'status' in body && !ALLOWED_STATUSES.includes(body.status)) {
+export function validateAddonPatch(body: Record<string, unknown>, isAdmin: boolean): string {
+  if (isAdmin && 'status' in body && typeof body.status === 'string' && !ALLOWED_STATUSES.includes(body.status)) {
     return 'Invalid status.';
   }
   if (isAdmin && 'category' in body && (typeof body.category !== 'string' || body.category.length > 100)) {
     return 'Invalid category.';
   }
   if (isAdmin && 'tags' in body) {
-    if (!Array.isArray(body.tags) || body.tags.length > 20 || body.tags.some((t: any) => typeof t !== 'string' || t.length > 30)) {
+    if (!Array.isArray(body.tags) || body.tags.length > 20 || body.tags.some((t: unknown) => typeof t !== 'string' || t.length > 30)) {
       return 'Invalid tags.';
     }
   }

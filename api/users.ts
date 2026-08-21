@@ -76,9 +76,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       return res.status(405).json({ error: 'Method not allowed' });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/users habit] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process habit.' });
     }
   }
@@ -117,9 +117,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
 
       return res.status(200).json({ ok: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/users habit-log] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process log entry.' });
     }
   }
@@ -156,9 +156,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         [displayName ?? null, photoURL ?? null, bio ?? null, profileBorder || 'none', user.uid]
       );
       return res.status(200).json({ ok: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/users me] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to update profile.' });
     }
   }
@@ -193,9 +193,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         await query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
         return res.status(200).json({ ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         safeLogError('[api/users PATCH id] error:', err);
-        const status = err?.statusCode || 500;
+        const status = (err as any)?.statusCode || 500;
         return res.status(status).json({ error: status === 403 ? 'Admins only.' : 'Failed to update role.' });
       }
     }
@@ -208,9 +208,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         await query('DELETE FROM users WHERE id = ?', [id]);
         return res.status(200).json({ ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         safeLogError('[api/users DELETE id] error:', err);
-        const status = err?.statusCode || 500;
+        const status = (err as any)?.statusCode || 500;
         return res.status(status).json({ error: status === 403 ? 'Admins only.' : 'Failed to delete user.' });
       }
     }
@@ -237,9 +237,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           createdAt: new Date(r.created_at).toISOString(),
         })),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/users GET] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 403 ? 'Admins only.' : 'Failed to load users.' });
     }
   }

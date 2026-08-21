@@ -72,8 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             'INSERT INTO reviews (id, addon_id, user_id, user_name, user_photo, rating, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [reviewId, addonId, user.uid, user.name, user.image || null, rating, comment?.trim() || null]
           );
-        } catch (err: any) {
-          if (err?.code === 'ER_DUP_ENTRY') {
+        } catch (err: unknown) {
+          if ((err as any)?.code === 'ER_DUP_ENTRY') {
             await conn.rollback();
             conn.release();
             return res.status(409).json({ error: 'You have already reviewed this add-on.' });
@@ -97,9 +97,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       return res.status(201).json({ id: reviewId });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/reviews POST] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to submit review.' });
     }
   }

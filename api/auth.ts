@@ -49,8 +49,9 @@ async function sendWebResponse(webRes: Response, res: VercelResponse) {
       res.setHeader(key, value);
     }
   });
-  const cookies = typeof (webRes.headers as any).getSetCookie === 'function'
-    ? (webRes.headers as any).getSetCookie()
+  const headersAny = webRes.headers as unknown as { getSetCookie?: () => string[] };
+  const cookies = typeof headersAny.getSetCookie === 'function'
+    ? headersAny.getSetCookie()
     : webRes.headers.get('set-cookie')
       ? [webRes.headers.get('set-cookie') as string]
       : [];

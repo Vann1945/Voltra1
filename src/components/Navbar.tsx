@@ -412,7 +412,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
   return (
     <>
-    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-paper border-b border-ink/10">
+    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-paper border-b border-ink/10 glass">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
           <div className="relative hidden sm:block" ref={themeWrapperRef}>
@@ -454,7 +454,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             type="button"
             onClick={() => onNavigate('streak')}
             className={`group/streak flex items-center rounded-lg px-3 py-2 text-sm font-bold transition-all ${
-              currentView === 'streak' ? 'bg-accent text-ink shadow-card' : 'bg-paper text-ink shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'
+              currentView === 'streak' ? 'bg-accent text-ink shadow-card' : 'bg-paper text-ink shadow-card btn-3d'
             }`}
             title="Open streak"
           >
@@ -468,7 +468,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <button
               type="button"
               onClick={() => setIsSettingsOpen((v) => !v)}
-              className="group/settings flex items-center rounded-lg bg-paper px-3 py-2 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              className="group/settings flex items-center rounded-lg bg-paper px-3 py-2 text-sm font-bold text-ink shadow-card btn-3d"
               title="Open settings"
             >
               <Settings2 size={15} className="shrink-0" />
@@ -628,7 +628,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenUpload}
-                className="group/publish flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="group/publish flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card btn-3d"
               >
                 <Upload size={15} className="shrink-0" />
                 <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/publish:max-w-[90px] group-hover/publish:opacity-100 group-hover/publish:ml-2">
@@ -650,7 +650,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="group/profile flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="group/profile flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card btn-3d"
               >
                 <ProfileAvatar
                   photoURL={user.photoURL}
@@ -666,7 +666,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               <div className="h-6 w-px bg-ink/10 hidden sm:block" />
               <button
                 onClick={logout}
-                className="p-2 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="p-2 rounded-lg bg-paper text-ink shadow-card btn-3d"
                 title="Logout"
               >
                 <LogOut size={18} />
@@ -675,7 +675,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           ) : (
             <button
               onClick={onOpenAuth}
-              className="group/signin flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              className="group/signin flex items-center bg-paper rounded-lg px-3 py-2 text-sm font-bold text-ink shadow-card btn-3d"
             >
               <LogIn size={16} className="shrink-0" />
               <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/signin:max-w-[90px] group-hover/signin:opacity-100 group-hover/signin:ml-2">

@@ -33,14 +33,14 @@ type Step = typeof STEPS[number];
 
 const ADDON_CATEGORIES = ['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack'];
 
-function getAddonPayloadError(data: Record<string, any>): string {
-  const isStr = (v: any, min: number, max: number) => typeof v === 'string' && v.length >= min && v.length <= max;
-  const isUrl = (v: any) => typeof v === 'string' && /^https?:\/\//.test(v) && v.length < 1000;
+function getAddonPayloadError(data: Record<string, unknown>): string {
+  const isStr = (v: unknown, min: number, max: number) => typeof v === 'string' && v.length >= min && v.length <= max;
+  const isUrl = (v: unknown) => typeof v === 'string' && /^https?:\/\//.test(v) && v.length < 1000;
 
   if (!isStr(data.id, 1, 100)) return 'Invalid internal ID (id).';
   if (!isStr(data.title, 1, 100)) return 'Title must be between 1 and 100 characters.';
   if (!isStr(data.description, 1, 10000)) return 'Description must be between 1 and 10,000 characters.';
-  if (!ADDON_CATEGORIES.includes(data.category)) return 'Main Category is not a valid option — please reselect it.';
+  if (typeof data.category !== 'string' || !ADDON_CATEGORIES.includes(data.category)) return 'Main Category is not a valid option — please reselect it.';
   if (!isUrl(data.imageUrl)) return 'Cover image URL is missing or invalid.';
   if (data.imageUrls && !(Array.isArray(data.imageUrls) && data.imageUrls.length <= 30)) return 'Too many cover images (max 30).';
   if (!isUrl(data.panoramaUrl)) return 'Panorama image URL is missing or invalid.';
@@ -131,11 +131,11 @@ function uploadToImgbb(file: File, onProgress: (pct: number) => void): Promise<s
 
         xhr.onload = () => {
           try {
-            const res = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300 && res?.url) {
-              resolve(res.url as string);
+            const res = JSON.parse(xhr.responseText) as Record<string, unknown>;
+            if (xhr.status >= 200 && xhr.status < 300 && typeof res?.url === 'string') {
+              resolve(res.url);
             } else {
-              reject(new Error(res?.error || 'Upload failed, please try again.'));
+              reject(new Error((res?.error as string) || 'Upload failed, please try again.'));
             }
           } catch {
             reject(new Error('Upload failed, please try again.'));
@@ -191,11 +191,11 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
 
         xhr.onload = () => {
           try {
-            const res = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300 && res?.secure_url) {
-              resolve(res.secure_url as string);
+            const res = JSON.parse(xhr.responseText) as Record<string, unknown>;
+            if (xhr.status >= 200 && xhr.status < 300 && typeof res?.secure_url === 'string') {
+              resolve(res.secure_url);
             } else {
-              reject(new Error(res?.error?.message || 'Upload failed, please try again.'));
+              reject(new Error(((res?.error as Record<string, unknown>)?.message as string) || 'Upload failed, please try again.'));
             }
           } catch {
             reject(new Error('Upload failed, please try again.'));
@@ -279,8 +279,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         };
       });
       showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully.`, 'success');
-    } catch (err: any) {
-      showToast(err?.message || 'Image upload failed. Please try again.', 'error');
+    } catch (err: unknown) {
+      showToast((err as Error)?.message || 'Image upload failed. Please try again.', 'error');
     } finally {
       setImageUploadProgress(null);
     }
@@ -297,8 +297,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       const url = await uploadToImgbb(webpFile, pct => setPanoramaUploadProgress(pct));
       setFormData(prev => ({ ...prev, panoramaUrl: url }));
       showToast('Panorama image uploaded successfully.', 'success');
-    } catch (err: any) {
-      showToast(err?.message || 'Panorama upload failed. Please try again.', 'error');
+    } catch (err: unknown) {
+      showToast((err as Error)?.message || 'Panorama upload failed. Please try again.', 'error');
     } finally {
       setPanoramaUploadProgress(null);
     }
@@ -319,8 +319,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       setFormData(prev => ({ ...prev, downloadUrl }));
       setUploadedFileName(file.name);
       showToast('File uploaded successfully.', 'success');
-    } catch (err: any) {
-      showToast(err?.message || 'Failed to upload file.', 'error');
+    } catch (err: unknown) {
+      showToast((err as Error)?.message || 'Failed to upload file.', 'error');
     } finally {
       setFileUploadProgress(null);
     }
@@ -474,8 +474,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       setSuccessMessage('Add-on published! It is pending admin review.');
       showToast('Add-on published successfully.', 'success');
       setTimeout(() => { setSuccessMessage(''); onClose(); setStep('general'); }, 2500);
-    } catch (error: any) {
-      showToast(error?.message || 'Failed to publish add-on.', 'error');
+    } catch (error: unknown) {
+      showToast((error as Error)?.message || 'Failed to publish add-on.', 'error');
     } finally {
       setLoading(false);
     }
@@ -506,13 +506,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm: rounded-lg sm:shadow-card bg-paper"
+            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm: rounded-lg sm:shadow-card bg-paper neumorph glass"
           >
             <div className="flex items-center justify-between border-b border-ink/10 px-6 py-4 bg-paper">
               <h2 className="text-lg font-bold text-ink uppercase tracking-tight">Create Project</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="p-2 rounded-lg bg-paper text-ink shadow-card btn-3d"
               >
                 <X size={16} />
               </button>
@@ -713,7 +713,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               onClick={() => addonFileInputRef.current?.click()}
                               disabled={fileUploadProgress !== null}
                               title="Upload file"
-                              className="shrink-0 px-4 py-2.5 rounded-lg bg-accent text-ink font-bold shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="shrink-0 px-4 py-2.5 rounded-lg bg-accent text-ink font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
                             </button>

@@ -38,8 +38,8 @@ const TRANSIENT_ERROR_CODES = new Set([
 async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();
-  } catch (err: any) {
-    const code = err?.code;
+  } catch (err: unknown) {
+    const code = (err as any)?.code;
     if (TRANSIENT_ERROR_CODES.has(code)) {
       await new Promise(r => setTimeout(r, 150));
       return await fn();
@@ -48,14 +48,14 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function query<T = any>(sql: string, params: any[] = []): Promise<T[]> {
+export async function query<T = unknown>(sql: string, params: any[] = []): Promise<T[]> {
   return withRetry(async () => {
     const [rows] = await getPool().execute(sql, params);
     return rows as T[];
   });
 }
 
-export async function queryOne<T = any>(sql: string, params: any[] = []): Promise<T | null> {
+export async function queryOne<T = unknown>(sql: string, params: any[] = []): Promise<T | null> {
   const rows = await query<T>(sql, params);
   return rows[0] ?? null;
 }

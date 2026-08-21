@@ -22,7 +22,7 @@ export function MainActionControls({ statusToday, onRecordStatus }: MainActionCo
           >
             <button
               onClick={() => onRecordStatus('active')}
-              className="group relative overflow-hidden bg-ember-600 text-linen-50 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-[0_2px_16px_rgba(20,20,19,0.12)] ring-1 ring-black/5"
+              className="group relative overflow-hidden bg-ember-600 text-linen-50 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-[0_2px_16px_rgba(20,20,19,0.12)] ring-1 ring-black/5 btn-3d"
             >
               <div
                 aria-hidden="true"
@@ -41,7 +41,7 @@ export function MainActionControls({ statusToday, onRecordStatus }: MainActionCo
 
             <button
               onClick={() => onRecordStatus('rest')}
-              className="group relative overflow-hidden bg-linen-50 text-ink-900 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] border border-linen-200 shadow-sm"
+              className="group relative overflow-hidden bg-linen-50 text-ink-900 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] border border-linen-200 shadow-sm btn-3d"
             >
               <div className="relative z-10 flex flex-col h-full justify-between gap-5 sm:gap-6">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-500">Rest</span>
@@ -60,7 +60,7 @@ export function MainActionControls({ statusToday, onRecordStatus }: MainActionCo
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className={`p-6 sm:p-8 rounded-2xl border text-center flex flex-col items-center justify-center gap-4 ${
+            className={`p-6 sm:p-8 rounded-2xl border text-center flex flex-col items-center justify-center gap-4 neumorph glass ${
               statusToday === 'active'
                 ? 'bg-ember-600 text-linen-50 border-transparent shadow-[0_2px_16px_rgba(20,20,19,0.12)]'
                 : 'bg-linen-50 text-ink-900 border-linen-200 shadow-sm'

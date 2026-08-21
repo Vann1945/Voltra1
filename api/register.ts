@@ -50,10 +50,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
          VALUES (?, ?, ?, NULL, ?, ?, FALSE, ?, ?)`,
         [uid, email, name, role, passwordHash, verifyToken, verifyTokenExpires]
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       // ER_DUP_ENTRY dari UNIQUE(email) — race condition dua request register
       // bersamaan, atau memang sudah terdaftar. Baik dari OAuth maupun manual.
-      if (err?.code === 'ER_DUP_ENTRY') {
+      if ((err as any)?.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ error: 'Email is already registered.' });
       }
       throw err;
@@ -73,8 +73,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(201).json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     safeLogError('[register] handler error:', err);
-    return res.status(500).json({ error: err?.message || 'Internal server error.' });
+    return res.status(500).json({ error: (err as Error)?.message || 'Internal server error.' });
   }
 }

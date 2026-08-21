@@ -76,7 +76,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
   return (
     <div className="min-h-[100dvh] bg-white text-ink">
       {/* ─── Navbar ─── */}
-      <nav className="sticky top-0 z-[100] w-full bg-white border-b border-ink/10">
+      <nav className="sticky top-0 z-[100] w-full bg-white border-b border-ink/10 glass">
         <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="flex h-9 w-9 items-center justify-center bg-ink border border-ink/10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
@@ -93,7 +93,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-5 py-2 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer"
+            className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-5 py-2 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
           >
             Explore Marketplace
             <ArrowRight size={15} />
@@ -120,14 +120,14 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => onNavigate('home')}
-                className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-7 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer"
+                className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-7 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
               >
                 Explore Add-ons
                 <ArrowRight size={17} />
               </button>
               <a
                 href="#features"
-                className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-7 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer"
+                className="flex items-center gap-2 bg-white border border-ink/10 rounded-lg px-7 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
               >
                 Learn More
               </a>
@@ -182,7 +182,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             {FEATURES.map((f, i) => (
               <div
                 key={f.title}
-                className={`bg-white border border-ink/10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-8 transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default ${
+                className={`bg-white border border-ink/10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] neumorph p-8 transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default glass ${
                   i === 0 ? 'lg:col-span-5' : i === 1 ? 'lg:col-span-4' : 'lg:col-span-3'
                 }`}
               >
@@ -209,7 +209,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             {TESTIMONIALS.map((t, i) => (
               <div
                 key={t.name}
-                className={`bg-white border border-ink/10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-7 flex flex-col transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default ${
+                className={`bg-white border border-ink/10 rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] neumorph p-7 flex flex-col transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default glass ${
                   i === 0 ? 'lg:col-span-4' : i === 1 ? 'lg:col-span-5' : 'lg:col-span-3'
                 }`}
               >
@@ -244,7 +244,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             {PRICING.map((tier, i) => (
               <div
                 key={tier.name}
-                className={`relative border p-8 flex flex-col bg-white ${
+                className={`relative border p-8 flex flex-col bg-white neumorph glass ${
                   i === 0 ? 'lg:col-span-3' : i === 1 ? 'lg:col-span-5' : 'lg:col-span-4'
                 } ${
                   tier.highlight ? 'border-gold shadow-[0_6px_24px_rgba(0,0,0,0.1)] lg:-translate-y-4' : 'border-ink/10 shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
@@ -270,10 +270,10 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                 </ul>
                 <button
                   onClick={() => onNavigate('home')}
-                  className={`flex items-center justify-center gap-2 border border-ink/10 rounded-lg px-5 py-3.5 text-sm font-bold uppercase transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-2 border border-ink/10 rounded-lg px-5 py-3.5 text-sm font-bold uppercase btn-3d cursor-pointer ${
                     tier.highlight
-                      ? 'bg-white text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5'
-                      : 'bg-white text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5'
+                      ? 'bg-white text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
+                      : 'bg-white text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
                   }`}
                 >
                   {tier.cta}
@@ -299,7 +299,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           </p>
           <button
             onClick={() => onNavigate('home')}
-            className="inline-flex items-center gap-2 bg-gold border border-ink/10 rounded-lg px-8 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gold border border-ink/10 rounded-lg px-8 py-4 text-sm font-bold text-ink uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
           >
             Get Started — It's Free
             <ArrowRight size={17} />

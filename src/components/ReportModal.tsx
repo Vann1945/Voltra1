@@ -82,7 +82,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md bg-paper rounded-lg shadow-card"
+            className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph glass"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-danger/20 px-7 py-5 bg-danger/[0.06]">
@@ -92,7 +92,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
               </h2>
               <button
                 onClick={onClose}
- className="p-1.5 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="p-1.5 rounded-lg bg-paper text-ink shadow-card btn-3d"
               >
                 <X size={18} />
               </button>
@@ -110,7 +110,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                     <button
                       type="button"
                       onClick={() => setIsReasonOpen(prev => !prev)}
- className="flex w-full items-center justify-between rounded-lg bg-paper px-5 py-3.5 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px focus:outline-none"
+ className="flex w-full items-center justify-between rounded-lg bg-paper px-5 py-3.5 text-sm font-bold text-ink shadow-card btn-3d focus:outline-none"
                     >
                       <span>{reason}</span>
                       <ChevronDown size={15} className={`transition-transform duration-200 ${isReasonOpen ? 'rotate-180' : ''}`} />
@@ -123,7 +123,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: 0.12 }}
- className="absolute z-30 mt-1 w-full overflow-hidden rounded-lg bg-paper shadow-card"
+ className="absolute z-30 mt-1 w-full overflow-hidden rounded-lg bg-paper shadow-card neumorph glass"
                         >
                           {REPORT_REASONS.map(r => (
                             <button
@@ -167,7 +167,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
- className="px-5 py-3 text-sm font-bold text-ink rounded-lg bg-paper shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="px-5 py-3 text-sm font-bold text-ink rounded-lg bg-paper shadow-card uppercase btn-3d"
                 >
                   Cancel
                 </button>
@@ -179,7 +179,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                   <button
                     type="submit"
                     disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Submit Report
                   </button>

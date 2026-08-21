@@ -242,7 +242,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-paper transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm' : 'rounded-lg shadow-card hover:scale-[1.03]'}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-paper transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm glass' : 'rounded-lg shadow-card neumorph hover:scale-[1.03]'}`}
     >
       <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink`}>
         <FadeImage
@@ -282,7 +282,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             <button
               onClick={toggleInfo}
               aria-label={showInfo ? 'Hide additional info' : 'Show additional info'}
-              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-accent-deep text-white shadow-none' : 'bg-paper text-ink shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'}`}
+              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-accent-deep text-white shadow-none' : 'bg-paper text-ink shadow-card btn-3d'}`}
             >
               <Info size={14} />
             </button>
@@ -375,7 +375,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
               className={`relative overflow-hidden flex items-center gap-1.5 border border-ink/10 rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all ${
                 downloadSuccess
                   ? 'bg-paper text-success shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                  : 'bg-accent text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'
+                  : 'bg-accent text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
               }`}
             >
               {isDownloading && (

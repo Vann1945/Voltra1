@@ -33,7 +33,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           >
             <button
               onClick={onClose}
-              className="absolute -top-12 right-0 p-2 bg-accent rounded-lg shadow-card text-ink transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              className="absolute -top-12 right-0 p-2 bg-accent rounded-lg shadow-card text-ink btn-3d"
             >
               <X size={20} />
             </button>

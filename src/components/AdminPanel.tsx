@@ -258,7 +258,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       </button>
 
       {/* Header */}
-      <div className="mb-12 flex items-center gap-6 bg-paper rounded-lg shadow-card p-8">
+      <div className="mb-12 flex items-center gap-6 bg-paper rounded-lg shadow-card neumorph p-8 glass">
  <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-paper rounded-lg text-ink shadow-card">
           <Shield size={28} />
         </div>
@@ -270,7 +270,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
-        <div className="sm:col-span-2 bg-paper rounded-lg shadow-card p-6 flex items-center justify-between">
+        <div className="sm:col-span-2 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Total Add-ons</p>
             <p className="text-3xl font-bold text-ink font-meta">{addons.length}</p>
@@ -279,7 +279,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <LayoutGrid size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card p-6 flex items-center justify-between">
+        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Pending Approval</p>
             <p className="text-3xl font-bold text-ink font-meta">{pendingAddons.length}</p>
@@ -288,7 +288,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <AlertTriangle size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card p-6 flex items-center justify-between">
+        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Total Users</p>
             <p className="text-3xl font-bold text-ink font-meta">{users.length > 0 ? users.length : '-'}</p>
@@ -300,7 +300,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       </div>
 
       {/* Tabs */}
- <div className="mb-10 flex rounded-lg bg-paper w-fit shadow-card">
+ <div className="mb-10 flex rounded-lg bg-paper w-fit shadow-card neumorph glass">
         {(['addons', 'users', 'reports'] as const).map(tab => (
           <button
             key={tab}
@@ -330,7 +330,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                     <motion.div
                       key={addon.id}
                       variants={itemVariants}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card p-5"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-5 glass"
                     >
                       <div className="flex items-center gap-5">
                         <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 object-cover bg-ink border border-ink/10 rounded-lg" referrerPolicy="no-referrer" />
@@ -371,7 +371,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   <motion.div
                     key={addon.id}
                     variants={itemVariants}
- className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-paper rounded-lg p-4 shadow-card"
+ className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-paper rounded-lg p-4 shadow-card neumorph glass"
                   >
                     <div className="flex items-center gap-4">
                       <FadeImage src={addon.imageUrl} alt={addon.title} className="w-16 h-16 object-cover bg-ink border border-ink/10 rounded-lg" referrerPolicy="no-referrer" />
@@ -463,7 +463,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                     <motion.div
                       key={report.id}
                       variants={itemVariants}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card p-6"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-6 glass"
                     >
                       <div>
                         <div className="flex items-center gap-3 mb-3">
@@ -528,7 +528,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   <motion.div
                     key={u.uid}
                     variants={itemVariants}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card p-6"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-6 glass"
                   >
                     <div className="flex items-center gap-4">
                       {u.photoURL ? (
@@ -589,7 +589,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingAddon(null)} className="absolute inset-0 bg-ink/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card p-7"
+              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
             >
               <h3 className="text-xl font-bold text-ink uppercase mb-6 flex items-center gap-2">
                 <Edit2 size={20} className="text-accent-soft" /> Edit Add-on
@@ -650,7 +650,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteAddonId(null)} className="absolute inset-0 bg-ink/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card p-7"
+              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
             >
               <h3 className="text-xl font-bold text-ink uppercase mb-2">Delete Add-on?</h3>
               <p className="text-ink/60 text-sm font-bold mb-6">
@@ -685,7 +685,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteUserId(null)} className="absolute inset-0 bg-ink/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card p-7"
+              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
             >
               <h3 className="text-xl font-bold text-ink uppercase mb-2">Delete User?</h3>
               <p className="text-ink/60 text-sm font-bold mb-6">

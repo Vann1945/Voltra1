@@ -20,7 +20,7 @@ export function SkeletonCard() {
   return (
     <div
       aria-hidden="true"
-      className="flex flex-col overflow-hidden bg-paper rounded-lg shadow-card"
+      className="flex flex-col overflow-hidden bg-paper rounded-lg shadow-card glass"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Skeleton className="h-full w-full rounded-none border-0" />
@@ -66,7 +66,7 @@ export function AddonDetailSkeleton() {
     <div className="mx-auto max-w-5xl px-4 py-12 min-h-[100dvh]" aria-hidden="true">
       <Skeleton className="h-5 w-40 mb-8" />
 
-      <div className="overflow-hidden rounded-lg bg-paper shadow-card">
+      <div className="overflow-hidden rounded-lg bg-paper shadow-card glass">
         <Skeleton className="aspect-[21/9] w-full rounded-none border-x-0 border-t-0" />
 
         <div className="p-8">

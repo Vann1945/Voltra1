@@ -111,7 +111,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
         </div>
       </div>
 
-      <div className="flex items-end gap-4 bg-linen-50 px-5 sm:px-6 py-4 rounded-3xl border border-linen-200 shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0">
+      <div className="flex items-end gap-4 bg-linen-50 px-5 sm:px-6 py-4 rounded-3xl border border-linen-200 shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
         <div className="flex flex-col min-w-0">
           <span className="text-[10px] font-semibold text-ink-500 uppercase tracking-wider mb-1 whitespace-nowrap">
             Current Streak

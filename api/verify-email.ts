@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       [uid]
     );
     return res.redirect(302, '/?verified=success');
-  } catch (err: any) {
+  } catch (err: unknown) {
     safeLogError('[VerifyJS] handler error:', err);
     return res.status(500).send('An error occurred on the server. Please try again later.');
   }

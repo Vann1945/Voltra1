@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Skeleton } from './Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
@@ -72,7 +73,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
   return (
     <div className="min-h-[70dvh] flex items-center justify-center p-4">
       <div className="w-full max-w-[420px]">
-        <div className="bg-paper rounded-lg shadow-card p-8 sm:p-10">
+        <div className="bg-paper rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
           {success ? (
             <div className="text-center space-y-5 py-4">
               <div className="w-14 h-14 bg-success/[0.08] border border-success/20 rounded-lg flex items-center justify-center mx-auto">
@@ -84,7 +85,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
               </p>
               <button
                 onClick={() => onNavigate('home')}
- className="w-full bg-paper rounded-lg py-3 text-sm font-bold text-ink uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="w-full bg-paper rounded-lg py-3 text-sm font-bold text-ink uppercase shadow-card btn-3d"
               >
                 Back to home
               </button>
@@ -169,7 +170,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>Reset password</span>
                       <ArrowRight size={18} />

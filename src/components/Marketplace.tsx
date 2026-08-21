@@ -112,7 +112,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
     <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
       <h1 className="sr-only">Minecraft Marketplace Add-ons</h1>
 
-      <div className="relative border-b border-ink/10 bg-paper-soft pt-16 pb-20">
+      <div className="relative border-b border-ink/10 bg-paper-soft pt-16 pb-20 glass">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-10">
             <div className="inline-flex items-center gap-2 bg-accent rounded-lg px-4 py-1.5 mb-6 shadow-card">
@@ -128,7 +128,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex justify-center">
-            <div className="relative flex flex-col gap-3 bg-paper rounded-lg shadow-card p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left">
+            <div className="relative flex flex-col gap-3 bg-paper rounded-lg shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
               <div className="flex flex-col lg:flex-row items-stretch gap-3">
                 {/* Search input */}
                 <div className="relative w-full flex-1">
@@ -153,7 +153,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -6, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute left-0 z-50 w-full rounded-lg bg-paper shadow-card overflow-hidden mt-2"
+                        className="absolute left-0 z-50 w-full rounded-lg bg-paper shadow-card neumorph overflow-hidden mt-2 glass"
                       >
                         {searchSuggestions.map(addon => (
                           <button
@@ -207,7 +207,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-ink/10 rounded-lg text-sm font-bold uppercase transition-all ${
                       showFilters || hasActiveFilters
                         ? 'bg-paper text-ink shadow-none'
-                        : 'bg-paper text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'
+                        : 'bg-paper text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
                     }`}
                   >
                     <SlidersHorizontal size={17} aria-hidden="true" />
@@ -386,10 +386,10 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             <Search size={40} className="mx-auto mb-4 text-ink/30" />
             <h3 className="text-lg font-bold text-ink">Nothing matches that search</h3>
             <p className="mt-1 text-sm font-normal text-ink/60">Try a different keyword, or clear your filters to see everything.</p>
-            <button
-              onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
-              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
-            >
+              <button
+                onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
+                className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink bg-accent rounded-lg shadow-card uppercase btn-3d"
+              >
               Clear filters
             </button>
           </div>

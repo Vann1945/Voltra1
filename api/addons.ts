@@ -63,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (id) {
     if (req.method === 'GET') {
       try {
-        const addon = await queryOne('SELECT * FROM addons WHERE id = ?', [id]);
+        const addon = await queryOne<{ status: string; author_id: string; [key: string]: unknown }>('SELECT * FROM addons WHERE id = ?', [id]);
         if (!addon) return res.status(404).json({ error: 'Add-on not found.' });
 
         if (addon.status !== 'approved') {
@@ -114,9 +114,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         values.push(id);
         await query(`UPDATE addons SET ${fields.join(', ')} WHERE id = ?`, values);
         return res.status(200).json({ ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         safeLogError('[api/addons PATCH] error:', err);
-        const status = err?.statusCode || 500;
+        const status = (err as any)?.statusCode || 500;
         return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to update add-on.' });
       }
     }
@@ -131,9 +131,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         await query('DELETE FROM addons WHERE id = ?', [id]);
         return res.status(200).json({ ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         safeLogError('[api/addons DELETE] error:', err);
-        const status = err?.statusCode || 500;
+        const status = (err as any)?.statusCode || 500;
         return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to delete add-on.' });
       }
     }
@@ -189,9 +189,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ]
       );
       return res.status(201).json({ id: addonId });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/addons POST] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to create add-on.' });
     }
   }

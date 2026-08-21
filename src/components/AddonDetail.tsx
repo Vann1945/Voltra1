@@ -304,7 +304,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <ArrowLeft size={16} /> Back to Marketplace
       </button>
 
-    <div className="overflow-hidden rounded-lg bg-paper shadow-card">
+    <div className="overflow-hidden rounded-lg bg-paper shadow-card neumorph glass">
         <div
           className="aspect-[21/9] w-full overflow-hidden bg-ink relative border-b border-ink/10"
           onMouseEnter={() => setIsPaused(true)}
@@ -382,7 +382,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsReportModalOpen(true)}
-                className="p-3 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="p-3 rounded-lg bg-paper text-ink shadow-card btn-3d"
                 title="Report"
               >
                 <AlertTriangle size={18} />
@@ -390,7 +390,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               <button
                 onClick={handleDownloadClick}
                 disabled={isDownloading}
-                className="flex items-center gap-2 bg-accent rounded-lg px-6 py-3 text-sm font-bold text-ink uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 bg-accent rounded-lg px-6 py-3 text-sm font-bold text-ink uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDownloading ? (
                   <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
@@ -408,7 +408,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
 
             <div className="space-y-6">
               {addon.demoUrl && (
-                <div className="bg-paper rounded-lg shadow-card p-5">
+                <div className="bg-paper rounded-lg shadow-card neumorph p-5 glass">
                   <h2 className="text-sm font-bold text-ink uppercase mb-3 flex items-center gap-2"><ExternalLink size={16} /> Demo / Preview</h2>
                   {demoYouTubeId ? (
                     <div className="aspect-video w-full overflow-hidden border border-ink/10 rounded-lg bg-ink relative">
@@ -459,7 +459,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       </div>
 
       {addon.panoramaUrl && (
-        <div className="mt-8 overflow-hidden rounded-lg bg-paper shadow-card">
+        <div className="mt-8 overflow-hidden rounded-lg bg-paper shadow-card neumorph glass">
           <div className="px-6 pt-6 pb-4 border-b border-ink/10">
             <h2 className="text-lg font-bold text-ink uppercase">Panorama</h2>
             <p className="text-xs text-ink/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>

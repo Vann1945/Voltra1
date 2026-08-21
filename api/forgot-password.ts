@@ -42,8 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(200).json({ ok: true, message: 'If the email is registered, the reset link has been sent.' });
-  } catch (err: any) {
+  } catch (err: unknown) {
     safeLogError('[ForgotJs] handler error:', err);
-    return res.status(500).json({ error: err?.message || 'Internal server error.' });
+    return res.status(500).json({ error: (err as Error)?.message || 'Internal server error.' });
   }
 }

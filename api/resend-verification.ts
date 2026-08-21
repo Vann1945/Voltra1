@@ -37,8 +37,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       safeLogError('[ResendJS] email failed to send:', err);
     }
     return res.status(200).json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     safeLogError('[ResendJS] handler error:', err);
-    return res.status(500).json({ error: err?.message || 'Internal server error.' });
+    return res.status(500).json({ error: (err as Error)?.message || 'Internal server error.' });
   }
 }

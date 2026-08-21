@@ -111,9 +111,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return await handleUploadSign(req, res);
     }
     return await handleUploadImage(req, res);
-  } catch (err: any) {
+  } catch (err: unknown) {
     safeLogError('[api/upload-image] error:', err);
-    const status = err?.statusCode || 500;
+    const status = (err as any)?.statusCode || 500;
     const label = type === 'sign' ? 'Failed to prepare upload.' : 'Failed to upload image.';
     return res.status(status).json({ error: status === 401 ? 'You must log in.' : label });
   }

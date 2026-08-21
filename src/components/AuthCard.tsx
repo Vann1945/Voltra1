@@ -249,7 +249,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
   return (
     <div className="w-full max-w-[420px]">
-      <div className="bg-paper rounded-lg shadow-card p-8 sm:p-10">
+      <div className="bg-paper rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
             {view === 'login' && 'Welcome back'}
@@ -412,7 +412,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-full">
@@ -453,7 +453,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               type="button"
               onClick={handleGoogle}
               disabled={loading}
- className="w-full bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+ className="w-full bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -472,7 +472,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               type="button"
               onClick={handleGithub}
               disabled={loading}
- className="w-full mt-3 bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+ className="w-full mt-3 bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#000">
                 <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.7 5.39-5.27 5.67.42.36.78 1.07.78 2.15 0 1.56-.01 2.81-.01 3.19 0 .3.21.66.79.55A10.99 10.99 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />

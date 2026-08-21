@@ -87,7 +87,7 @@ export function ResetModal({ isOpen, onConfirm, onCancel }: ResetModalProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-linen-50 rounded-3xl p-10 max-w-sm w-full shadow-2xl flex flex-col items-center text-center border border-linen-200"
+            className="bg-linen-50 rounded-3xl p-10 max-w-sm w-full shadow-2xl flex flex-col items-center text-center border border-linen-200 neumorph glass"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-12 h-12 bg-linen-200 text-ink-900 rounded-full flex items-center justify-center mb-6">
@@ -102,7 +102,7 @@ export function ResetModal({ isOpen, onConfirm, onCancel }: ResetModalProps) {
             <div className="flex flex-col gap-3 w-full">
               <button
                 onClick={onConfirm}
-                className="w-full py-3.5 bg-ink-900 text-linen-50 text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-ink-700 transition-colors"
+                className="w-full py-3.5 bg-ink-900 text-linen-50 text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-ink-700 transition-colors btn-3d"
               >
                 Yes, Reset
               </button>

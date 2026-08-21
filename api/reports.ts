@@ -14,9 +14,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await requireAdmin(req);
       await query("UPDATE reports SET status = 'resolved' WHERE id = ?", [id]);
       return res.status(200).json({ ok: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/reports PATCH id] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 403 ? 'Admins only.' : 'Failed to resolve report.' });
     }
   }
@@ -45,9 +45,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           createdAt: new Date(r.created_at).toISOString(),
         })),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/reports GET] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 403 ? 'Admins only.' : 'Failed to load reports.' });
     }
   }
@@ -69,9 +69,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         reportId, addonId, user.uid, reason, 'pending',
       ]);
       return res.status(201).json({ id: reportId });
-    } catch (err: any) {
+    } catch (err: unknown) {
       safeLogError('[api/reports POST] error:', err);
-      const status = err?.statusCode || 500;
+      const status = (err as any)?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to submit report.' });
     }
   }

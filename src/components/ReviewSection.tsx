@@ -94,7 +94,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
       </h2>
 
       {!existingReview && (
-        <form onSubmit={handleSubmit} className="bg-paper rounded-lg shadow-card p-5 mb-6">
+        <form onSubmit={handleSubmit} className="bg-paper rounded-lg shadow-card neumorph p-5 mb-6 glass">
           <p className="text-xs font-bold text-ink uppercase mb-2">Leave a review</p>
           <div
             className="flex items-center gap-1 mb-3"
@@ -128,7 +128,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 bg-accent rounded-lg px-5 py-2.5 text-xs font-bold text-ink uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-accent rounded-lg px-5 py-2.5 text-xs font-bold text-ink uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? <div className="h-3.5 w-3.5 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : null}
               {submitting ? 'Submitting...' : 'Submit Review'}
@@ -144,7 +144,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
       ) : (
         <div className="space-y-4">
           {reviews.map(review => (
-            <div key={review.id} className="bg-paper rounded-lg shadow-card p-5">
+            <div key={review.id} className="bg-paper rounded-lg shadow-card neumorph p-5 glass">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <ProfileAvatar photoURL={review.userPhoto ?? null} displayName={review.userName} sizeClassName="h-9 w-9" />

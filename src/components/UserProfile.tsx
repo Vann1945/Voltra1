@@ -222,7 +222,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 min-h-[100dvh]">
-      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-paper p-8 sm:p-10 rounded-lg shadow-card">
+      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-paper p-8 sm:p-10 rounded-lg shadow-card neumorph glass">
         <div className="relative h-32 w-32 shrink-0">
           {renderBorderDecoration(getBorderEffect(isEditing ? editProfileBorder : (user?.profileBorder || 'none')))}
           <div className={`relative h-full w-full overflow-hidden rounded-full bg-paper border border-ink/10 flex items-center justify-center transition-all duration-300 ${getBorderRingClass(getBorderEffect(isEditing ? editProfileBorder : (user.profileBorder || 'none')))}`}>
@@ -266,7 +266,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
                     disabled={photoUploadProgress !== null}
-                    className="shrink-0 flex items-center gap-2 bg-paper rounded-lg text-ink px-4 py-3 text-sm font-bold shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="shrink-0 flex items-center gap-2 bg-paper rounded-lg text-ink px-4 py-3 text-sm font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {photoUploadProgress !== null ? (
                       <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
@@ -289,7 +289,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   type="button"
                   onClick={() => setIsBorderModalOpen(true)}
-                  className="flex w-full items-center gap-3 bg-paper rounded-lg px-4 py-3 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className="flex w-full items-center gap-3 bg-paper rounded-lg px-4 py-3 text-sm font-bold text-ink shadow-card btn-3d"
                 >
                   <ProfileAvatar
                     photoURL={editPhotoURL}
@@ -316,7 +316,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {savingProfile ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                   Save Changes
@@ -324,7 +324,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={() => setIsEditing(false)}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <X size={16} />
                   Cancel
@@ -337,7 +337,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <h1 className="text-4xl font-bold text-ink tracking-tight">{user.displayName}</h1>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-2.5 bg-paper rounded-lg text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className="p-2.5 bg-paper rounded-lg text-ink shadow-card btn-3d"
                   title="Edit Profile"
                 >
                   <Edit2 size={18} />
@@ -370,7 +370,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-lg bg-paper py-16 text-center shadow-card">
+            <div className="rounded-lg bg-paper py-16 text-center shadow-card neumorph glass">
               <Package size={32} className="mx-auto mb-3 text-ink/30" />
               <p className="text-sm font-bold text-ink">Nothing published yet</p>
               <p className="mt-1 text-xs font-normal text-ink/60">Use the Publish button in the top bar to share your first add-on.</p>
@@ -407,7 +407,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-lg bg-paper py-16 text-center shadow-card">
+            <div className="rounded-lg bg-paper py-16 text-center shadow-card neumorph glass">
               <Heart size={32} className="mx-auto mb-3 text-ink/30" />
               <p className="text-sm font-bold text-ink">No likes yet</p>
               <p className="mt-1 text-xs font-normal text-ink/60">Tap the heart on any add-on in the marketplace to save it here.</p>
