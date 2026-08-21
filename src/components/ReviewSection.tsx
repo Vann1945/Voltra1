@@ -30,7 +30,7 @@ function StarRow({ value, size = 14 }: { value: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map(i => (
-        <Star key={i} size={size} className={i <= Math.round(value) ? 'fill-accent text-accent' : 'fill-none text-ink/20'} />
+        <Star key={i} size={size} className={i <= Math.round(value) ? 'fill-terracotta text-terracotta' : 'fill-none text-ink-900/20'} />
       ))}
     </div>
   );
@@ -88,14 +88,14 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
   };
 
   return (
-    <div className="border-t border-ink/10 pt-8 mt-8">
-      <h2 className="text-lg font-bold text-ink uppercase mb-4 flex items-center gap-2">
-        <MessageSquare size={18} /> Reviews {reviews.length > 0 && <span className="text-ink/40 font-normal normal-case">({reviews.length})</span>}
+    <div className="border-t border-parchment-border pt-8 mt-8">
+      <h2 className="text-lg font-bold text-ink-900 uppercase mb-4 flex items-center gap-2">
+        <MessageSquare size={18} /> Reviews {reviews.length > 0 && <span className="text-ink-900/40 font-normal normal-case">({reviews.length})</span>}
       </h2>
 
       {!existingReview && (
-        <form onSubmit={handleSubmit} className="bg-paper rounded-lg shadow-card neumorph p-5 mb-6 glass">
-          <p className="text-xs font-bold text-ink uppercase mb-2">Leave a review</p>
+        <form onSubmit={handleSubmit} className="bg-parchment-raised rounded-lg shadow-card neumorph p-5 mb-6 glass">
+          <p className="text-xs font-bold text-ink-900 uppercase mb-2">Leave a review</p>
           <div
             className="flex items-center gap-1 mb-3"
             onMouseLeave={() => setHoverRating(0)}
@@ -111,7 +111,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
               >
                 <Star
                   size={22}
-                  className={i <= (hoverRating || rating) ? 'fill-accent text-accent' : 'fill-none text-ink/20'}
+                  className={i <= (hoverRating || rating) ? 'fill-terracotta text-terracotta' : 'fill-none text-ink-900/20'}
                 />
               </button>
             ))}
@@ -122,15 +122,15 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
             maxLength={1000}
             placeholder="Share what you liked or what could be better (optional)"
             rows={3}
-            className="w-full bg-paper-soft border border-ink/10 rounded-lg px-4 py-3 text-sm text-ink placeholder:text-ink/40 focus:outline-none focus:border-accent-soft transition-all resize-none"
+            className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm text-ink-900 placeholder:text-ink-900/40 focus:outline-none focus:border-terracotta-soft transition-all resize-none"
           />
           <div className="flex justify-end mt-3">
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 bg-accent rounded-lg px-5 py-2.5 text-xs font-bold text-ink uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-terracotta rounded-lg px-5 py-2.5 text-xs font-bold text-ink-900 uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? <div className="h-3.5 w-3.5 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : null}
+              {submitting ? <div className="h-3.5 w-3.5 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : null}
               {submitting ? 'Submitting...' : 'Submit Review'}
             </button>
           </div>
@@ -138,25 +138,25 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
       )}
 
       {reviews.length === 0 ? (
-        <p className="text-sm font-medium text-ink/50 bg-paper border border-ink/10 rounded-lg p-6 text-center">
+        <p className="text-sm font-medium text-ink-900/50 bg-parchment-raised border border-parchment-border rounded-lg p-6 text-center">
           No reviews yet. Be the first to share your thoughts.
         </p>
       ) : (
         <div className="space-y-4">
           {reviews.map(review => (
-            <div key={review.id} className="bg-paper rounded-lg shadow-card neumorph p-5 glass">
+            <div key={review.id} className="bg-parchment-raised rounded-lg shadow-card neumorph p-5 glass">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <ProfileAvatar photoURL={review.userPhoto ?? null} displayName={review.userName} sizeClassName="h-9 w-9" />
                   <div>
-                    <p className="text-sm font-bold text-ink">{review.userName}</p>
+                    <p className="text-sm font-bold text-ink-900">{review.userName}</p>
                     <StarRow value={review.rating} />
                   </div>
                 </div>
-                <span className="text-xs font-medium text-ink/40 shrink-0">{timeAgo(review.createdAt)}</span>
+                <span className="text-xs font-medium text-ink-900/40 shrink-0">{timeAgo(review.createdAt)}</span>
               </div>
               {review.comment && (
-                <p className="mt-3 text-sm text-ink/80 leading-relaxed whitespace-pre-wrap">{review.comment}</p>
+                <p className="mt-3 text-sm text-ink-900/80 leading-relaxed whitespace-pre-wrap">{review.comment}</p>
               )}
             </div>
           ))}

@@ -103,13 +103,13 @@ export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
       return (
         <>
           <div className="absolute inset-0 profile-orbit-a pointer-events-none">
-            <span className="absolute h-2 w-2 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[0] }} />
+            <span className="absolute h-2 w-2 rounded-full border border-ink-900" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[0] }} />
           </div>
           <div className="absolute inset-0 profile-orbit-b pointer-events-none">
-            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[1] || c0 }} />
+            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink-900" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[1] || c0 }} />
           </div>
           <div className="absolute inset-0 profile-orbit-c pointer-events-none">
-            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[2] || c0 }} />
+            <span className="absolute h-1.5 w-1.5 rounded-full border border-ink-900" style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: colors[2] || c0 }} />
           </div>
         </>
       );
@@ -164,7 +164,7 @@ export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
         return (
           <span
             key={i}
-            className="absolute profile-confetti pointer-events-none border border-ink"
+            className="absolute profile-confetti pointer-events-none border border-ink-900"
             style={{ left: `${left}%`, top: `${top}%`, width: p.size, height: p.size, backgroundColor: colors[i % colors.length], animationDelay: `${p.delay}s` }}
           />
         );
@@ -256,7 +256,7 @@ export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
 }
 
 export function getBorderRingClass(effect: BorderEffect): string {
-  return effect.family === 'none' ? 'border border-ink/10' : 'border border-ink/10 ring-1 ring-accent/40';
+  return effect.family === 'none' ? 'border border-parchment-border' : 'border border-parchment-border ring-1 ring-terracotta/40';
 }
 
 export function BorderEffectStyles() {
@@ -300,38 +300,38 @@ export function BorderEffectStyles() {
          selector, jadi tidak perlu ubah tiap komponen satu-satu. */
 
       /* halaman (background utama) */
-      .dark [class*="bg-paper-soft"], .dark[class*="bg-paper-soft"] { background-color: #2a2824 !important; }
+      .dark [class*="bg-parchment-raised"], .dark[class*="bg-parchment-raised"] { background-color: #2a2824 !important; }
 
       /* kartu / modal / form (surface) — urutan: umum dulu, varian opacity setelahnya */
-      .dark [class*="bg-paper"], .dark[class*="bg-paper"] { background-color: #1c1a17 !important; }
-      .dark [class*="bg-paper/20"], .dark[class*="bg-paper/20"] { background-color: rgba(28,26,23,0.2) !important; }
-      .dark [class*="bg-paper/60"], .dark[class*="bg-paper/60"] { background-color: rgba(28,26,23,0.6) !important; }
-      .dark [class*="bg-paper/70"], .dark[class*="bg-paper/70"] { background-color: rgba(28,26,23,0.7) !important; }
+      .dark [class*="bg-parchment-raised"], .dark[class*="bg-parchment-raised"] { background-color: #1c1a17 !important; }
+      .dark [class*="bg-parchment-raised/20"], .dark[class*="bg-parchment-raised/20"] { background-color: rgba(28,26,23,0.2) !important; }
+      .dark [class*="bg-parchment-raised/60"], .dark[class*="bg-parchment-raised/60"] { background-color: rgba(28,26,23,0.6) !important; }
+      .dark [class*="bg-parchment-raised/70"], .dark[class*="bg-parchment-raised/70"] { background-color: rgba(28,26,23,0.7) !important; }
 
       /* teks ink -> teks terang */
-      .dark [class*="text-ink"], .dark[class*="text-ink"] { color: #f0eee2 !important; }
-      .dark [class*="text-ink/30"], .dark[class*="text-ink/30"] { color: rgba(240,238,226,0.3) !important; }
-      .dark [class*="text-ink/40"], .dark[class*="text-ink/40"] { color: rgba(240,238,226,0.4) !important; }
-      .dark [class*="text-ink/50"], .dark[class*="text-ink/50"] { color: rgba(240,238,226,0.5) !important; }
-      .dark [class*="text-ink/60"], .dark[class*="text-ink/60"] { color: rgba(240,238,226,0.6) !important; }
-      .dark [class*="text-ink/70"], .dark[class*="text-ink/70"] { color: rgba(240,238,226,0.7) !important; }
-      .dark [class*="text-ink/80"], .dark[class*="text-ink/80"] { color: rgba(240,238,226,0.8) !important; }
+      .dark [class*="text-ink-900"], .dark[class*="text-ink-900"] { color: #f0eee2 !important; }
+      .dark [class*="text-ink-900/30"], .dark[class*="text-ink-900/30"] { color: rgba(240,238,226,0.3) !important; }
+      .dark [class*="text-ink-900/40"], .dark[class*="text-ink-900/40"] { color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="text-ink-900/50"], .dark[class*="text-ink-900/50"] { color: rgba(240,238,226,0.5) !important; }
+      .dark [class*="text-ink-900/60"], .dark[class*="text-ink-900/60"] { color: rgba(240,238,226,0.6) !important; }
+      .dark [class*="text-ink-900/70"], .dark[class*="text-ink-900/70"] { color: rgba(240,238,226,0.7) !important; }
+      .dark [class*="text-ink-900/80"], .dark[class*="text-ink-900/80"] { color: rgba(240,238,226,0.8) !important; }
 
       /* border ink -> border terang tipis (umum dulu, baru varian opacity spesifik) */
-      .dark [class*="border-ink"], .dark[class*="border-ink"] { border-color: rgba(240,238,226,0.3) !important; }
-      .dark [class*="border-ink/10"], .dark[class*="border-ink/10"] { border-color: rgba(240,238,226,0.1) !important; }
-      .dark [class*="border-ink/15"], .dark[class*="border-ink/15"] { border-color: rgba(240,238,226,0.15) !important; }
-      .dark [class*="border-ink/25"], .dark[class*="border-ink/25"] { border-color: rgba(240,238,226,0.25) !important; }
-      .dark [class*="border-ink/40"], .dark[class*="border-ink/40"] { border-color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="border-ink-900"], .dark[class*="border-ink-900"] { border-color: rgba(240,238,226,0.3) !important; }
+      .dark [class*="border-parchment-border"], .dark[class*="border-parchment-border"] { border-color: rgba(240,238,226,0.1) !important; }
+      .dark [class*="border-ink-900/15"], .dark[class*="border-ink-900/15"] { border-color: rgba(240,238,226,0.15) !important; }
+      .dark [class*="border-ink-900/25"], .dark[class*="border-ink-900/25"] { border-color: rgba(240,238,226,0.25) !important; }
+      .dark [class*="border-ink-900/40"], .dark[class*="border-ink-900/40"] { border-color: rgba(240,238,226,0.4) !important; }
 
       /* fill tipis / skeleton pulse / divider kecil (bukan scrim modal besar) */
-      .dark [class*="bg-ink/5"], .dark[class*="bg-ink/5"] { background-color: rgba(240,238,226,0.06) !important; }
-      .dark [class*="bg-ink/10"], .dark[class*="bg-ink/10"] { background-color: rgba(240,238,226,0.1) !important; }
-      .dark [class*="bg-ink/20"], .dark[class*="bg-ink/20"] { background-color: rgba(240,238,226,0.15) !important; }
+      .dark [class*="bg-ink-900/5"], .dark[class*="bg-ink-900/5"] { background-color: rgba(240,238,226,0.06) !important; }
+      .dark [class*="bg-ink-900/10"], .dark[class*="bg-ink-900/10"] { background-color: rgba(240,238,226,0.1) !important; }
+      .dark [class*="bg-ink-900/20"], .dark[class*="bg-ink-900/20"] { background-color: rgba(240,238,226,0.15) !important; }
 
       /* placeholder & bintang rating */
-      .dark [class*="placeholder-ink/40"]::placeholder, .dark[class*="placeholder-ink/40"]::placeholder { color: rgba(240,238,226,0.4) !important; }
-      .dark [class*="fill-ink"], .dark[class*="fill-ink"] { fill: #f0eee2 !important; }
+      .dark [class*="placeholder-ink-900/40"]::placeholder, .dark[class*="placeholder-ink-900/40"]::placeholder { color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="fill-ink-900"], .dark[class*="fill-ink-900"] { fill: #f0eee2 !important; }
 
       /* ring-shadow: ganti warna ring dari gelap ke terang biar tetap kelihatan di atas surface gelap */
       .dark [class*="shadow-card"],
@@ -440,15 +440,15 @@ export function ProfileAvatar({
   return (
     <div className={`relative ${sizeClassName} shrink-0 ${className}`}>
       {renderBorderDecoration(effect)}
-      <div className={`relative h-full w-full overflow-hidden rounded-full bg-paper flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
+      <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
         {photoURL ? (
           <FadeImage src={photoURL} alt={displayName || 'avatar'} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
         ) : (
-          <span className={`font-bold text-ink ${textSizeClassName}`}>{fallback}</span>
+          <span className={`font-bold text-ink-900 ${textSizeClassName}`}>{fallback}</span>
         )}
         {selected && (
-          <div className="absolute inset-0 flex items-center justify-center bg-ink/60">
-            <Check size={16} className="text-accent-deep" strokeWidth={3} />
+          <div className="absolute inset-0 flex items-center justify-center bg-ink-900/60">
+            <Check size={16} className="text-terracotta-text" strokeWidth={3} />
           </div>
         )}
       </div>

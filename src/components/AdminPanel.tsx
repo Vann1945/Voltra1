@@ -77,10 +77,10 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   if (!user || user.role !== 'admin') {
     return (
       <div className="py-32 text-center min-h-[100dvh]">
-        <h3 className="text-lg font-bold text-ink uppercase">Access Denied. Admin only.</h3>
+        <h3 className="text-lg font-bold text-ink-900 uppercase">Access Denied. Admin only.</h3>
         <button
           onClick={() => onNavigate('home')}
- className="mt-5 inline-flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
         >
           Return to Marketplace
         </button>
@@ -230,11 +230,11 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     onClick, disabled, icon, label, tone = 'default',
   }: { onClick: () => void; disabled?: boolean; icon: React.ReactNode; label: string; tone?: 'default' | 'success' | 'danger' | 'warn' | 'info' }) => {
     const toneClasses: Record<string, string> = {
-      default: 'bg-paper text-ink',
+      default: 'bg-parchment-raised text-ink-900',
       success: 'bg-success text-white',
       danger: 'bg-danger text-white',
-      warn: 'bg-accent text-ink',
-      info: 'bg-accent-deep text-white',
+      warn: 'bg-terracotta text-ink-900',
+      info: 'bg-terracotta-text text-white',
     };
     return (
       <button
@@ -252,61 +252,61 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 min-h-[100dvh]">
       <button
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink uppercase hover:text-accent-deep transition-colors"
+        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink-900 uppercase hover:text-terracotta-text transition-colors"
       >
         <ArrowLeft size={16} /> Back to Marketplace
       </button>
 
       {/* Header */}
-      <div className="mb-12 flex items-center gap-6 bg-paper rounded-lg shadow-card neumorph p-8 glass">
- <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-paper rounded-lg text-ink shadow-card">
+      <div className="mb-12 flex items-center gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-8 glass">
+ <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-parchment-raised rounded-lg text-ink-900 shadow-card">
           <Shield size={28} />
         </div>
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-ink tracking-tight">Admin Dashboard</h1>
-          <p className="text-ink/60 mt-1 font-bold text-sm">Manage add-ons, reports, and users.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 tracking-tight">Admin Dashboard</h1>
+          <p className="text-ink-900/60 mt-1 font-bold text-sm">Manage add-ons, reports, and users.</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
-        <div className="sm:col-span-2 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-2 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
-            <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Total Add-ons</p>
-            <p className="text-3xl font-bold text-ink font-meta">{addons.length}</p>
+            <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Total Add-ons</p>
+            <p className="text-3xl font-bold text-ink-900 font-meta">{addons.length}</p>
           </div>
-          <div className="w-11 h-11 bg-accent-deep border border-ink/10 rounded-lg flex items-center justify-center text-white">
+          <div className="w-11 h-11 bg-terracotta-text border border-parchment-border rounded-lg flex items-center justify-center text-white">
             <LayoutGrid size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-1 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
-            <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Pending Approval</p>
-            <p className="text-3xl font-bold text-ink font-meta">{pendingAddons.length}</p>
+            <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Pending Approval</p>
+            <p className="text-3xl font-bold text-ink-900 font-meta">{pendingAddons.length}</p>
           </div>
-          <div className="w-11 h-11 bg-accent border border-ink/10 rounded-lg flex items-center justify-center text-ink">
+          <div className="w-11 h-11 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center text-ink-900">
             <AlertTriangle size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-paper rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-1 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
-            <p className="text-xs text-ink/50 font-bold uppercase tracking-widest mb-1">Total Users</p>
-            <p className="text-3xl font-bold text-ink font-meta">{users.length > 0 ? users.length : '-'}</p>
+            <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Total Users</p>
+            <p className="text-3xl font-bold text-ink-900 font-meta">{users.length > 0 ? users.length : '-'}</p>
           </div>
-          <div className="w-11 h-11 bg-accent border border-ink/10 rounded-lg flex items-center justify-center text-ink">
+          <div className="w-11 h-11 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center text-ink-900">
             <Users size={22} />
           </div>
         </div>
       </div>
 
       {/* Tabs */}
- <div className="mb-10 flex rounded-lg bg-paper w-fit shadow-card neumorph glass">
+ <div className="mb-10 flex rounded-lg bg-parchment-raised w-fit shadow-card neumorph glass">
         {(['addons', 'users', 'reports'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3 text-xs sm:text-sm font-bold uppercase tracking-wide border-r border-ink/10 last:border-r-0 transition-colors ${
-              activeTab === tab ? 'bg-accent text-ink' : 'bg-paper text-ink/40 hover:text-ink'
+            className={`px-6 py-3 text-xs sm:text-sm font-bold uppercase tracking-wide border-r border-parchment-border last:border-r-0 transition-colors ${
+              activeTab === tab ? 'bg-terracotta text-ink-900' : 'bg-parchment-raised text-ink-900/40 hover:text-ink-900'
             }`}
           >
             {tab}
@@ -319,24 +319,24 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
           <>
             {/* Pending Add-ons */}
             <section>
-              <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-3">
-                <AlertTriangle className="text-ink" size={22} /> Pending Approval ({pendingAddons.length})
+              <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
+                <AlertTriangle className="text-ink-900" size={22} /> Pending Approval ({pendingAddons.length})
               </h2>
               {pendingAddons.length === 0 ? (
-                <p className="text-ink/50 font-bold bg-paper border border-ink/10 rounded-lg p-8 text-center">No pending add-ons.</p>
+                <p className="text-ink-900/50 font-bold bg-parchment-raised border border-parchment-border rounded-lg p-8 text-center">No pending add-ons.</p>
               ) : (
                 <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
                   {pendingAddons.map(addon => (
                     <motion.div
                       key={addon.id}
                       variants={itemVariants}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-5 glass"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-5 glass"
                     >
                       <div className="flex items-center gap-5">
-                        <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 object-cover bg-ink border border-ink/10 rounded-lg" referrerPolicy="no-referrer" />
+                        <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 object-cover bg-ink-900 border border-parchment-border rounded-lg" referrerPolicy="no-referrer" />
                         <div>
-                          <h3 className="font-bold text-ink text-lg">{addon.title}</h3>
-                          <p className="text-sm text-ink/50 font-bold mt-1">by {addon.authorName}</p>
+                          <h3 className="font-bold text-ink-900 text-lg">{addon.title}</h3>
+                          <p className="text-sm text-ink-900/50 font-bold mt-1">by {addon.authorName}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -344,14 +344,14 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                           onClick={() => handleStatusChange(addon.id, 'approved')}
                           disabled={processingId === addon.id}
                           tone="success"
-                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                           label="Approve"
                         />
                         <ActionButton
                           onClick={() => handleStatusChange(addon.id, 'rejected')}
                           disabled={processingId === addon.id}
                           tone="danger"
-                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
                           label="Reject"
                         />
                       </div>
@@ -363,7 +363,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
             {/* All Add-ons */}
             <section>
-              <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-2">
+              <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
                 <Shield className="text-accent-soft" /> Manage All Add-ons
               </h2>
               <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
@@ -371,20 +371,20 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   <motion.div
                     key={addon.id}
                     variants={itemVariants}
- className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-paper rounded-lg p-4 shadow-card neumorph glass"
+ className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-parchment-raised rounded-lg p-4 shadow-card neumorph glass"
                   >
                     <div className="flex items-center gap-4">
-                      <FadeImage src={addon.imageUrl} alt={addon.title} className="w-16 h-16 object-cover bg-ink border border-ink/10 rounded-lg" referrerPolicy="no-referrer" />
+                      <FadeImage src={addon.imageUrl} alt={addon.title} className="w-16 h-16 object-cover bg-ink-900 border border-parchment-border rounded-lg" referrerPolicy="no-referrer" />
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-ink">{addon.title}</h3>
-                          <span className={`px-2 py-0.5 border border-ink/10 text-[10px] font-bold uppercase tracking-wider rounded ${
+                          <h3 className="font-bold text-ink-900">{addon.title}</h3>
+                          <span className={`px-2 py-0.5 border border-parchment-border text-[10px] font-bold uppercase tracking-wider rounded ${
                             addon.status === 'approved' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
                           }`}>
                             {addon.status}
                           </span>
                         </div>
-                        <p className="text-sm text-ink/50 font-bold">by {addon.authorName}</p>
+                        <p className="text-sm text-ink-900/50 font-bold">by {addon.authorName}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -393,7 +393,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                           onClick={() => handleStatusChange(addon.id, 'approved')}
                           disabled={processingId === addon.id}
                           tone="success"
-                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                           label="Approve"
                         />
                       )}
@@ -403,14 +403,14 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                             onClick={() => handleFeatureToggle(addon.id, !!addon.isFeatured)}
                             disabled={processingId === addon.id}
                             tone={addon.isFeatured ? 'success' : 'default'}
-                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Sparkles size={16} />}
+                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Sparkles size={16} />}
                             label={addon.isFeatured ? 'Unfeature' : 'Feature'}
                           />
                           <ActionButton
                             onClick={() => handleStatusChange(addon.id, 'rejected')}
                             disabled={processingId === addon.id}
                             tone="warn"
-                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
+                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
                             label="Reject"
                           />
                         </>
@@ -426,14 +426,14 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                         onClick={() => setConfirmDeleteAddonId(addon.id)}
                         disabled={processingId === addon.id}
                         tone="danger"
-                        icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
+                        icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                         label="Delete"
                       />
                     </div>
                   </motion.div>
                 ))}
                 {[...approvedAddons, ...rejectedAddons].length === 0 && (
-                  <p className="text-ink/50 font-bold bg-paper border border-ink/10 rounded-lg p-6 text-center">No other add-ons found.</p>
+                  <p className="text-ink-900/50 font-bold bg-parchment-raised border border-parchment-border rounded-lg p-6 text-center">No other add-ons found.</p>
                 )}
               </motion.div>
             </section>
@@ -442,18 +442,18 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
         {activeTab === 'reports' && (
           <section>
-            <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-3">
-              <AlertTriangle className="text-accent-deep" size={22} /> User Reports
+            <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
+              <AlertTriangle className="text-terracotta-text" size={22} /> User Reports
             </h2>
             {loadingReports ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-56" />)}
               </div>
             ) : reports.length === 0 ? (
-              <div className="rounded-lg bg-paper p-12 text-center shadow-card">
-                <AlertTriangle size={28} className="mx-auto mb-3 text-ink/30" />
-                <p className="text-sm font-bold text-ink">No reports right now</p>
-                <p className="mt-1 text-xs font-normal text-ink/60">Flagged add-ons will show up here for review.</p>
+              <div className="rounded-lg bg-parchment-raised p-12 text-center shadow-card">
+                <AlertTriangle size={28} className="mx-auto mb-3 text-ink-900/30" />
+                <p className="text-sm font-bold text-ink-900">No reports right now</p>
+                <p className="mt-1 text-xs font-normal text-ink-900/60">Flagged add-ons will show up here for review.</p>
               </div>
             ) : (
               <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
@@ -463,20 +463,20 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                     <motion.div
                       key={report.id}
                       variants={itemVariants}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-6 glass"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-6 glass"
                     >
                       <div>
                         <div className="flex items-center gap-3 mb-3">
-                          <span className={`px-3 py-1 border border-ink/10 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
-                            report.status === 'resolved' ? 'bg-paper text-ink' : 'bg-accent text-ink'
+                          <span className={`px-3 py-1 border border-parchment-border rounded-lg text-[10px] font-bold uppercase tracking-widest ${
+                            report.status === 'resolved' ? 'bg-parchment-raised text-ink-900' : 'bg-terracotta text-ink-900'
                           }`}>
                             {report.status}
                           </span>
-                          <span className="text-xs text-ink/50 font-bold">{new Date(report.createdAt).toLocaleDateString()}</span>
+                          <span className="text-xs text-ink-900/50 font-bold">{new Date(report.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-base text-ink font-bold mb-3">"{report.reason}"</p>
-                        <p className="text-xs text-ink/50 font-bold">
-                          Reported Add-on: <span className="text-ink font-bold">{reportedAddon ? reportedAddon.title : 'Unknown (Deleted?)'}</span>
+                        <p className="text-base text-ink-900 font-bold mb-3">"{report.reason}"</p>
+                        <p className="text-xs text-ink-900/50 font-bold">
+                          Reported Add-on: <span className="text-ink-900 font-bold">{reportedAddon ? reportedAddon.title : 'Unknown (Deleted?)'}</span>
                         </p>
                       </div>
                       {report.status !== 'resolved' && (
@@ -485,7 +485,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                             onClick={() => handleResolveReport(report.id)}
                             disabled={processingId === report.id}
                             tone="default"
-                            icon={processingId === report.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
+                            icon={processingId === report.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                             label="Mark Resolved"
                           />
                           {reportedAddon && (
@@ -493,7 +493,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                               onClick={() => setConfirmDeleteAddonId(reportedAddon.id)}
                               disabled={processingId === reportedAddon.id}
                               tone="danger"
-                              icon={processingId === reportedAddon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
+                              icon={processingId === reportedAddon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                               label="Delete Add-on"
                             />
                           )}
@@ -509,18 +509,18 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
         {activeTab === 'users' && (
           <section>
-            <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-3">
+            <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
               <Users className="text-accent-soft" size={22} /> User Management
             </h2>
             {loadingUsers ? (
               <div className="space-y-4">
-                {[...Array(4)].map((_, i) => <div key={i} className="h-20 border border-ink/10 rounded-lg bg-ink/5" />)}
+                {[...Array(4)].map((_, i) => <div key={i} className="h-20 border border-parchment-border rounded-lg bg-ink-900/5" />)}
               </div>
             ) : users.length === 0 ? (
-              <div className="rounded-lg bg-paper p-12 text-center shadow-card">
-                <Users size={28} className="mx-auto mb-3 text-ink/30" />
-                <p className="text-sm font-bold text-ink">No users found</p>
-                <p className="mt-1 text-xs font-normal text-ink/60">Registered accounts will appear here.</p>
+              <div className="rounded-lg bg-parchment-raised p-12 text-center shadow-card">
+                <Users size={28} className="mx-auto mb-3 text-ink-900/30" />
+                <p className="text-sm font-bold text-ink-900">No users found</p>
+                <p className="mt-1 text-xs font-normal text-ink-900/60">Registered accounts will appear here.</p>
               </div>
             ) : (
               <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
@@ -528,30 +528,30 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   <motion.div
                     key={u.uid}
                     variants={itemVariants}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-paper rounded-lg shadow-card neumorph p-6 glass"
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-6 glass"
                   >
                     <div className="flex items-center gap-4">
                       {u.photoURL ? (
-                        <FadeImage src={u.photoURL} alt={u.displayName} className="w-12 h-12 rounded-full object-cover bg-paper border border-ink/10" referrerPolicy="no-referrer" />
+                        <FadeImage src={u.photoURL} alt={u.displayName} className="w-12 h-12 rounded-full object-cover bg-parchment-raised border border-parchment-border" referrerPolicy="no-referrer" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-accent border border-ink/10 flex items-center justify-center text-ink">
+                        <div className="w-12 h-12 rounded-full bg-terracotta border border-parchment-border flex items-center justify-center text-ink-900">
                           <UserX size={22} />
                         </div>
                       )}
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-ink">{u.displayName}</h3>
-                          <span className={`px-2 py-0.5 border border-ink/10 rounded text-[10px] font-bold uppercase tracking-wider ${
-                            u.role === 'admin' ? 'bg-accent-deep text-white' :
+                          <h3 className="font-bold text-ink-900">{u.displayName}</h3>
+                          <span className={`px-2 py-0.5 border border-parchment-border rounded text-[10px] font-bold uppercase tracking-wider ${
+                            u.role === 'admin' ? 'bg-terracotta-text text-white' :
                             u.role === 'banned' ? 'bg-danger text-white' :
-                            u.role === 'suspended' ? 'bg-accent text-ink' :
-                            'bg-paper text-ink'
+                            u.role === 'suspended' ? 'bg-terracotta text-ink-900' :
+                            'bg-parchment-raised text-ink-900'
                           }`}>
                             {u.role}
                           </span>
                         </div>
-                        <p className="text-sm text-ink/50 font-bold">{u.email}</p>
-                        <p className="text-xs text-ink/40 font-bold mt-1">Joined: {new Date(u.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-ink-900/50 font-bold">{u.email}</p>
+                        <p className="text-xs text-ink-900/40 font-bold mt-1">Joined: {new Date(u.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
@@ -571,7 +571,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'user')} disabled={processingId === u.uid} tone="success" icon={<Check size={14} />} label="Restore" />
                       )}
                       {!EXCLUDED_ADMIN_EMAILS.includes(u.email) && (
-                        <ActionButton onClick={() => setConfirmDeleteUserId(u.uid)} disabled={processingId === u.uid} tone="danger" icon={processingId === u.uid ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={14} />} label="Delete" />
+                        <ActionButton onClick={() => setConfirmDeleteUserId(u.uid)} disabled={processingId === u.uid} tone="danger" icon={processingId === u.uid ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={14} />} label="Delete" />
                       )}
                     </div>
                   </motion.div>
@@ -586,21 +586,21 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       <AnimatePresence>
         {editingAddon && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingAddon(null)} className="absolute inset-0 bg-ink/70" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingAddon(null)} className="absolute inset-0 bg-ink-900/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
+              className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card neumorph p-7 glass"
             >
-              <h3 className="text-xl font-bold text-ink uppercase mb-6 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-ink-900 uppercase mb-6 flex items-center gap-2">
                 <Edit2 size={20} className="text-accent-soft" /> Edit Add-on
               </h3>
               <form onSubmit={handleSaveAddonEdit} className="space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">Category</label>
+                  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-2">Category</label>
                   <select
                     value={editingAddon.category}
                     onChange={e => setEditingAddon({ ...editingAddon, category: e.target.value as any })}
-                    className="w-full border border-ink/10 rounded-lg bg-paper px-4 py-3 text-sm font-bold text-ink focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                    className="w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
                   >
                     <option value="Resource Pack">Resource Pack</option>
                     <option value="Behavior Pack">Behavior Pack</option>
@@ -610,12 +610,12 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">Tags (comma separated)</label>
+                  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-2">Tags (comma separated)</label>
                   <input
                     type="text"
                     value={typeof editingAddon.tags === 'string' ? editingAddon.tags : (editingAddon.tags || []).join(', ')}
                     onChange={e => setEditingAddon({ ...editingAddon, tags: e.target.value as any })}
-                    className="w-full border border-ink/10 rounded-lg bg-paper px-4 py-3 text-sm font-bold text-ink focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                    className="w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
                     placeholder="e.g. pvp, realistic, 32x"
                   />
                 </div>
@@ -624,16 +624,16 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                     type="button"
                     onClick={() => setEditingAddon(null)}
                     disabled={!!processingId}
-                    className="px-4 py-2.5 text-sm font-bold text-ink/60 hover:text-ink transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2.5 text-sm font-bold text-ink-900/60 hover:text-ink-900 transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!!processingId}
-                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {processingId === editingAddon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
+                    {processingId === editingAddon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                     Save Changes
                   </button>
                 </div>
@@ -647,20 +647,20 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       <AnimatePresence>
         {confirmDeleteAddonId && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteAddonId(null)} className="absolute inset-0 bg-ink/70" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteAddonId(null)} className="absolute inset-0 bg-ink-900/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
+              className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card neumorph p-7 glass"
             >
-              <h3 className="text-xl font-bold text-ink uppercase mb-2">Delete Add-on?</h3>
-              <p className="text-ink/60 text-sm font-bold mb-6">
+              <h3 className="text-xl font-bold text-ink-900 uppercase mb-2">Delete Add-on?</h3>
+              <p className="text-ink-900/60 text-sm font-bold mb-6">
                 Are you sure you want to delete this add-on? This action cannot be undone and will remove it from the marketplace permanently.
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setConfirmDeleteAddonId(null)}
                   disabled={!!processingId}
- className="px-4 py-2.5 text-sm font-bold text-ink uppercase rounded-lg bg-paper shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+ className="px-4 py-2.5 text-sm font-bold text-ink-900 uppercase rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -669,7 +669,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   disabled={!!processingId}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processingId === confirmDeleteAddonId ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
+                  {processingId === confirmDeleteAddonId ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>
@@ -682,20 +682,20 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       <AnimatePresence>
         {confirmDeleteUserId && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteUserId(null)} className="absolute inset-0 bg-ink/70" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConfirmDeleteUserId(null)} className="absolute inset-0 bg-ink-900/70" />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph p-7 glass"
+              className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card neumorph p-7 glass"
             >
-              <h3 className="text-xl font-bold text-ink uppercase mb-2">Delete User?</h3>
-              <p className="text-ink/60 text-sm font-bold mb-6">
+              <h3 className="text-xl font-bold text-ink-900 uppercase mb-2">Delete User?</h3>
+              <p className="text-ink-900/60 text-sm font-bold mb-6">
                 Are you sure you want to delete this user? This action cannot be undone and will remove their profile permanently.
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setConfirmDeleteUserId(null)}
                   disabled={!!processingId}
- className="px-4 py-2.5 text-sm font-bold text-ink uppercase rounded-lg bg-paper shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+ className="px-4 py-2.5 text-sm font-bold text-ink-900 uppercase rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -704,7 +704,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                   disabled={!!processingId}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processingId === confirmDeleteUserId ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
+                  {processingId === confirmDeleteUserId ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>

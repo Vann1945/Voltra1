@@ -29,7 +29,7 @@ export function MonthCalendar({ activityLog }: MonthCalendarProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="bg-linen-50 rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-linen-200 shadow-sm"
+      className="bg-parchment-raised rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-parchment-border shadow-sm"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-5">
         <div className="flex items-center gap-2">
@@ -42,7 +42,7 @@ export function MonthCalendar({ activityLog }: MonthCalendarProps) {
             Done
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-[2px] bg-linen-200 border border-linen-muted" aria-hidden="true" />
+            <span className="w-2 h-2 rounded-[2px] bg-parchment-border border border-ink-700/20" aria-hidden="true" />
             Rest
           </span>
         </div>
@@ -64,7 +64,7 @@ export function MonthCalendar({ activityLog }: MonthCalendarProps) {
               key={label}
               role="columnheader"
               aria-label={WEEKDAY_FULL[i]}
-              className="text-center text-[10px] font-semibold uppercase tracking-wider text-ink-500 pb-1"
+              className="text-center text-[10px] font-semibold uppercase tracking-wider text-ink-700 pb-1"
             >
               <span aria-hidden="true">{label}</span>
             </div>
@@ -84,16 +84,16 @@ export function MonthCalendar({ activityLog }: MonthCalendarProps) {
               if (!day.isCurrentMonth) {
                 cellClasses += ' text-ink-700/70';
               } else if (status === 'active') {
-                cellClasses += ' bg-ink-900 text-linen-50 shadow-sm shadow-ink-900/20';
+                cellClasses += ' bg-ink-900 text-parchment-raised shadow-sm shadow-ink-900/20';
                 label = `${day.dateStr}: completed`;
               } else if (status === 'rest') {
-                cellClasses += ' bg-linen-200 text-ink-700';
+                cellClasses += ' bg-parchment-border text-ink-700';
                 label = `${day.dateStr}: rest day`;
               } else if (day.isFuture) {
                 cellClasses += ' text-ink-700/70';
                 label = `${day.dateStr}: upcoming`;
               } else {
-                cellClasses += ' border border-dashed border-linen-200 text-ink-700';
+                cellClasses += ' border border-dashed border-parchment-border text-ink-700';
                 label = `${day.dateStr}: missed`;
               }
 
@@ -110,14 +110,14 @@ export function MonthCalendar({ activityLog }: MonthCalendarProps) {
                   {day.isToday && (
                     <span
                       aria-hidden="true"
-                      className={`absolute inset-0 rounded-xl ring-2 ring-ember-500 ${isFilled ? 'ring-offset-2 ring-offset-linen-50' : ''}`}
+                      className={`absolute inset-0 rounded-xl ring-2 ring-terracotta ${isFilled ? 'ring-offset-2 ring-offset-parchment-raised' : ''}`}
                     />
                   )}
                   <span className="relative z-10">{day.dayOfMonth}</span>
                   {day.isToday && (
                     <span
                       aria-hidden="true"
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-ember-500"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-terracotta"
                     />
                   )}
                 </div>

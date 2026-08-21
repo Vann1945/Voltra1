@@ -5,7 +5,6 @@ import { readActivityLog, sanitizeHabitName, safeGetItem, safeSetItem, type Acti
 import { useToast } from './hooks/useToast';
 import { HabitHeader } from './components/HabitHeader';
 import { ActivityLogView } from './components/ActivityLogView';
-import { MonthCalendar } from './components/MonthCalendar';
 import { MonthlyOverview } from './components/MonthlyOverview';
 import { MainActionControls } from './components/MainActionControls';
 import { LazyMotion, domAnimation, MotionConfig, AnimatePresence } from 'motion/react';
@@ -14,6 +13,10 @@ import {
   Activity, RotateCcw, Flame, Star, Award, Trophy, Medal, Crown, Gem, Sparkles,
   TrendingUp, CalendarCheck, Percent, Lock,
 } from 'lucide-react';
+import { Skeleton } from './components/Skeleton';
+
+const MonthCalendar = lazy(() => import('./components/MonthCalendar').then(m => ({ default: m.MonthCalendar })));
+const ResetModal = lazy(() => import('./components/ResetModal').then((m) => ({ default: m.ResetModal })));
 
 interface StreakAppProps {
   theme?: 'light' | 'dark' | 'oled';
@@ -28,8 +31,6 @@ export default function StreakApp({ theme = 'light', onNavigate }: StreakAppProp
     </div>
   );
 }
-
-const ResetModal = lazy(() => import('./components/ResetModal').then((m) => ({ default: m.ResetModal })));
 
 const CONFETTI_COLORS_BY_THEME: Record<'light' | 'dark' | 'oled', string[]> = {
   light: ['#141413', '#3a3934', '#c96442', '#f0eee6'],
@@ -247,10 +248,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
     (name: string) => {
       setHabitName(name);
       pushRemoteHabitName(name).then((ok) => {
-        if (!ok) {
-          // If we fail to sync but we're just not logged in, we shouldn't show a scary error.
-          // For now, we just silently fail the remote push and keep it local.
-        }
+        // Silently fail if remote sync fails
       });
     },
     [],
@@ -265,8 +263,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
       }));
 
       pushRemoteLog(todayDateStr, status).then((ok) => {
-        // Silently fail if remote sync fails (likely because user is not logged in)
-        // Local storage already handled it above.
+        // Silently fail if remote sync fails
       });
 
       if (status === 'active') {
@@ -344,7 +341,9 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
             </article>
 
             <div className="w-full flex flex-col gap-5 sm:gap-6 pt-8 sm:pt-10 border-t border-[var(--sa-border)]">
-              <MonthCalendar activityLog={activityLog} />
+              <Suspense fallback={<Skeleton className="w-full h-64 rounded-3xl" />}>
+                <MonthCalendar activityLog={activityLog} />
+              </Suspense>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                 <ActivityLogView activityLog={activityLog} />
                 <MonthlyOverview activityLog={activityLog} journeyStartDate={journeyStartDate} />

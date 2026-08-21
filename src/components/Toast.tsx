@@ -43,7 +43,7 @@ export function Toast({ toast, onClose }: ToastProps) {
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className="fixed bottom-6 left-1/2 z-[500] -translate-x-1/2 w-[calc(100%-2rem)] max-w-[360px]"
         >
-          <div className="relative overflow-hidden border border-ink/10 rounded-lg bg-paper shadow-[0_6px_20px_rgba(0,0,0,0.1)]">
+          <div className="relative overflow-hidden border border-parchment-border rounded-lg bg-parchment-raised shadow-[0_6px_20px_rgba(0,0,0,0.1)]">
             <div
               className={`absolute left-0 top-0 bottom-0 w-1 ${
                 isSuccess ? 'bg-success' : 'bg-danger'
@@ -70,20 +70,20 @@ export function Toast({ toast, onClose }: ToastProps) {
                 >
                   {isSuccess ? 'Success' : 'Error'}
                 </p>
-                <p className="text-sm text-ink leading-snug">
+                <p className="text-sm text-ink-900 leading-snug">
                   {toast.message}
                 </p>
               </div>
 
               <button
                 onClick={onClose}
-                className="shrink-0 mt-0.5 p-1.5 rounded-lg text-ink/50 transition-colors hover:text-ink"
+                className="shrink-0 mt-0.5 p-1.5 rounded-lg text-ink-900/50 transition-colors hover:text-ink-900"
               >
                 <X size={14} strokeWidth={2} />
               </button>
             </div>
 
-            <div className="h-0.5 w-full bg-ink/[0.06]">
+            <div className="h-0.5 w-full bg-ink-900/[0.06]">
               <motion.div
                 className={`h-full ${isSuccess ? 'bg-success' : 'bg-danger'}`}
                 style={{ width: `${progress}%` }}

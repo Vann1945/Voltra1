@@ -98,7 +98,7 @@ export function CustomSelect({ value, options, onChange, placeholder, className 
         aria-controls={isOpen ? listboxId : undefined}
         onClick={() => (isOpen ? closeDropdown(false) : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
-        className="flex w-full items-center justify-between rounded-lg bg-paper px-4 py-2.5 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px focus:outline-none"
+        className="flex w-full items-center justify-between rounded-lg bg-parchment-raised px-4 py-2.5 text-sm font-bold text-ink-900 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px focus:outline-none"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder || 'Select option...'}</span>
         <ChevronDown size={14} className={`shrink-0 ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -113,7 +113,7 @@ export function CustomSelect({ value, options, onChange, placeholder, className 
           autoFocus
           onKeyDown={handleListKeyDown}
           aria-activedescendant={activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined}
-          className="absolute left-0 right-0 top-full z-[120] mt-1 max-h-56 overflow-y-auto rounded-lg bg-paper shadow-card outline-none"
+          className="absolute left-0 right-0 top-full z-[120] mt-1 max-h-56 overflow-y-auto rounded-lg bg-parchment-raised shadow-card outline-none"
         >
           {normalizedOptions.map((opt, i) => {
             const isSelected = opt.value === value;
@@ -127,8 +127,8 @@ export function CustomSelect({ value, options, onChange, placeholder, className 
                 type="button"
                 onMouseEnter={() => setActiveIndex(i)}
                 onClick={() => { onChange(opt.value); closeDropdown(true); }}
-                className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition-colors border-b border-ink/10 last:border-b-0 ${
-                  isSelected ? 'bg-accent text-ink' : isActive ? 'bg-ink/[0.05] text-ink' : 'text-ink hover:bg-accent/40'
+                className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition-colors border-b border-parchment-border last:border-b-0 ${
+                  isSelected ? 'bg-terracotta text-ink-900' : isActive ? 'bg-ink-900/[0.05] text-ink-900' : 'text-ink-900 hover:bg-terracotta/40'
                 }`}
               >
                 <span className="truncate">{opt.label}</span>

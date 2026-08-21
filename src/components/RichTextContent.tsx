@@ -142,25 +142,25 @@ export function RichTextContent({ html, className = '', isDarkMode = false }: { 
       <style>{scopedCss}</style>
       <div
         ref={containerRef}
-        className={`${scopeClass} max-w-none text-sm text-ink leading-relaxed font-normal
-        [&_h1]:text-3xl [&_h1]:font-normal [&_h1]:my-4 [&_h1]:text-ink [&_h1]:tracking-tight
-        [&_h2]:text-2xl [&_h2]:font-normal [&_h2]:my-3 [&_h2]:text-ink [&_h2]:tracking-tight
-        [&_h3]:text-xl [&_h3]:font-normal [&_h3]:my-2 [&_h3]:text-ink
-        [&_h4]:text-lg [&_h4]:font-normal [&_h4]:my-2 [&_h4]:text-ink
-        [&_h5]:text-base [&_h5]:font-normal [&_h5]:my-2 [&_h5]:text-ink
-        [&_h6]:text-sm [&_h6]:font-normal [&_h6]:my-2 [&_h6]:text-ink
+        className={`${scopeClass} max-w-none text-sm text-ink-900 leading-relaxed font-normal
+        [&_h1]:text-3xl [&_h1]:font-normal [&_h1]:my-4 [&_h1]:text-ink-900 [&_h1]:tracking-tight
+        [&_h2]:text-2xl [&_h2]:font-normal [&_h2]:my-3 [&_h2]:text-ink-900 [&_h2]:tracking-tight
+        [&_h3]:text-xl [&_h3]:font-normal [&_h3]:my-2 [&_h3]:text-ink-900
+        [&_h4]:text-lg [&_h4]:font-normal [&_h4]:my-2 [&_h4]:text-ink-900
+        [&_h5]:text-base [&_h5]:font-normal [&_h5]:my-2 [&_h5]:text-ink-900
+        [&_h6]:text-sm [&_h6]:font-normal [&_h6]:my-2 [&_h6]:text-ink-900
         [&_p]:mb-3 [&_p]:leading-relaxed
-        [&_a]:text-accent-soft [&_a]:underline [&_a]:font-medium
-        [&_blockquote]:border-l-2 [&_blockquote]:border-accent [&_blockquote]:bg-accent/[0.06] [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-ink
+        [&_a]:text-terracotta-soft [&_a]:underline [&_a]:font-medium
+        [&_blockquote]:border-l-2 [&_blockquote]:border-terracotta [&_blockquote]:bg-terracotta/[0.06] [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-ink-900
         [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:font-mono [&_pre]:text-xs
-        [&_code]:bg-accent/[0.15] [&_code]:px-1 [&_code]:rounded [&_code]:font-mono [&_code]:text-xs
+        [&_code]:bg-terracotta/[0.15] [&_code]:px-1 [&_code]:rounded [&_code]:font-mono [&_code]:text-xs
         [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:rounded-none [&_pre_code]:block
         [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2
         [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2
         [&_hr]:h-px [&_hr]:border-0 [&_hr]:my-4
         [&_img]:my-3 [&_img]:border [&_img]:rounded-lg [&_img]:max-w-full
         [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_table]:text-sm [&_table]:border [&_table]:rounded-lg
-        [&_th]:border [&_th]:bg-accent/[0.12] [&_th]:p-2 [&_th]:text-left [&_th]:font-bold
+        [&_th]:border [&_th]:bg-terracotta/[0.12] [&_th]:p-2 [&_th]:text-left [&_th]:font-bold
         [&_td]:border [&_td]:p-2 ${className}`}
         dangerouslySetInnerHTML={{ __html: clean }}
       />

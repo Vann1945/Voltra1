@@ -230,10 +230,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     }
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center min-h-[100dvh]">
-        <h2 className="text-2xl font-bold text-ink">Add-on not found</h2>
+        <h2 className="text-2xl font-bold text-ink-900">Add-on not found</h2>
         <button
           onClick={() => onNavigate('home')}
- className="mt-5 inline-flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
         >
           Return to Marketplace
         </button>
@@ -299,14 +299,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     <div className="mx-auto max-w-5xl px-4 py-12 min-h-[100dvh]">
       <button
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink uppercase hover:text-accent-deep transition-colors"
+        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink-900 uppercase hover:text-terracotta-text transition-colors"
       >
         <ArrowLeft size={16} /> Back to Marketplace
       </button>
 
-    <div className="overflow-hidden rounded-lg bg-paper shadow-card neumorph glass">
+    <div className="overflow-hidden rounded-lg bg-parchment-raised shadow-card neumorph glass">
         <div
-          className="aspect-[21/9] w-full overflow-hidden bg-ink relative border-b border-ink/10"
+          className="aspect-[21/9] w-full overflow-hidden bg-ink-900 relative border-b border-parchment-border"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -325,14 +325,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               <button
                 onClick={goPrev}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-accent rounded-lg shadow-card text-ink transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={goNext}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-accent rounded-lg shadow-card text-ink transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
               >
                 <ChevronRight size={18} />
               </button>
@@ -344,7 +344,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
                     aria-label={`Go to image ${idx + 1}`}
                     className="p-2 flex items-center justify-center"
                   >
-                    <span className={`block h-2 border border-ink transition-all ${idx === currentImageIndex ? 'w-6 bg-accent' : 'w-2 bg-paper/70'}`} />
+                    <span className={`block h-2 border border-ink transition-all ${idx === currentImageIndex ? 'w-6 bg-terracotta' : 'w-2 bg-parchment-raised/70'}`} />
                   </button>
                 ))}
               </div>
@@ -355,13 +355,13 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <div className="p-8">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
             <div>
-              <span className="inline-block bg-accent rounded-lg px-3 py-1 text-xs font-bold uppercase text-ink mb-3 shadow-card">
+              <span className="inline-block bg-terracotta rounded-lg px-3 py-1 text-xs font-bold uppercase text-ink-900 mb-3 shadow-card">
                 {addon.category}
               </span>
-              <h1 className="text-4xl font-bold text-ink tracking-tight">{addon.title}</h1>
+              <h1 className="text-4xl font-bold text-ink-900 tracking-tight">{addon.title}</h1>
 
-              <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink/60">
-                <div onClick={() => onNavigate({ type: 'author', id: addon.authorId })} className="flex items-center gap-2 cursor-pointer hover:text-ink transition-colors">
+              <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink-900/60">
+                <div onClick={() => onNavigate({ type: 'author', id: addon.authorId })} className="flex items-center gap-2 cursor-pointer hover:text-ink-900 transition-colors">
                   <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName="h-8 w-8" />
                   <span>{addon.authorName}</span>
                 </div>
@@ -371,9 +371,9 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
                 </div>
                 {addon.averageRating !== undefined && addon.averageRating > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <Star size={16} className="fill-ink text-ink" />
+                    <Star size={16} className="fill-ink text-ink-900" />
                     <span className="font-meta">{addon.averageRating.toFixed(1)}</span>
-                    {reviews.length > 0 && <span className="text-ink/40 font-normal normal-case">({reviews.length} review{reviews.length === 1 ? '' : 's'})</span>}
+                    {reviews.length > 0 && <span className="text-ink-900/40 font-normal normal-case">({reviews.length} review{reviews.length === 1 ? '' : 's'})</span>}
                   </div>
                 )}
               </div>
@@ -382,7 +382,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsReportModalOpen(true)}
-                className="p-3 rounded-lg bg-paper text-ink shadow-card btn-3d"
+                className="p-3 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
                 title="Report"
               >
                 <AlertTriangle size={18} />
@@ -390,28 +390,28 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               <button
                 onClick={handleDownloadClick}
                 disabled={isDownloading}
-                className="flex items-center gap-2 bg-accent rounded-lg px-6 py-3 text-sm font-bold text-ink uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 bg-terracotta rounded-lg px-6 py-3 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDownloading ? (
-                  <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                  <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                 ) : downloadSuccess ? <Check size={18} /> : <Download size={18} />}
                 {isDownloading ? 'Downloading...' : downloadSuccess ? 'Downloaded!' : 'Download'}
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-ink/10 pt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-parchment-border pt-8">
             <div className="lg:col-span-2">
-              <h2 className="text-lg font-bold text-ink uppercase mb-4">Description</h2>
+              <h2 className="text-lg font-bold text-ink-900 uppercase mb-4">Description</h2>
               <RichTextContent html={fullDescription ?? addon.description} isDarkMode={isDarkMode}/>
             </div>
 
             <div className="space-y-6">
               {addon.demoUrl && (
-                <div className="bg-paper rounded-lg shadow-card neumorph p-5 glass">
-                  <h2 className="text-sm font-bold text-ink uppercase mb-3 flex items-center gap-2"><ExternalLink size={16} /> Demo / Preview</h2>
+                <div className="bg-parchment-raised rounded-lg shadow-card neumorph p-5 glass">
+                  <h2 className="text-sm font-bold text-ink-900 uppercase mb-3 flex items-center gap-2"><ExternalLink size={16} /> Demo / Preview</h2>
                   {demoYouTubeId ? (
-                    <div className="aspect-video w-full overflow-hidden border border-ink/10 rounded-lg bg-ink relative">
+                    <div className="aspect-video w-full overflow-hidden border border-parchment-border rounded-lg bg-ink-900 relative">
                       {videoActivated ? (
                         <iframe
                           className="w-full h-full"
@@ -434,7 +434,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
                             loading="lazy"
                           />
                           <span className="absolute inset-0 flex items-center justify-center">
-                            <span className="flex items-center justify-center h-14 w-14 rounded-full bg-accent shadow-[0_2px_12px_rgba(0,0,0,0.3)] transition-transform group-hover:scale-110">
+                            <span className="flex items-center justify-center h-14 w-14 rounded-full bg-terracotta shadow-[0_2px_12px_rgba(0,0,0,0.3)] transition-transform group-hover:scale-110">
                               <svg viewBox="0 0 24 24" className="h-6 w-6 fill-ink ml-0.5"><path d="M8 5v14l11-7z" /></svg>
                             </span>
                           </span>
@@ -459,14 +459,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       </div>
 
       {addon.panoramaUrl && (
-        <div className="mt-8 overflow-hidden rounded-lg bg-paper shadow-card neumorph glass">
-          <div className="px-6 pt-6 pb-4 border-b border-ink/10">
-            <h2 className="text-lg font-bold text-ink uppercase">Panorama</h2>
-            <p className="text-xs text-ink/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>
+        <div className="mt-8 overflow-hidden rounded-lg bg-parchment-raised shadow-card neumorph glass">
+          <div className="px-6 pt-6 pb-4 border-b border-parchment-border">
+            <h2 className="text-lg font-bold text-ink-900 uppercase">Panorama</h2>
+            <p className="text-xs text-ink-900/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>
           </div>
           <div
             ref={panoramaStripRef}
-            className="flex overflow-x-auto select-none bg-ink [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-paper/20"
+            className="flex overflow-x-auto select-none bg-ink-900 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-parchment-raised/20"
             style={{ cursor: 'grab', scrollbarWidth: 'thin' }}
           >
             <img

@@ -69,7 +69,7 @@ function RecaptchaWidget({ onChange }: { onChange: (token: string | null) => voi
         <button
           type="button"
           onClick={() => setRetryCount(c => c + 1)}
-          className="text-xs font-semibold text-ink/60 underline hover:text-ink"
+          className="text-xs font-semibold text-ink-900/60 underline hover:text-ink-900"
         >
           Couldn't load reCAPTCHA — tap to retry
         </button>
@@ -241,23 +241,23 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
   const inputClass = (hasError: boolean) =>
     cn(
-      'w-full bg-paper border py-3 pl-12 pr-4 text-ink font-medium placeholder:text-ink/40 focus:outline-none transition-all',
+      'w-full bg-parchment-raised border py-3 pl-12 pr-4 text-ink-900 font-medium placeholder:text-ink-900/40 focus:outline-none transition-all',
       hasError
         ? 'border-danger focus:shadow-[0_2px_12px_rgba(179,38,30,0.15)]'
-        : 'border-ink/15 focus:border-accent-soft focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)]'
+        : 'border-ink-900/15 focus:border-terracotta-soft focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)]'
     );
 
   return (
     <div className="w-full max-w-[420px]">
-      <div className="bg-paper rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
+      <div className="bg-parchment-raised rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight">
             {view === 'login' && 'Welcome back'}
             {view === 'register' && 'Create account'}
             {view === 'forgot' && 'Reset password'}
             {view === 'unverified' && 'Verify email'}
           </h1>
-          <p className="text-sm text-ink/70 mt-1 font-medium">
+          <p className="text-sm text-ink-900/70 mt-1 font-medium">
             {view === 'login' && 'Enter your details to sign in.'}
             {view === 'register' && 'Sign up to get started.'}
             {view === 'forgot' && 'Enter your email to get a reset link.'}
@@ -276,7 +276,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             >
               <div className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
                 <AlertCircle className="text-danger shrink-0 mt-0.5" size={16} />
-                <p className="text-sm text-ink font-medium">{error}</p>
+                <p className="text-sm text-ink-900 font-medium">{error}</p>
               </div>
             </motion.div>
           )}
@@ -290,7 +290,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             >
               <div className="p-4 bg-success/[0.08] border border-success/20 rounded-lg flex items-start gap-3">
                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={16} />
-                <p className="text-sm text-ink font-medium">{successMsg}</p>
+                <p className="text-sm text-ink-900 font-medium">{successMsg}</p>
               </div>
             </motion.div>
           )}
@@ -298,21 +298,21 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
         {view === 'unverified' ? (
           <div className="text-center space-y-5 py-4">
-            <div className="w-14 h-14 bg-accent-soft/[0.06] border border-accent-soft/20 rounded-lg flex items-center justify-center mx-auto">
-              <Mail size={26} className="text-accent-soft" />
+            <div className="w-14 h-14 bg-terracotta-soft/[0.06] border border-terracotta-soft/20 rounded-lg flex items-center justify-center mx-auto">
+              <Mail size={26} className="text-terracotta-soft" />
             </div>
-            <p className="text-sm font-medium text-ink">
+            <p className="text-sm font-medium text-ink-900">
               We sent a verification email to <span className="underline">{email}</span>. Please verify to continue.
             </p>
             <button
               onClick={handleResendVerification}
- className="w-full bg-paper rounded-lg py-3 text-sm font-semibold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="w-full bg-parchment-raised rounded-lg py-3 text-sm font-semibold text-ink-900 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
             >
               Resend Email
             </button>
             <button
               onClick={() => switchView('login')}
-              className="w-full border border-ink/10 rounded-lg bg-paper py-3 text-sm font-semibold text-ink transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              className="w-full border border-parchment-border rounded-lg bg-parchment-raised py-3 text-sm font-semibold text-ink-900 transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
             >
               Back to Sign In
             </button>
@@ -328,11 +328,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-1 overflow-hidden"
                 >
-                  <label className="block text-xs font-bold text-ink uppercase tracking-widest">
+                  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                     Full Name
                   </label>
                   <div className="relative">
-                    <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none" />
+                    <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                     <input
                       type="text"
                       value={name}
@@ -349,11 +349,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             </AnimatePresence>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-ink uppercase tracking-widest">
+              <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                 Email
               </label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
@@ -377,21 +377,21 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   className="space-y-1 overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-ink uppercase tracking-widest">
+                    <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                       Password
                     </label>
                     {view === 'login' && (
                       <button
                         type="button"
                         onClick={() => switchView('forgot')}
-                        className="text-xs font-bold text-ink underline hover:text-accent-deep transition-colors"
+                        className="text-xs font-bold text-ink-900 underline hover:text-terracotta-text transition-colors"
                       >
                         Forgot?
                       </button>
                     )}
                   </div>
                   <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none" />
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                     <input
                       type="password"
                       value={password}
@@ -412,14 +412,14 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-2 bg-terracotta rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink-900 uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-full">
                   <div className="h-7 w-full">
                     <div className="">
                       <div className="relative">
-                        <div className="h-7 w-full rounded-lg bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                        <div className="h-7 w-full rounded-lg bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                       </div>
                     </div>
                   </div>
@@ -441,19 +441,19 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
         {view !== 'forgot' && view !== 'unverified' && (
           <>
             <div className="flex items-center gap-3 my-7">
-              <div className="flex-1 h-[2px] bg-ink/20" />
-              <span className="text-[10px] font-bold text-ink uppercase tracking-widest">or</span>
-              <div className="flex-1 h-[2px] bg-ink/20" />
+              <div className="flex-1 h-[2px] bg-ink-900/20" />
+              <span className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">or</span>
+              <div className="flex-1 h-[2px] bg-ink-900/20" />
             </div>
 
             {loading ? (
-              <div className="w-full bg-paper rounded-lg py-3.5 px-4" />
+              <div className="w-full bg-parchment-raised rounded-lg py-3.5 px-4" />
             ) : (
             <button
               type="button"
               onClick={handleGoogle}
               disabled={loading}
- className="w-full bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+ className="w-full bg-parchment-raised rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink-900 text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -466,13 +466,13 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             )}
 
             {loading ? (
-              <div className="w-full mt-3 bg-paper rounded-lg py-3.5 px-4" />
+              <div className="w-full mt-3 bg-parchment-raised rounded-lg py-3.5 px-4" />
             ) : (
             <button
               type="button"
               onClick={handleGithub}
               disabled={loading}
- className="w-full mt-3 bg-paper rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+ className="w-full mt-3 bg-parchment-raised rounded-lg py-3.5 px-4 flex items-center justify-center gap-3 font-bold text-ink-900 text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#000">
                 <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.7 5.39-5.27 5.67.42.36.78 1.07.78 2.15 0 1.56-.01 2.81-.01 3.19 0 .3.21.66.79.55A10.99 10.99 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
@@ -485,11 +485,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
       </div>
 
       {view !== 'unverified' && (
-        <div className="mt-5 text-center text-sm font-bold text-ink">
+        <div className="mt-5 text-center text-sm font-bold text-ink-900">
           {view === 'login' && (
             <>
               No account?{' '}
-              <button onClick={() => switchView('register')} className="underline hover:text-accent-deep transition-colors">
+              <button onClick={() => switchView('register')} className="underline hover:text-terracotta-text transition-colors">
                 Sign up
               </button>
             </>
@@ -497,7 +497,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           {view === 'register' && (
             <>
               Already have an account?{' '}
-              <button onClick={() => switchView('login')} className="underline hover:text-accent-deep transition-colors">
+              <button onClick={() => switchView('login')} className="underline hover:text-terracotta-text transition-colors">
                 Sign in
               </button>
             </>
@@ -505,7 +505,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           {view === 'forgot' && (
             <>
               Remember it?{' '}
-              <button onClick={() => switchView('login')} className="underline hover:text-accent-deep transition-colors">
+              <button onClick={() => switchView('login')} className="underline hover:text-terracotta-text transition-colors">
                 Back to sign in
               </button>
             </>

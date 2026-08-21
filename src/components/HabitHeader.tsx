@@ -46,7 +46,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-2 text-ink-500">
+        <div className="flex items-center gap-2 mb-2 text-ink-700">
           <Target className="w-4 h-4" aria-hidden="true" />
           <span className="text-[10px] font-semibold uppercase tracking-wider">Current Focus</span>
         </div>
@@ -77,7 +77,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                 />
                 <button
                   onClick={commitEdit}
-                  className="p-2 bg-ink-900 text-linen-50 rounded-full hover:bg-ink-700 transition-colors shrink-0"
+                  className="p-2 bg-ink-900 text-parchment-raised rounded-full hover:bg-ink-700 transition-colors shrink-0"
                   aria-label="Save habit name"
                 >
                   <Check className="w-5 h-5" aria-hidden="true" />
@@ -101,7 +101,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                     {habitName}
                   </h1>
                   <PenLine
-                    className="w-4 h-4 text-ink-500 shrink-0 opacity-80 group-hover/name:opacity-100 group-hover/name:text-ink-900 transition-all"
+                    className="w-4 h-4 text-ink-700 shrink-0 opacity-80 group-hover/name:opacity-100 group-hover/name:text-ink-900 transition-all"
                     aria-hidden="true"
                   />
                 </button>
@@ -111,9 +111,9 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
         </div>
       </div>
 
-      <div className="flex items-end gap-4 bg-linen-50 px-5 sm:px-6 py-4 rounded-3xl border border-linen-200 shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
+      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-3xl border border-parchment-border shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
         <div className="flex flex-col min-w-0">
-          <span className="text-[10px] font-semibold text-ink-500 uppercase tracking-wider mb-1 whitespace-nowrap">
+          <span className="text-[10px] font-semibold text-ink-700 uppercase tracking-wider mb-1 whitespace-nowrap">
             Current Streak
           </span>
           <div className="flex items-baseline gap-1.5 min-w-0">
@@ -134,7 +134,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                 </m.span>
               </AnimatePresence>
             </span>
-            <span className="text-sm font-medium text-ink-500 shrink-0">{streak === 1 ? 'day' : 'days'}</span>
+            <span className="text-sm font-medium text-ink-700 shrink-0">{streak === 1 ? 'day' : 'days'}</span>
           </div>
         </div>
       </div>

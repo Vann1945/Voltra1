@@ -57,15 +57,15 @@ function getAddonPayloadError(data: Record<string, unknown>): string {
 }
 
 const Label = ({ children, hint }: { children: React.ReactNode; hint?: boolean }) => (
-  <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-1.5 flex items-center gap-1">
-    {children} {hint && <HelpCircle size={12} className="text-ink/40" />}
+  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+    {children} {hint && <HelpCircle size={12} className="text-ink-900/40" />}
   </label>
 );
 
 const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
     {...props}
-    className={`w-full border border-ink/10 rounded-lg bg-paper px-4 py-2.5 text-sm font-medium text-ink placeholder-ink/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all ${props.className || ''}`}
+    className={`w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-2.5 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all ${props.className || ''}`}
   />
 );
 
@@ -485,13 +485,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <label className="flex items-start gap-3 cursor-pointer group">
       <div
         onClick={() => onChange(!checked)}
-        className={`mt-0.5 h-5 w-5 border border-ink/10 rounded-lg flex items-center justify-center shrink-0 transition-all ${checked ? 'bg-accent' : 'bg-paper group-hover:bg-accent/30'}`}
+        className={`mt-0.5 h-5 w-5 border border-parchment-border rounded-lg flex items-center justify-center shrink-0 transition-all ${checked ? 'bg-terracotta' : 'bg-parchment-raised group-hover:bg-terracotta/30'}`}
       >
-        {checked && <Check size={12} strokeWidth={3} className="text-ink" />}
+        {checked && <Check size={12} strokeWidth={3} className="text-ink-900" />}
       </div>
       <div>
-        <span className="text-sm font-bold text-ink">{label}</span>
-        {sublabel && <p className="text-xs text-ink/50 font-medium mt-0.5">{sublabel}</p>}
+        <span className="text-sm font-bold text-ink-900">{label}</span>
+        {sublabel && <p className="text-xs text-ink-900/50 font-medium mt-0.5">{sublabel}</p>}
       </div>
     </label>
   );
@@ -500,32 +500,32 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center sm:p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/70" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink-900/70" />
           <motion.div
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm: rounded-lg sm:shadow-card bg-paper neumorph glass"
+            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm: rounded-lg sm:shadow-card bg-parchment-raised neumorph glass"
           >
-            <div className="flex items-center justify-between border-b border-ink/10 px-6 py-4 bg-paper">
-              <h2 className="text-lg font-bold text-ink uppercase tracking-tight">Create Project</h2>
+            <div className="flex items-center justify-between border-b border-parchment-border px-6 py-4 bg-parchment-raised">
+              <h2 className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg bg-paper text-ink shadow-card btn-3d"
+                className="p-2 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
               >
                 <X size={16} />
               </button>
             </div>
 
-            <div className="flex border-b border-ink/10 bg-paper">
+            <div className="flex border-b border-parchment-border bg-parchment-raised">
               {STEPS.map((s, idx) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => goToStep(s)}
-                  className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest border-r border-ink/10 last:border-r-0 transition-colors ${
-                    step === s ? 'bg-accent text-ink' : 'bg-paper text-ink/50 hover:bg-accent/30'
+                  className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest border-r border-parchment-border last:border-r-0 transition-colors ${
+                    step === s ? 'bg-terracotta text-ink-900' : 'bg-parchment-raised text-ink-900/50 hover:bg-terracotta/30'
                   }`}
                 >
                   {idx + 1}. {s}
@@ -536,11 +536,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             <div className="overflow-y-auto p-6 flex-1 space-y-5">
               {successMessage ? (
                 <div className="text-center py-12 space-y-4">
-                  <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mx-auto shadow-card">
-                    <Check size={28} className="text-ink" />
+                  <div className="w-14 h-14 bg-terracotta rounded-lg flex items-center justify-center mx-auto shadow-card">
+                    <Check size={28} className="text-ink-900" />
                   </div>
-                  <h3 className="text-xl font-bold text-ink uppercase">Upload Successful</h3>
-                  <p className="text-sm text-ink/60 font-medium max-w-xs mx-auto">{successMessage}</p>
+                  <h3 className="text-xl font-bold text-ink-900 uppercase">Upload Successful</h3>
+                  <p className="text-sm text-ink-900/60 font-medium max-w-xs mx-auto">{successMessage}</p>
                 </div>
               ) : (
                 <form id="upload-form" onSubmit={handleSubmit}>
@@ -559,7 +559,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="mb-5">
                         <Label hint>Class</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">Which class does your project fit under?</p>
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">Which class does your project fit under?</p>
                         <CustomSelect
                           value={formData.projectClass}
                           options={['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack']}
@@ -593,7 +593,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="mb-5">
                         <Label hint>Tags</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Help people find your add-on. Separate each tag with a comma (,).
                         </p>
                         <TextInput
@@ -607,7 +607,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             {parseTags(formData.tagsInput).map((tag, i) => (
                               <span
                                 key={i}
-                                className="inline-flex items-center bg-accent rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-ink shadow-card"
+                                className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-ink-900 shadow-card"
                               >
                                 {tag}
                               </span>
@@ -618,7 +618,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="mb-5">
                         <Label>Cover Images *</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Upload one or more screenshots. The first image becomes the main cover.
                         </p>
 
@@ -628,14 +628,14 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               <div key={url} className="relative w-20 h-20 rounded-lg shadow-card overflow-hidden group">
                                 <FadeImage src={url} alt="Cover preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                 {url === formData.imageUrl && (
-                                  <span className="absolute top-0.5 left-0.5 bg-accent border border-ink px-1 text-[9px] font-bold uppercase">Main</span>
+                                  <span className="absolute top-0.5 left-0.5 bg-terracotta border border-ink-900 px-1 text-[9px] font-bold uppercase">Main</span>
                                 )}
                                 <button
                                   type="button"
                                   onClick={() => removeImage(url)}
-                                  className="absolute bottom-0.5 right-0.5 bg-accent border border-ink p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="absolute bottom-0.5 right-0.5 bg-terracotta border border-ink-900 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                  <Trash2 size={11} className="text-ink" />
+                                  <Trash2 size={11} className="text-ink-900" />
                                 </button>
                               </div>
                             ))}
@@ -646,11 +646,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           type="button"
                           onClick={() => imageInputRef.current?.click()}
                           disabled={imageUploadProgress !== null}
-                          className="w-full flex items-center justify-center gap-2 border border-dashed border-ink/25 bg-paper py-4 text-sm font-medium text-ink uppercase tracking-wide transition-all hover:bg-accent/10 hover:border-ink/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full flex items-center justify-center gap-2 border border-dashed border-ink-900/25 bg-parchment-raised py-4 text-sm font-medium text-ink-900 uppercase tracking-wide transition-all hover:bg-terracotta/10 hover:border-ink-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {imageUploadProgress !== null ? (
                             <>
-                              <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                              <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                               Uploading {Math.round(imageUploadProgress)}%
                             </>
                           ) : (
@@ -670,9 +670,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
 
                         {imageUploadProgress !== null && (
-                          <div className="mt-2 h-2 border border-ink/10 rounded-lg bg-paper overflow-hidden">
+                          <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
                             <div
-                              className="h-full bg-accent-soft transition-all duration-200"
+                              className="h-full bg-terracotta-soft transition-all duration-200"
                               style={{ width: `${imageUploadProgress}%` }}
                             />
                           </div>
@@ -681,20 +681,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="mb-5">
                         <Label hint>Download File / URL *</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Upload your file — it's hosted for you automatically. Or paste your own link instead.
                         </p>
 
                         {uploadedFileName ? (
-                          <div className="flex items-center justify-between gap-3 border border-ink/10 rounded-lg bg-paper px-4 py-2.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-ink min-w-0">
-                              <Check size={14} className="text-ink shrink-0" />
+                          <div className="flex items-center justify-between gap-3 border border-parchment-border rounded-lg bg-parchment-raised px-4 py-2.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-ink-900 min-w-0">
+                              <Check size={14} className="text-ink-900 shrink-0" />
                               <span className="truncate">{uploadedFileName}</span>
                             </div>
                             <button
                               type="button"
                               onClick={clearUploadedFile}
-                              className="shrink-0 text-[11px] font-bold text-ink/50 uppercase underline hover:text-ink transition-colors"
+                              className="shrink-0 text-[11px] font-bold text-ink-900/50 uppercase underline hover:text-ink-900 transition-colors"
                             >
                               Change
                             </button>
@@ -713,9 +713,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               onClick={() => addonFileInputRef.current?.click()}
                               disabled={fileUploadProgress !== null}
                               title="Upload file"
-                              className="shrink-0 px-4 py-2.5 rounded-lg bg-accent text-ink font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="shrink-0 px-4 py-2.5 rounded-lg bg-terracotta text-ink-900 font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
+                              {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
                             </button>
                             <input
                               type="file"
@@ -729,10 +729,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                         {fileUploadProgress !== null && (
                           <div className="mt-2">
-                            <div className="h-2 border border-ink/10 rounded-lg bg-paper overflow-hidden">
-                              <div className="h-full bg-accent-soft transition-all duration-200" style={{ width: `${fileUploadProgress}%` }} />
+                            <div className="h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
+                              <div className="h-full bg-terracotta-soft transition-all duration-200" style={{ width: `${fileUploadProgress}%` }} />
                             </div>
-                            <p className="text-[10px] font-bold text-ink/50 uppercase mt-1">
+                            <p className="text-[10px] font-bold text-ink-900/50 uppercase mt-1">
                               Uploading… {Math.round(fileUploadProgress)}%
                             </p>
                           </div>
@@ -741,7 +741,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="mb-5">
                         <Label hint>Demo / Preview Video URL</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Paste a YouTube link and it'll play right on your add-on page. Optional.
                         </p>
                         <TextInput
@@ -752,7 +752,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
                       </div>
 
-                      <div className="space-y-4 pt-4 border-t border-ink/10">
+                      <div className="space-y-4 pt-4 border-t border-parchment-border">
                         <NeuCheckbox
                           checked={formData.allowComments}
                           onChange={v => setFormData({ ...formData, allowComments: v })}
@@ -766,9 +766,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
                       </div>
 
-                      <div className="mt-5 pt-5 border-t border-ink/10">
+                      <div className="mt-5 pt-5 border-t border-parchment-border">
                         <Label>Panorama Image *</Label>
-                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Wide screenshot used as the header banner on your add-on page. Required.
                         </p>
 
@@ -778,9 +778,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             <button
                               type="button"
                               onClick={removePanorama}
-                              className="absolute bottom-2 right-2 bg-accent border border-ink p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute bottom-2 right-2 bg-terracotta border border-ink-900 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <Trash2 size={13} className="text-ink" />
+                              <Trash2 size={13} className="text-ink-900" />
                             </button>
                           </div>
                         ) : (
@@ -788,11 +788,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             type="button"
                             onClick={() => panoramaInputRef.current?.click()}
                             disabled={panoramaUploadProgress !== null}
-                            className="w-full flex items-center justify-center gap-2 border border-dashed border-ink/25 bg-paper py-6 text-sm font-medium text-ink uppercase tracking-wide transition-all hover:bg-accent/10 hover:border-ink/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-2 border border-dashed border-ink-900/25 bg-parchment-raised py-6 text-sm font-medium text-ink-900 uppercase tracking-wide transition-all hover:bg-terracotta/10 hover:border-ink-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {panoramaUploadProgress !== null ? (
                                 <>
-                                  <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                                  <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                                   Uploading {Math.round(panoramaUploadProgress)}%
                                 </>
                               ) : (
@@ -812,9 +812,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         />
 
                         {panoramaUploadProgress !== null && (
-                          <div className="mt-2 h-2 border border-ink/10 rounded-lg bg-paper overflow-hidden">
+                          <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
                             <div
-                              className="h-full bg-accent-soft transition-all duration-200"
+                              className="h-full bg-terracotta-soft transition-all duration-200"
                               style={{ width: `${panoramaUploadProgress}%` }}
                             />
                           </div>
@@ -838,28 +838,28 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   {step === 'license' && (
                     <div className="space-y-7">
                       <div>
-                        <h3 className="text-sm font-bold text-ink uppercase tracking-widest mb-1">Project License</h3>
-                        <p className="text-xs text-ink/50 font-medium mb-3">
+                        <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest mb-1">Project License</h3>
+                        <p className="text-xs text-ink-900/50 font-medium mb-3">
                           Use the original license for forked projects.{' '}
-                          <a href="#" className="text-ink font-bold underline">Full guidelines</a>
+                          <a href="#" className="text-ink-900 font-bold underline">Full guidelines</a>
                         </p>
                         <CustomSelect
                           value={formData.license}
                           options={PROJECT_LICENSES}
                           onChange={val => setFormData({ ...formData, license: val })}
                         />
-                        <a href="#" className="inline-block text-xs text-ink/50 font-bold underline mt-2 hover:text-ink">
+                        <a href="#" className="inline-block text-xs text-ink-900/50 font-bold underline mt-2 hover:text-ink-900">
                           View full license
                         </a>
                       </div>
 
-                      <div className="pt-5 border-t border-ink/10">
-                        <h3 className="text-sm font-bold text-ink uppercase tracking-widest mb-1 flex items-center gap-1">
-                          Distribution <HelpCircle size={13} className="text-ink/40" />
+                      <div className="pt-5 border-t border-parchment-border">
+                        <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest mb-1 flex items-center gap-1">
+                          Distribution <HelpCircle size={13} className="text-ink-900/40" />
                         </h3>
-                        <p className="text-xs text-ink/50 font-medium mb-3">
+                        <p className="text-xs text-ink-900/50 font-medium mb-3">
                           Downloads outside the ecosystem don't count toward rewards.{' '}
-                          <a href="#" className="text-ink font-bold underline">Learn more</a>
+                          <a href="#" className="text-ink-900 font-bold underline">Learn more</a>
                         </p>
                         <CustomSelect
                           value={formData.distributionPref}
@@ -874,7 +874,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             </div>
 
             {!successMessage && (
-              <div className="flex items-center justify-between border-t border-ink/10 p-5 bg-paper">
+              <div className="flex items-center justify-between border-t border-parchment-border p-5 bg-parchment-raised">
                 <div>
                   {stepError && (
                     <p className="text-xs font-bold text-danger">{stepError}</p>
@@ -884,7 +884,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2.5 text-xs font-bold text-ink/60 hover:text-ink transition-colors uppercase"
+                    className="px-4 py-2.5 text-xs font-bold text-ink-900/60 hover:text-ink-900 transition-colors uppercase"
                   >
                     Cancel
                   </button>
@@ -892,7 +892,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <button
                       type="button"
                       onClick={goPrev}
- className="px-5 py-2.5 text-xs font-bold text-ink rounded-lg bg-paper shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="px-5 py-2.5 text-xs font-bold text-ink-900 rounded-lg bg-parchment-raised shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
                     >
                       Previous
                     </button>
@@ -901,7 +901,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <button
                       type="button"
                       onClick={goNext}
-                      className="px-6 py-2.5 text-xs font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                      className="px-6 py-2.5 text-xs font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
                     >
                       Next
                     </button>
@@ -915,7 +915,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         type="submit"
                         form="upload-form"
                         disabled={loading || !!successMessage}
-                        className="px-6 py-2.5 text-xs font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2.5 text-xs font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Publish Add-on
                       </button>

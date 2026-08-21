@@ -74,7 +74,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-ink/70"
+            className="absolute inset-0 bg-ink-900/70"
           />
 
           {/* Card */}
@@ -82,17 +82,17 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md bg-paper rounded-lg shadow-card neumorph glass"
+            className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card neumorph glass"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-danger/20 px-7 py-5 bg-danger/[0.06]">
-              <h2 className="text-lg font-bold text-ink flex items-center gap-2">
+              <h2 className="text-lg font-bold text-ink-900 flex items-center gap-2">
                 <AlertTriangle size={20} className="text-danger" />
                 Report Add-on
               </h2>
               <button
                 onClick={onClose}
- className="p-1.5 rounded-lg bg-paper text-ink shadow-card btn-3d"
+ className="p-1.5 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
               >
                 <X size={18} />
               </button>
@@ -103,14 +103,14 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
               <div className="space-y-5">
                 {/* Reason dropdown */}
                 <div ref={reasonDropdownRef}>
-                  <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">
+                  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-2">
                     Reason
                   </label>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setIsReasonOpen(prev => !prev)}
- className="flex w-full items-center justify-between rounded-lg bg-paper px-5 py-3.5 text-sm font-bold text-ink shadow-card btn-3d focus:outline-none"
+ className="flex w-full items-center justify-between rounded-lg bg-parchment-raised px-5 py-3.5 text-sm font-bold text-ink-900 shadow-card btn-3d focus:outline-none"
                     >
                       <span>{reason}</span>
                       <ChevronDown size={15} className={`transition-transform duration-200 ${isReasonOpen ? 'rotate-180' : ''}`} />
@@ -123,15 +123,15 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: 0.12 }}
- className="absolute z-30 mt-1 w-full overflow-hidden rounded-lg bg-paper shadow-card neumorph glass"
+ className="absolute z-30 mt-1 w-full overflow-hidden rounded-lg bg-parchment-raised shadow-card neumorph glass"
                         >
                           {REPORT_REASONS.map(r => (
                             <button
                               key={r}
                               type="button"
                               onClick={() => { setReason(r); setIsReasonOpen(false); }}
-                              className={`flex w-full items-center justify-between px-5 py-3 text-left text-sm font-bold border-b border-ink/10 last:border-b-0 transition-colors ${
-                                r === reason ? 'bg-accent text-ink' : 'text-ink hover:bg-accent/50'
+                              className={`flex w-full items-center justify-between px-5 py-3 text-left text-sm font-bold border-b border-parchment-border last:border-b-0 transition-colors ${
+                                r === reason ? 'bg-terracotta text-ink-900' : 'text-ink-900 hover:bg-terracotta/50'
                               }`}
                             >
                               {r}
@@ -147,7 +147,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 {/* Other reason textarea */}
                 {reason === 'Other' && (
                   <div>
-                    <label className="block text-xs font-bold text-ink uppercase tracking-widest mb-2">
+                    <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-2">
                       Please specify
                     </label>
                     <textarea
@@ -155,7 +155,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                       rows={3}
                       value={otherReason}
                       onChange={e => setOtherReason(e.target.value)}
-                      className="block w-full border border-ink/10 rounded-lg bg-paper px-4 py-3 text-sm font-medium text-ink placeholder-ink/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
+                      className="block w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-3 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
                       placeholder="Provide more details..."
                     />
                   </div>
@@ -167,7 +167,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
- className="px-5 py-3 text-sm font-bold text-ink rounded-lg bg-paper shadow-card uppercase btn-3d"
+ className="px-5 py-3 text-sm font-bold text-ink-900 rounded-lg bg-parchment-raised shadow-card uppercase btn-3d"
                 >
                   Cancel
                 </button>
@@ -179,7 +179,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                   <button
                     type="submit"
                     disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Submit Report
                   </button>

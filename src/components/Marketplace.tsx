@@ -112,27 +112,27 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
     <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
       <h1 className="sr-only">Minecraft Marketplace Add-ons</h1>
 
-      <div className="relative border-b border-ink/10 bg-paper-soft pt-16 pb-20 glass">
+      <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20 glass">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-accent rounded-lg px-4 py-1.5 mb-6 shadow-card">
-              <Sparkles size={13} className="text-ink" />
-              <span className="text-xs font-bold text-ink uppercase tracking-widest">Minecraft Marketplace</span>
+            <div className="inline-flex items-center gap-2 bg-terracotta rounded-lg px-4 py-1.5 mb-6 shadow-card">
+              <Sparkles size={13} className="text-ink-900" />
+              <span className="text-xs font-bold text-ink-900 uppercase tracking-widest">Minecraft Marketplace</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-ink tracking-tight mb-4 leading-none">
+            <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4 leading-none">
               Find Your<br />Next Add-on
             </h1>
-            <p className="text-base font-normal text-ink/60 max-w-md mx-auto">
+            <p className="text-base font-normal text-ink-900/60 max-w-md mx-auto">
               Browse, download, and share Minecraft add-ons built by the community.
             </p>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex justify-center">
-            <div className="relative flex flex-col gap-3 bg-paper rounded-lg shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
+            <div className="relative flex flex-col gap-3 bg-parchment-raised rounded-lg shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
               <div className="flex flex-col lg:flex-row items-stretch gap-3">
                 {/* Search input */}
                 <div className="relative w-full flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} aria-hidden="true" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/40" size={20} aria-hidden="true" />
                   <input
                     type="text"
                     aria-label="Search add-ons, tags, authors"
@@ -141,7 +141,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="w-full border border-ink/10 rounded-lg bg-paper py-3.5 pl-12 pr-4 text-sm font-bold text-ink placeholder-ink/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all h-[56px]"
+                    className="w-full border border-parchment-border rounded-lg bg-parchment-raised py-3.5 pl-12 pr-4 text-sm font-bold text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all h-[56px]"
                   />
 
                   <AnimatePresence>
@@ -153,22 +153,22 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -6, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute left-0 z-50 w-full rounded-lg bg-paper shadow-card neumorph overflow-hidden mt-2 glass"
+                        className="absolute left-0 z-50 w-full rounded-lg bg-parchment-raised shadow-card neumorph overflow-hidden mt-2 glass"
                       >
                         {searchSuggestions.map(addon => (
                           <button
                             key={addon.id}
                             role="option"
                             aria-selected={false}
-                            className="w-full p-2.5 text-left text-sm font-bold text-ink hover:bg-accent/40 transition-colors flex items-center gap-3 border-b border-ink/10 last:border-b-0"
+                            className="w-full p-2.5 text-left text-sm font-bold text-ink-900 hover:bg-terracotta/40 transition-colors flex items-center gap-3 border-b border-parchment-border last:border-b-0"
                             onMouseDown={() => { onNavigate({ type: 'addon', id: addon.id }); setShowSuggestions(false); }}
                           >
-                            <div className="h-10 w-10 shrink-0 overflow-hidden bg-ink border border-ink/10 rounded-lg" aria-hidden="true">
+                            <div className="h-10 w-10 shrink-0 overflow-hidden bg-ink-900 border border-parchment-border rounded-lg" aria-hidden="true">
                               <FadeImage src={addon.imageUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                             </div>
                             <div className="flex flex-col overflow-hidden">
                               <span className="truncate">{addon.title}</span>
-                              <span className="text-xs text-ink/50 font-medium truncate">by {addon.authorName}</span>
+                              <span className="text-xs text-ink-900/50 font-medium truncate">by {addon.authorName}</span>
                             </div>
                           </button>
                         ))}
@@ -178,18 +178,18 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 </div>
 
                 <div className="flex w-full lg:w-auto items-stretch gap-3">
-                  <div className="hidden sm:flex items-center gap-1 bg-paper border border-ink/10 rounded-lg p-1 h-[56px]" role="group" aria-label="Quick Sort">
+                  <div className="hidden sm:flex items-center gap-1 bg-parchment-raised border border-parchment-border rounded-lg p-1 h-[56px]" role="group" aria-label="Quick Sort">
                     <button
                       onClick={() => setSortBy('newest')}
                       aria-pressed={sortBy === 'newest'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'newest' ? 'bg-accent text-ink' : 'text-ink/70 hover:text-ink'}`}
+                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'newest' ? 'bg-terracotta text-ink-900' : 'text-ink-900/70 hover:text-ink-900'}`}
                     >
                       Newest
                     </button>
                     <button
                       onClick={() => setSortBy('most_liked')}
                       aria-pressed={sortBy === 'most_liked'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'most_liked' ? 'bg-accent text-ink' : 'text-ink/70 hover:text-ink'}`}
+                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'most_liked' ? 'bg-terracotta text-ink-900' : 'text-ink-900/70 hover:text-ink-900'}`}
                     >
                       Popular
                     </button>
@@ -204,16 +204,16 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     }}
                     aria-expanded={showFilters}
                     aria-controls="filter-panel"
-                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-ink/10 rounded-lg text-sm font-bold uppercase transition-all ${
+                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-lg text-sm font-bold uppercase transition-all ${
                       showFilters || hasActiveFilters
-                        ? 'bg-paper text-ink shadow-none'
-                        : 'bg-paper text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
+                        ? 'bg-parchment-raised text-ink-900 shadow-none'
+                        : 'bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
                     }`}
                   >
                     <SlidersHorizontal size={17} aria-hidden="true" />
                     <span>Filters</span>
                     {activeFilterCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center bg-accent border border-ink/10 rounded-lg text-[10px] text-ink font-bold">
+                      <span className="flex h-5 w-5 items-center justify-center bg-terracotta border border-parchment-border rounded-lg text-[10px] text-ink-900 font-bold">
                         {activeFilterCount}
                       </span>
                     )}
@@ -233,9 +233,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     className="w-full"
                     style={{ overflow: filterPanelExpanded ? 'visible' : 'hidden' }}
                   >
-                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 pt-4 border-t border-ink/10 mt-1">
+                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 pt-4 border-t border-parchment-border mt-1">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink uppercase tracking-widest">Category</label>
+                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Category</label>
                         <CustomSelect
                           value={selectedCategory}
                           onChange={val => setSelectedCategory(val as CategoryOption)}
@@ -255,7 +255,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink uppercase tracking-widest">Sort By</label>
+                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Sort By</label>
                         <CustomSelect
                           value={sortBy}
                           onChange={val => setSortBy(val as SortOption)}
@@ -268,7 +268,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink uppercase tracking-widest">Date</label>
+                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Date</label>
                         <CustomSelect
                           value={dateRange}
                           onChange={val => setDateRange(val as DateRangeOption)}
@@ -281,13 +281,13 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink uppercase tracking-widest">Tag</label>
+                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Tag</label>
                         <input
                           type="text"
                           placeholder="Filter by tag... (pisahkan dengan koma)"
                           value={tagFilter}
                           onChange={e => setTagFilter(e.target.value)}
-                          className="w-full border border-ink/10 rounded-lg bg-paper py-2.5 px-3 text-sm font-bold text-ink placeholder-ink/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                          className="w-full border border-parchment-border rounded-lg bg-parchment-raised py-2.5 px-3 text-sm font-bold text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
                         />
                       </div>
                     </div>
@@ -296,7 +296,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       <div className="mt-4 flex justify-end">
                         <button
                           onClick={() => { setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
-                          className="text-xs font-bold text-ink underline hover:text-accent-deep transition-colors uppercase"
+                          className="text-xs font-bold text-ink-900 underline hover:text-terracotta-text transition-colors uppercase"
                         >
                           Clear All Filters
                         </button>
@@ -313,9 +313,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
         {!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All' && (
           <div className="mb-14">
-            <h2 className="flex items-center gap-3 text-2xl font-bold text-ink tracking-tight mb-6">
-              <span className="inline-flex items-center gap-2 bg-accent rounded-lg px-3 py-1 shadow-card">
-                <Sparkles size={18} className="text-ink" />
+            <h2 className="flex items-center gap-3 text-2xl font-bold text-ink-900 tracking-tight mb-6">
+              <span className="inline-flex items-center gap-2 bg-terracotta rounded-lg px-3 py-1 shadow-card">
+                <Sparkles size={18} className="text-ink-900" />
                 Featured
               </span>
             </h2>
@@ -330,7 +330,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     onNavigate={onNavigate}
                     priority={index === 0}
                   />
-                  <div className="absolute -top-3 -right-3 bg-accent rounded-lg px-3 py-1 text-xs font-bold text-ink shadow-card uppercase">
+                  <div className="absolute -top-3 -right-3 bg-terracotta rounded-lg px-3 py-1 text-xs font-bold text-ink-900 shadow-card uppercase">
                     Featured
                   </div>
                 </div>
@@ -340,10 +340,10 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
         )}
 
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-2xl font-bold text-ink tracking-tight">
+          <h2 className="text-2xl font-bold text-ink-900 tracking-tight">
             {searchQuery ? `Results for "${searchQuery}"` : 'All Add-ons'}
           </h2>
-          <span className="text-sm font-normal text-ink/70">
+          <span className="text-sm font-normal text-ink-900/70">
             {filteredAndSortedAddons.length} add-on{filteredAndSortedAddons.length !== 1 ? 's' : ''} found
           </span>
         </div>
@@ -351,25 +351,25 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
         {activeFilterCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6">
             {selectedCategory !== 'All' && (
-              <span className="inline-flex items-center gap-1.5 bg-accent-deep rounded-lg px-3 py-1.5 text-xs font-bold text-white shadow-card">
+              <span className="inline-flex items-center gap-1.5 bg-terracotta-text rounded-lg px-3 py-1.5 text-xs font-bold text-white shadow-card">
                 {selectedCategory}
                 <button onClick={() => setSelectedCategory('All')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
               </span>
             )}
             {tagFilter && (
-              <span className="inline-flex items-center gap-1.5 bg-accent rounded-lg px-3 py-1.5 text-xs font-bold text-ink shadow-card">
+              <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 Tag: {tagFilter}
                 <button onClick={() => setTagFilter('')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
               </span>
             )}
             {authorFilter && (
-              <span className="inline-flex items-center gap-1.5 bg-paper rounded-lg px-3 py-1.5 text-xs font-bold text-ink shadow-card">
+              <span className="inline-flex items-center gap-1.5 bg-parchment-raised rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 Author: {authorFilter}
                 <button onClick={() => setAuthorFilter('')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
               </span>
             )}
             {dateRange !== 'all' && (
-              <span className="inline-flex items-center gap-1.5 bg-accent rounded-lg px-3 py-1.5 text-xs font-bold text-ink shadow-card">
+              <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 {dateRange}
                 <button onClick={() => setDateRange('all')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
               </span>
@@ -382,13 +382,13 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : filteredAndSortedAddons.length === 0 ? (
-          <div className="rounded-lg bg-paper py-24 text-center shadow-card">
-            <Search size={40} className="mx-auto mb-4 text-ink/30" />
-            <h3 className="text-lg font-bold text-ink">Nothing matches that search</h3>
-            <p className="mt-1 text-sm font-normal text-ink/60">Try a different keyword, or clear your filters to see everything.</p>
+          <div className="rounded-lg bg-parchment-raised py-24 text-center shadow-card">
+            <Search size={40} className="mx-auto mb-4 text-ink-900/30" />
+            <h3 className="text-lg font-bold text-ink-900">Nothing matches that search</h3>
+            <p className="mt-1 text-sm font-normal text-ink-900/60">Try a different keyword, or clear your filters to see everything.</p>
               <button
                 onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
-                className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink bg-accent rounded-lg shadow-card uppercase btn-3d"
+                className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase btn-3d"
               >
               Clear filters
             </button>
@@ -399,7 +399,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             initial="hidden"
             animate="visible"
             variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
-            className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-paper shadow-card'}
+            className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-parchment-raised shadow-card'}
           >
             <AnimatePresence mode="popLayout">
               {filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => (
@@ -437,7 +437,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             style={{ opacity: filteredAndSortedAddons.length > visibleCount ? 1 : 0, pointerEvents: 'none' }}
           >
             {filteredAndSortedAddons.length > visibleCount && (
-              <div className="rounded-lg bg-accent p-3 shadow-card">
+              <div className="rounded-lg bg-terracotta p-3 shadow-card">
                   <Skeleton className="h-6 w-16" />
                 </div>
             )}

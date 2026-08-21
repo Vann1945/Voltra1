@@ -214,28 +214,28 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
 
   if (!user) {
     return (
-      <div className="py-32 text-center bg-paper">
-        <h3 className="text-lg font-bold text-ink uppercase">Please sign in to view your profile.</h3>
+      <div className="py-32 text-center bg-parchment-raised">
+        <h3 className="text-lg font-bold text-ink-900 uppercase">Please sign in to view your profile.</h3>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 min-h-[100dvh]">
-      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-paper p-8 sm:p-10 rounded-lg shadow-card neumorph glass">
+      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-parchment-raised p-8 sm:p-10 rounded-lg shadow-card neumorph glass">
         <div className="relative h-32 w-32 shrink-0">
           {renderBorderDecoration(getBorderEffect(isEditing ? editProfileBorder : (user?.profileBorder || 'none')))}
-          <div className={`relative h-full w-full overflow-hidden rounded-full bg-paper border border-ink/10 flex items-center justify-center transition-all duration-300 ${getBorderRingClass(getBorderEffect(isEditing ? editProfileBorder : (user.profileBorder || 'none')))}`}>
+          <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised border border-parchment-border flex items-center justify-center transition-all duration-300 ${getBorderRingClass(getBorderEffect(isEditing ? editProfileBorder : (user.profileBorder || 'none')))}`}>
             {isEditing ? (
               editPhotoURL ? (
                 <FadeImage src={editPhotoURL} alt="Preview" className="h-full w-full object-cover opacity-60" referrerPolicy="no-referrer" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-ink text-center p-2">Preview</div>
+                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-ink-900 text-center p-2">Preview</div>
               )
             ) : user.photoURL ? (
               <FadeImage src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-ink">{(user.displayName || user.email || '?').charAt(0).toUpperCase()}</div>
+              <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-ink-900">{(user.displayName || user.email || '?').charAt(0).toUpperCase()}</div>
             )}
           </div>
         </div>
@@ -244,32 +244,32 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           {isEditing ? (
             <div className="space-y-5 max-w-md">
               <div>
-                <label className="block text-[10px] font-bold text-ink uppercase tracking-widest mb-2">Display Name</label>
+                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Display Name</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full bg-paper border border-ink/10 rounded-lg px-4 py-3 text-sm font-bold text-ink focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                  className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink uppercase tracking-widest mb-2">Profile Picture</label>
+                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Profile Picture</label>
                 <div className="flex gap-2">
                   <input
                     type="url"
                     value={editPhotoURL}
                     onChange={e => setEditPhotoURL(e.target.value)}
-                    className="flex-1 bg-paper border border-ink/10 rounded-lg px-4 py-3 text-sm font-bold text-ink focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                    className="flex-1 bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
                     placeholder="https://..."
                   />
                   <button
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
                     disabled={photoUploadProgress !== null}
-                    className="shrink-0 flex items-center gap-2 bg-paper rounded-lg text-ink px-4 py-3 text-sm font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="shrink-0 flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-4 py-3 text-sm font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {photoUploadProgress !== null ? (
-                      <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                      <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" />
                     ) : (
                       <Upload size={16} />
                     )}
@@ -277,19 +277,19 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 </div>
                 <input type="file" ref={photoInputRef} onChange={handlePhotoUpload} accept="image/*" className="hidden" />
                 {photoUploadProgress !== null && (
-                  <div className="mt-2 h-2 border border-ink/10 rounded-lg bg-paper overflow-hidden">
-                    <div className="h-full bg-accent-soft transition-all duration-300" style={{ width: `${photoUploadProgress}%` }} />
+                  <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
+                    <div className="h-full bg-terracotta-soft transition-all duration-300" style={{ width: `${photoUploadProgress}%` }} />
                   </div>
                 )}
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                   <Settings size={12} /> Profile Border
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsBorderModalOpen(true)}
-                  className="flex w-full items-center gap-3 bg-paper rounded-lg px-4 py-3 text-sm font-bold text-ink shadow-card btn-3d"
+                  className="flex w-full items-center gap-3 bg-parchment-raised rounded-lg px-4 py-3 text-sm font-bold text-ink-900 shadow-card btn-3d"
                 >
                   <ProfileAvatar
                     photoURL={editPhotoURL}
@@ -299,16 +299,16 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     textSizeClassName="text-[10px]"
                   />
                   <span className="flex-1 text-left">{BORDER_OPTIONS.find(b => b.value === editProfileBorder)?.label || 'None'}</span>
-                  <span className="text-xs font-bold uppercase text-ink/50">Change</span>
+                  <span className="text-xs font-bold uppercase text-ink-900/50">Change</span>
                 </button>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink uppercase tracking-widest mb-2">Bio</label>
+                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Bio</label>
                 <textarea
                   value={editBio}
                   onChange={e => setEditBio(e.target.value)}
                   rows={3}
-                  className="w-full bg-paper border border-ink/10 rounded-lg px-4 py-3 text-sm font-medium text-ink focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
+                  className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-medium text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -316,15 +316,15 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {savingProfile ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
+                  {savingProfile ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : <Check size={16} />}
                   Save Changes
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <X size={16} />
                   Cancel
@@ -334,20 +334,20 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           ) : (
             <>
               <div className="flex items-center justify-between w-full">
-                <h1 className="text-4xl font-bold text-ink tracking-tight">{user.displayName}</h1>
+                <h1 className="text-4xl font-bold text-ink-900 tracking-tight">{user.displayName}</h1>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-2.5 bg-paper rounded-lg text-ink shadow-card btn-3d"
+                  className="p-2.5 bg-parchment-raised rounded-lg text-ink-900 shadow-card btn-3d"
                   title="Edit Profile"
                 >
                   <Edit2 size={18} />
                 </button>
               </div>
-              <p className="mt-2 text-sm font-bold text-ink/60">{user.email}</p>
-              {user.bio && <p className="mt-4 text-sm font-medium text-ink/80 max-w-2xl leading-relaxed">{user.bio}</p>}
-              <div className="mt-6 flex items-center gap-3 text-sm font-bold text-ink">
-                <span className="flex items-center gap-2 bg-paper px-3 py-1.5 rounded-lg shadow-card"><Package size={14} /> {myUploads.length} Uploads</span>
-                <span className="flex items-center gap-2 bg-paper px-3 py-1.5 rounded-lg shadow-card"><Heart size={14} /> {myLikes.length} Likes</span>
+              <p className="mt-2 text-sm font-bold text-ink-900/60">{user.email}</p>
+              {user.bio && <p className="mt-4 text-sm font-medium text-ink-900/80 max-w-2xl leading-relaxed">{user.bio}</p>}
+              <div className="mt-6 flex items-center gap-3 text-sm font-bold text-ink-900">
+                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Package size={14} /> {myUploads.length} Uploads</span>
+                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Heart size={14} /> {myLikes.length} Likes</span>
               </div>
             </>
           )}
@@ -357,11 +357,11 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
       <div className="space-y-16">
         <section>
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-2">
+            <h2 className="text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
               <Package className="text-accent-soft" /> My Uploads
             </h2>
-            <p className="text-xs font-bold text-ink bg-accent px-3 py-1.5 rounded-lg shadow-card">
-              Pending add-ons wait for admin review. Contact WA <span className="text-ink">082278781685</span>.
+            <p className="text-xs font-bold text-ink-900 bg-terracotta px-3 py-1.5 rounded-lg shadow-card">
+              Pending add-ons wait for admin review. Contact WA <span className="text-ink-900">082278781685</span>.
             </p>
           </div>
 
@@ -370,10 +370,10 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-lg bg-paper py-16 text-center shadow-card neumorph glass">
-              <Package size={32} className="mx-auto mb-3 text-ink/30" />
-              <p className="text-sm font-bold text-ink">Nothing published yet</p>
-              <p className="mt-1 text-xs font-normal text-ink/60">Use the Publish button in the top bar to share your first add-on.</p>
+            <div className="rounded-lg bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+              <Package size={32} className="mx-auto mb-3 text-ink-900/30" />
+              <p className="text-sm font-bold text-ink-900">Nothing published yet</p>
+              <p className="mt-1 text-xs font-normal text-ink-900/60">Use the Publish button in the top bar to share your first add-on.</p>
             </div>
           ) : (
             <motion.div
@@ -398,8 +398,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
         </section>
 
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-2">
-            <Heart className="text-accent-deep" /> Liked Add-ons
+          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+            <Heart className="text-terracotta-text" /> Liked Add-ons
           </h2>
 
           {loading ? (
@@ -407,10 +407,10 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-lg bg-paper py-16 text-center shadow-card neumorph glass">
-              <Heart size={32} className="mx-auto mb-3 text-ink/30" />
-              <p className="text-sm font-bold text-ink">No likes yet</p>
-              <p className="mt-1 text-xs font-normal text-ink/60">Tap the heart on any add-on in the marketplace to save it here.</p>
+            <div className="rounded-lg bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+              <Heart size={32} className="mx-auto mb-3 text-ink-900/30" />
+              <p className="text-sm font-bold text-ink-900">No likes yet</p>
+              <p className="mt-1 text-xs font-normal text-ink-900/60">Tap the heart on any add-on in the marketplace to save it here.</p>
             </div>
           ) : (
             <motion.div
@@ -428,35 +428,35 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
         </section>
 
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-2">
-            <AlertTriangle className="text-accent-deep" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }} /> My Reports
+          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+            <AlertTriangle className="text-terracotta-text" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }} /> My Reports
           </h2>
 
           {loadingReports ? (
             <div className="space-y-4">
-              {[...Array(2)].map((_, i) => <div key={i} className="h-20 border border-ink/10 rounded-lg bg-ink/5 animate-pulse" />)}
+              {[...Array(2)].map((_, i) => <div key={i} className="h-20 border border-parchment-border rounded-lg bg-ink-900/5 animate-pulse" />)}
             </div>
           ) : reports.length === 0 ? (
-            <div className="border border-ink/10 rounded-lg bg-paper py-16 text-center">
-              <p className="text-sm font-bold text-ink/60">You haven't submitted any reports.</p>
+            <div className="border border-parchment-border rounded-lg bg-parchment-raised py-16 text-center">
+              <p className="text-sm font-bold text-ink-900/60">You haven't submitted any reports.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {reports.map(report => {
                 const reportedAddon = addons.find(a => a.id === report.addonId);
                 return (
-                  <div key={report.id} className="bg-paper rounded-lg shadow-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div key={report.id} className="bg-parchment-raised rounded-lg shadow-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm font-bold text-ink">
+                      <p className="text-sm font-bold text-ink-900">
                         Reported: <span className="font-bold">{reportedAddon ? reportedAddon.title : 'Unknown Add-on'}</span>
                       </p>
-                      <p className="text-xs font-bold text-ink/50 mt-1">Reason: {report.reason}</p>
-                      <p className="text-xs font-medium text-ink/40 mt-1">{new Date(report.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs font-bold text-ink-900/50 mt-1">Reason: {report.reason}</p>
+                      <p className="text-xs font-medium text-ink-900/40 mt-1">{new Date(report.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <span className={`inline-flex items-center px-3 py-1 border border-ink/10 rounded-lg text-xs font-bold uppercase ${
-                        report.status === 'pending' ? 'bg-paper text-ink' :
-                        'bg-accent-deep text-white'
+                      <span className={`inline-flex items-center px-3 py-1 border border-parchment-border rounded-lg text-xs font-bold uppercase ${
+                        report.status === 'pending' ? 'bg-parchment-raised text-ink-900' :
+                        'bg-terracotta-text text-white'
                       }`}>
                         {report.status}
                       </span>
@@ -475,23 +475,23 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setAddonToDelete(null)}
-              className="absolute inset-0 bg-ink/70"
+              className="absolute inset-0 bg-ink-900/70"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-paper rounded-lg shadow-card p-6"
+              className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card p-6"
             >
-              <h3 className="text-xl font-bold text-ink uppercase mb-2">Delete Add-on?</h3>
-              <p className="text-ink/60 text-sm font-medium mb-6">
+              <h3 className="text-xl font-bold text-ink-900 uppercase mb-2">Delete Add-on?</h3>
+              <p className="text-ink-900/60 text-sm font-medium mb-6">
                 Are you sure you want to delete this add-on? This action cannot be undone.
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setAddonToDelete(null)}
                   disabled={deletingAddon}
-                  className="px-4 py-2.5 text-sm font-bold text-ink uppercase rounded-lg bg-paper shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 text-sm font-bold text-ink-900 uppercase rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -500,7 +500,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   disabled={deletingAddon}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white uppercase bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {deletingAddon ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
+                  {deletingAddon ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>
@@ -515,19 +515,19 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setIsBorderModalOpen(false)}
-              className="absolute inset-0 bg-ink/70"
+              className="absolute inset-0 bg-ink-900/70"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-paper rounded-lg shadow-card p-6 max-h-[80vh] flex flex-col"
+              className="relative w-full max-w-lg bg-parchment-raised rounded-lg shadow-card p-6 max-h-[80vh] flex flex-col"
             >
               <div className="flex items-center justify-between mb-4 shrink-0">
-                <h3 className="text-lg font-bold text-ink uppercase">Choose Profile Border</h3>
+                <h3 className="text-lg font-bold text-ink-900 uppercase">Choose Profile Border</h3>
                 <button
                   onClick={() => setIsBorderModalOpen(false)}
-                  className="p-2 rounded-lg bg-paper shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className="p-2 rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
                 >
                   <X size={18} />
                 </button>
@@ -540,7 +540,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     onClick={() => { setEditProfileBorder(option.value); setIsBorderModalOpen(false); }}
                     title={option.label}
                     className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all ${
-                      option.value === editProfileBorder ? 'border-accent bg-accent/10' : 'border-transparent hover:border-ink/15 hover:bg-ink/5'
+                      option.value === editProfileBorder ? 'border-terracotta bg-terracotta/10' : 'border-transparent hover:border-ink-900/15 hover:bg-ink-900/5'
                     }`}
                   >
                     <ProfileAvatar
@@ -551,7 +551,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                       textSizeClassName="text-sm"
                       selected={option.value === editProfileBorder}
                     />
-                    <span className="text-[9px] font-bold leading-tight text-ink text-center">{option.label}</span>
+                    <span className="text-[9px] font-bold leading-tight text-ink-900 text-center">{option.label}</span>
                   </button>
                 ))}
               </div>

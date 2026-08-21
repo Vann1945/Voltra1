@@ -171,9 +171,9 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
     return (
       <div
         onClick={handleCardClick}
-        className="group flex w-full cursor-pointer items-center gap-3 bg-paper px-3 py-2.5 transition-colors hover:bg-ink/[0.03] active:bg-ink/[0.05]"
+        className="group flex w-full cursor-pointer items-center gap-3 bg-parchment-raised px-3 py-2.5 transition-colors hover:bg-ink-900/[0.03] active:bg-ink-900/[0.05]"
       >
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-900">
           <FadeImage
             src={coverImage}
             alt={addon.title}
@@ -187,16 +187,16 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
 
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1.5">
-            <h3 className="truncate text-sm font-bold text-ink">{addon.title}</h3>
-            <span className="shrink-0 text-xs font-medium text-ink/45">by {addon.authorName}</span>
+            <h3 className="truncate text-sm font-bold text-ink-900">{addon.title}</h3>
+            <span className="shrink-0 text-xs font-medium text-ink-900/45">by {addon.authorName}</span>
             {addon.status === 'pending' && (
-              <span className="shrink-0 rounded-md bg-accent px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink">Pending</span>
+              <span className="shrink-0 rounded-md bg-terracotta px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink-900">Pending</span>
             )}
             {addon.status === 'rejected' && (
               <span className="shrink-0 rounded-md bg-danger px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">Rejected</span>
             )}
           </div>
-          <p className="mt-0.5 truncate text-xs font-medium text-ink/55">
+          <p className="mt-0.5 truncate text-xs font-medium text-ink-900/55">
             {stripHtml(addon.description)}
           </p>
           {addon.tags && addon.tags.length > 0 && (
@@ -204,33 +204,33 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
               {addon.tags.slice(0, 3).map((tag, i) => (
                 <span
                   key={i}
-                  className="shrink-0 rounded-md bg-ink/[0.05] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/55"
+                  className="shrink-0 rounded-md bg-ink-900/[0.05] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-900/55"
                 >
                   {tag}
                 </span>
               ))}
               {addon.tags.length > 3 && (
-                <span className="shrink-0 text-[10px] font-bold text-ink/35">+{addon.tags.length - 3}</span>
+                <span className="shrink-0 text-[10px] font-bold text-ink-900/35">+{addon.tags.length - 3}</span>
               )}
             </div>
           )}
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <div className="flex items-center gap-2.5 text-xs font-bold text-ink/75">
+          <div className="flex items-center gap-2.5 text-xs font-bold text-ink-900/75">
             <span className="flex items-center gap-1" title="Downloads">
               <ArrowDownToLine size={12} />
               {formatCount(addon.downloadsCount || 0)}
             </span>
             <button
               onClick={handleLikeClick}
-              className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-accent-deep' : 'hover:text-accent-deep'}`}
+              className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-terracotta-text' : 'hover:text-terracotta-text'}`}
             >
               <Heart size={12} className={isLiked ? 'fill-current' : ''} />
               {formatCount(addon.likesCount)}
             </button>
           </div>
-          <span className="flex items-center gap-1 text-[11px] font-medium text-ink/40">
+          <span className="flex items-center gap-1 text-[11px] font-medium text-ink-900/40">
             <Clock size={11} />
             {formatRelativeTime(addon.createdAt)}
           </span>
@@ -242,9 +242,9 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-paper transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm glass' : 'rounded-lg shadow-card neumorph hover:scale-[1.03]'}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-parchment-raised transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm glass' : 'rounded-lg shadow-card neumorph hover:scale-[1.03]'}`}
     >
-      <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink`}>
+      <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink-900`}>
         <FadeImage
           src={coverImage}
           alt={addon.title}
@@ -256,11 +256,11 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         />
 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
-          <span className="inline-flex items-center bg-accent rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-card">
+          <span className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
             {addon.category}
           </span>
           {addon.status === 'pending' && (
-            <span className="inline-flex items-center bg-paper rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-card">
+            <span className="inline-flex items-center bg-parchment-raised rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
               Pending
             </span>
           )}
@@ -273,21 +273,21 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
       </div>
 
       {/* Body */}
-      <div className={`flex flex-1 flex-col ${compact ? 'p-3' : 'p-5'} bg-paper`}>
+      <div className={`flex flex-1 flex-col ${compact ? 'p-3' : 'p-5'} bg-parchment-raised`}>
         <div className="flex items-start justify-between gap-3">
-          <h3 className={`font-bold text-ink leading-tight line-clamp-1 uppercase tracking-tight ${compact ? 'text-sm' : 'text-base'}`}>
+          <h3 className={`font-bold text-ink-900 leading-tight line-clamp-1 uppercase tracking-tight ${compact ? 'text-sm' : 'text-base'}`}>
             {addon.title}
           </h3>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={toggleInfo}
               aria-label={showInfo ? 'Hide additional info' : 'Show additional info'}
-              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-accent-deep text-white shadow-none' : 'bg-paper text-ink shadow-card btn-3d'}`}
+              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-terracotta-text text-white shadow-none' : 'bg-parchment-raised text-ink-900 shadow-card btn-3d'}`}
             >
               <Info size={14} />
             </button>
             {addon.averageRating !== undefined && addon.averageRating > 0 && (
-              <div className="flex items-center gap-1 bg-accent rounded-lg px-2 py-1 text-xs font-bold text-ink shadow-card">
+              <div className="flex items-center gap-1 bg-terracotta rounded-lg px-2 py-1 text-xs font-bold text-ink-900 shadow-card">
                 <Star size={11} className="fill-ink" />
                 <span>{addon.averageRating.toFixed(1)}</span>
               </div>
@@ -300,7 +300,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             {addon.tags.slice(0, 3).map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center border border-ink/10 rounded-lg bg-paper px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/70"
+                className="inline-flex items-center border border-parchment-border rounded-lg bg-parchment-raised px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-900/70"
               >
                 {tag}
               </span>
@@ -309,10 +309,10 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         )}
 
         {showInfo ? (
-          <div className={`mt-3 flex-1 overflow-y-auto pr-1 space-y-3 ${compact ? 'text-xs' : 'text-sm'} text-ink/70 custom-scrollbar`}>
+          <div className={`mt-3 flex-1 overflow-y-auto pr-1 space-y-3 ${compact ? 'text-xs' : 'text-sm'} text-ink-900/70 custom-scrollbar`}>
             {addon.demoUrl && (
               <div>
-                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Demo</strong>
+                <strong className="text-ink-900 text-xs uppercase tracking-wider font-bold">Demo</strong>
                 <p className="mt-1">
                   <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent-soft font-bold underline hover:no-underline">
                     View Demo <ExternalLink size={12} />
@@ -322,19 +322,19 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             )}
             {addon.versionHistory && (
               <div>
-                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Version History</strong>
+                <strong className="text-ink-900 text-xs uppercase tracking-wider font-bold">Version History</strong>
                 <p className="mt-1 font-medium">{addon.versionHistory}</p>
               </div>
             )}
             {addon.compatibilityNotes && (
               <div>
-                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Compatibility</strong>
+                <strong className="text-ink-900 text-xs uppercase tracking-wider font-bold">Compatibility</strong>
                 <p className="mt-1 font-medium">{addon.compatibilityNotes}</p>
               </div>
             )}
             {addon.changelog && (
               <div>
-                <strong className="text-ink text-xs uppercase tracking-wider font-bold">Changelog</strong>
+                <strong className="text-ink-900 text-xs uppercase tracking-wider font-bold">Changelog</strong>
                 <p className="mt-1 whitespace-pre-wrap text-xs font-medium">{addon.changelog}</p>
               </div>
             )}
@@ -343,14 +343,14 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             )}
           </div>
         ) : (
-          <p className={`mt-2.5 line-clamp-2 flex-1 ${compact ? 'text-xs' : 'text-sm'} text-ink/60 leading-relaxed font-medium`}>
+          <p className={`mt-2.5 line-clamp-2 flex-1 ${compact ? 'text-xs' : 'text-sm'} text-ink-900/60 leading-relaxed font-medium`}>
             {stripHtml(addon.description)}
           </p>
         )}
 
-        <div className={`flex items-center justify-between border-t border-ink/10 ${compact ? 'mt-3 pt-3' : 'mt-5 pt-4'}`}>
+        <div className={`flex items-center justify-between border-t border-parchment-border ${compact ? 'mt-3 pt-3' : 'mt-5 pt-4'}`}>
           <div
-            className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer hover:text-accent-deep transition-colors"
+            className="flex items-center gap-2 text-xs font-bold text-ink-900 cursor-pointer hover:text-terracotta-text transition-colors"
             onClick={handleAuthorClick}
           >
             <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName={compact ? 'h-6 w-6' : 'h-7 w-7'} textSizeClassName={compact ? 'text-[10px]' : 'text-xs'} />
@@ -360,33 +360,33 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
           <div className={`flex items-center gap-3 ${compact ? 'gap-2' : ''}`}>
             <button
               onClick={handleLikeClick}
-              className={`flex items-center gap-1 text-xs font-bold transition-colors ${isLiked ? 'text-accent-deep' : 'text-ink hover:text-accent-deep'}`}
+              className={`flex items-center gap-1 text-xs font-bold transition-colors ${isLiked ? 'text-terracotta-text' : 'text-ink-900 hover:text-terracotta-text'}`}
             >
               <Heart size={15} className={isLiked ? 'fill-current' : ''} />
               <span>{addon.likesCount}</span>
             </button>
-            <div className="flex items-center gap-1 text-xs font-bold text-ink">
+            <div className="flex items-center gap-1 text-xs font-bold text-ink-900">
               <ArrowDownToLine size={15} />
               <span>{addon.downloadsCount || 0}</span>
             </div>
             <button
               onClick={handleDownloadClick}
               disabled={isDownloading}
-              className={`relative overflow-hidden flex items-center gap-1.5 border border-ink/10 rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all ${
+              className={`relative overflow-hidden flex items-center gap-1.5 border border-parchment-border rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all ${
                 downloadSuccess
-                  ? 'bg-paper text-success shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                  : 'bg-accent text-ink shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
+                  ? 'bg-parchment-raised text-success shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
+                  : 'bg-terracotta text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
               }`}
             >
               {isDownloading && (
                 <div
-                  className="absolute inset-0 origin-left bg-accent-soft/30 transition-transform duration-200 ease-linear will-change-transform"
+                  className="absolute inset-0 origin-left bg-terracotta-soft/30 transition-transform duration-200 ease-linear will-change-transform"
                   style={{ transform: `scaleX(${downloadProgress / 100})` }}
                 />
               )}
               <div className="relative z-10 flex items-center gap-1">
                 {isDownloading ? (
-                  <div className="h-3.5 w-3.5 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                  <div className="h-3.5 w-3.5 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                 ) : downloadSuccess ? <Check size={13} /> : <Download size={13} />}
                 <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Done!' : 'Get'}</span>
               </div>

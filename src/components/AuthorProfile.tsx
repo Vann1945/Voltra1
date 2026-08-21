@@ -56,10 +56,10 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
   if (authorAddons.length === 0) {
     return (
       <div className="py-32 text-center min-h-[100dvh]">
-        <h3 className="text-lg font-bold text-ink uppercase">This author has no public add-ons yet</h3>
+        <h3 className="text-lg font-bold text-ink-900 uppercase">This author has no public add-ons yet</h3>
         <button
           onClick={() => onNavigate('home')}
-          className="mt-5 inline-flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
+          className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
         >
           Return to Marketplace
         </button>
@@ -71,14 +71,14 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 min-h-[100dvh]">
       <button
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink uppercase hover:text-accent-deep transition-colors"
+        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink-900 uppercase hover:text-terracotta-text transition-colors"
       >
         <ArrowLeft size={16} />
         Back to Marketplace
       </button>
 
       {/* Author header */}
-      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-paper p-8 rounded-lg shadow-card neumorph glass">
+      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-parchment-raised p-8 rounded-lg shadow-card neumorph glass">
         <ProfileAvatar
           photoURL={authorPhoto}
           displayName={authorName}
@@ -88,18 +88,18 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         />
 
         <div className="flex-1 w-full">
-          <h1 className="text-3xl font-bold text-ink tracking-tight">{authorName}</h1>
-          <div className="mt-4 flex items-center gap-3 text-sm font-bold text-ink">
-            <span className="flex items-center gap-2 bg-paper px-3 py-1.5 rounded-lg shadow-card"><Package size={15} /> {authorAddons.length} Uploads</span>
-            <span className="flex items-center gap-2 bg-paper px-3 py-1.5 rounded-lg shadow-card"><Heart size={15} /> {totalLikes} Total Likes</span>
+          <h1 className="text-3xl font-bold text-ink-900 tracking-tight">{authorName}</h1>
+          <div className="mt-4 flex items-center gap-3 text-sm font-bold text-ink-900">
+            <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Package size={15} /> {authorAddons.length} Uploads</span>
+            <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Heart size={15} /> {totalLikes} Total Likes</span>
           </div>
         </div>
       </div>
 
       <div className="space-y-16">
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink uppercase tracking-tight flex items-center gap-2">
-            <Package size={20} className="text-accent-soft" /> Uploads by {authorName}
+          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+            <Package size={20} className="text-terracotta-soft" /> Uploads by {authorName}
           </h2>
 
           <motion.div

@@ -64,28 +64,28 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
 
   const inputClass = (hasError: boolean) =>
     cn(
-      'w-full bg-paper border py-3 pl-12 pr-4 text-ink font-medium placeholder:text-ink/40 focus:outline-none transition-all',
+      'w-full bg-parchment-raised border py-3 pl-12 pr-4 text-ink-900 font-medium placeholder:text-ink-900/40 focus:outline-none transition-all',
       hasError
         ? 'border-danger focus:shadow-[0_2px_12px_rgba(179,38,30,0.15)]'
-        : 'border-ink/15 focus:border-accent-soft focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)]'
+        : 'border-ink-900/15 focus:border-terracotta-soft focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)]'
     );
 
   return (
     <div className="min-h-[70dvh] flex items-center justify-center p-4">
       <div className="w-full max-w-[420px]">
-        <div className="bg-paper rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
+        <div className="bg-parchment-raised rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
           {success ? (
             <div className="text-center space-y-5 py-4">
               <div className="w-14 h-14 bg-success/[0.08] border border-success/20 rounded-lg flex items-center justify-center mx-auto">
                 <CheckCircle2 size={26} className="text-success" />
               </div>
-              <h1 className="text-xl font-bold text-ink">Password reset!</h1>
-              <p className="text-sm font-normal text-ink/70">
+              <h1 className="text-xl font-bold text-ink-900">Password reset!</h1>
+              <p className="text-sm font-normal text-ink-900/70">
                 Your password has been changed. You can now sign in with your new password.
               </p>
               <button
                 onClick={() => onNavigate('home')}
- className="w-full bg-paper rounded-lg py-3 text-sm font-bold text-ink uppercase shadow-card btn-3d"
+ className="w-full bg-parchment-raised rounded-lg py-3 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d"
               >
                 Back to home
               </button>
@@ -93,10 +93,10 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
           ) : (
             <>
               <div className="mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight">
                   Reset password
                 </h1>
-                <p className="text-sm text-ink/70 mt-1 font-medium">
+                <p className="text-sm text-ink-900/70 mt-1 font-medium">
                   Enter your new password below.
                 </p>
               </div>
@@ -112,7 +112,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                   >
                     <div className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
                       <AlertCircle className="text-danger shrink-0 mt-0.5" size={16} />
-                      <p className="text-sm text-ink font-medium">{error}</p>
+                      <p className="text-sm text-ink-900 font-medium">{error}</p>
                     </div>
                   </motion.div>
                 )}
@@ -125,11 +125,11 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-xs font-bold text-ink uppercase tracking-widest">
+                    <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                       New password
                     </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none" />
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                       <input
                         type="password"
                         value={password}
@@ -144,11 +144,11 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-bold text-ink uppercase tracking-widest">
+                    <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                       Confirm password
                     </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none" />
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                       <input
                         type="password"
                         value={confirmPassword}
@@ -170,7 +170,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full mt-2 bg-terracotta rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink-900 uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>Reset password</span>
                       <ArrowRight size={18} />

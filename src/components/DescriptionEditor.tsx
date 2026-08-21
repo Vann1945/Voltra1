@@ -33,7 +33,7 @@ const FORMAT_BLOCKS = [
   { value: 'H4', label: 'Heading 4', preview: 'text-sm font-normal' },
   { value: 'H5', label: 'Heading 5', preview: 'text-xs font-normal' },
   { value: 'H6', label: 'Heading 6', preview: 'text-[11px] font-normal' },
-  { value: 'PRE', label: 'Preformatted', preview: 'text-xs font-mono border border-ink/10 rounded px-2 py-1 inline-block' },
+  { value: 'PRE', label: 'Preformatted', preview: 'text-xs font-mono border border-parchment-border rounded px-2 py-1 inline-block' },
 ];
 
 const PALETTE_COLORS = [
@@ -545,8 +545,8 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
   const currentFormatLabel = FORMAT_BLOCKS.find((f) => f.value === currentFormatTag)?.label || 'Paragraph';
 
   return (
-    <div data-required={required} className=" border border-ink/10 rounded-lg bg-paper overflow-visible relative">
-      <div className="flex items-center justify-end border-b border-ink bg-paper px-3 py-1.5">
+    <div data-required={required} className=" border border-parchment-border rounded-lg bg-parchment-raised overflow-visible relative">
+      <div className="flex items-center justify-end border-b border-ink-900 bg-parchment-raised px-3 py-1.5">
         <div className="w-32">
           <CustomSelect
             value={mode === 'markdown' ? 'Markdown' : 'WYSIWYG'}
@@ -558,29 +558,29 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
 
       {mode === 'wysiwyg' ? (
         <>
-          <div ref={toolbarRef} className="flex flex-wrap items-center gap-1 border-b border-ink bg-paper px-2.5 py-2 relative">
+          <div ref={toolbarRef} className="flex flex-wrap items-center gap-1 border-b border-ink-900 bg-parchment-raised px-2.5 py-2 relative">
             <ToolbarBtn icon={Undo2} label="Undo" onClick={() => exec('undo')} />
             <ToolbarBtn icon={Redo2} label="Redo" onClick={() => exec('redo')} />
-            <div className="w-px h-5 bg-accent/30 mx-1" />
+            <div className="w-px h-5 bg-terracotta/30 mx-1" />
 
             <div className="relative">
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showFormatMenu; closeAllMenus(); setShowFormatMenu(next); }}
-                className="flex items-center gap-1  px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-accent/40 hover:text-ink transition-colors"
+                className="flex items-center gap-1  px-2.5 py-1.5 text-xs font-medium text-ink-900 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
               >
                 {currentFormatLabel} <ChevronDown size={12} />
               </button>
               {showFormatMenu && (
-                <div className="absolute left-0 z-[130] mt-1 w-44 rounded-lg bg-paper p-1 shadow-card">
+                <div className="absolute left-0 z-[130] mt-1 w-44 rounded-lg bg-parchment-raised p-1 shadow-card">
                   {FORMAT_BLOCKS.map((f) => (
                     <button
                       key={f.value}
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => { exec('formatBlock', f.value); setShowFormatMenu(false); }}
-                      className={`flex w-full items-center justify-between gap-2  px-3 py-1.5 text-left transition-colors ${currentFormatTag === f.value ? 'bg-accent/30 text-ink' : 'text-ink hover:bg-accent/40 hover:text-ink'}`}
+                      className={`flex w-full items-center justify-between gap-2  px-3 py-1.5 text-left transition-colors ${currentFormatTag === f.value ? 'bg-terracotta/30 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
                     >
                       <span className={f.preview}>{f.label}</span>
                       {currentFormatTag === f.value && <Check size={12} className="shrink-0" />}
@@ -590,7 +590,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
               )}
             </div>
 
-            <div className="w-px h-5 bg-accent/30 mx-1" />
+            <div className="w-px h-5 bg-terracotta/30 mx-1" />
 
             <ToolbarBtn icon={Bold} label="Bold" onClick={() => exec('bold')} active={activeFormats.bold} />
             <ToolbarBtn icon={Italic} label="Italic" onClick={() => exec('italic')} active={activeFormats.italic} />
@@ -603,7 +603,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showColorMenu; closeAllMenus(); setShowColorMenu(next); }}
-                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#FAF9F6' ? 'bg-paper/20 text-ink' : 'text-ink hover:bg-accent/40 hover:text-ink'}`}
+                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#FAF9F6' ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
                 title="Text Color"
               >
                 <div className="flex flex-col items-center">
@@ -613,7 +613,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 <ChevronDown size={10} />
               </button>
               {showColorMenu && (
-              <div className="absolute left-0 z-[130] mt-1 w-48 rounded-lg bg-paper p-2 shadow-card">
+              <div className="absolute left-0 z-[130] mt-1 w-48 rounded-lg bg-parchment-raised p-2 shadow-card">
                   <div className="grid grid-cols-5 gap-1.5 mb-2">
                     {PALETTE_COLORS.map((c) => (
                       <button
@@ -622,15 +622,15 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => { setCurrentColor(c); exec('foreColor', c); setShowColorMenu(false); }}
                         style={{ backgroundColor: c }}
-                        className="h-6 w-6 rounded-full flex items-center justify-center border border-ink/10 hover:scale-110 transition-transform"
+                        className="h-6 w-6 rounded-full flex items-center justify-center border border-parchment-border hover:scale-110 transition-transform"
                       >
-                        {currentColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink' : 'text-ink'} />}
+                        {currentColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink-900' : 'text-ink-900'} />}
                       </button>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between border-t border-ink pt-1.5">
-                    <button type="button" onClick={() => { setCurrentColor('#FAF9F6'); exec('foreColor', '#FAF9F6'); setShowColorMenu(false); }} className="p-1 text-ink/50 hover:text-ink"><Ban size={14} /></button>
-                    <button type="button" onClick={() => { setShowColorMenu(false); setCustomColorTarget('text'); setActiveModal('customColor'); }} className="p-1 text-ink/50 hover:text-ink"><Palette size={14} /></button>
+                  <div className="flex items-center justify-between border-t border-ink-900 pt-1.5">
+                    <button type="button" onClick={() => { setCurrentColor('#FAF9F6'); exec('foreColor', '#FAF9F6'); setShowColorMenu(false); }} className="p-1 text-ink-900/50 hover:text-ink-900"><Ban size={14} /></button>
+                    <button type="button" onClick={() => { setShowColorMenu(false); setCustomColorTarget('text'); setActiveModal('customColor'); }} className="p-1 text-ink-900/50 hover:text-ink-900"><Palette size={14} /></button>
                   </div>
                 </div>
               )}
@@ -641,7 +641,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showBgColorMenu; closeAllMenus(); setShowBgColorMenu(next); }}
-                className={`flex items-center gap-1  p-1.5 transition-colors ${showBgColorMenu || currentBgColor ? 'bg-paper/20 text-ink' : 'text-ink hover:bg-accent/40 hover:text-ink'}`}
+                className={`flex items-center gap-1  p-1.5 transition-colors ${showBgColorMenu || currentBgColor ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
                 title="Background Color"
               >
                 <div className="flex flex-col items-center">
@@ -651,7 +651,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 <ChevronDown size={10} />
               </button>
               {showBgColorMenu && (
-              <div className="absolute left-0 z-[130] mt-1 w-48 rounded-lg bg-paper p-2 shadow-card">
+              <div className="absolute left-0 z-[130] mt-1 w-48 rounded-lg bg-parchment-raised p-2 shadow-card">
                   <div className="grid grid-cols-5 gap-1.5 mb-2">
                     {PALETTE_COLORS.map((c) => (
                       <button
@@ -660,21 +660,21 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => { setCurrentBgColor(c); exec('hiliteColor', c); setShowBgColorMenu(false); }}
                         style={{ backgroundColor: c }}
-                        className="h-6 w-6 rounded-full flex items-center justify-center border border-ink/10 hover:scale-110 transition-transform"
+                        className="h-6 w-6 rounded-full flex items-center justify-center border border-parchment-border hover:scale-110 transition-transform"
                       >
-                        {currentBgColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink' : 'text-ink'} />}
+                        {currentBgColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink-900' : 'text-ink-900'} />}
                       </button>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between border-t border-ink pt-1.5">
-                    <button type="button" onClick={() => { setCurrentBgColor(null); exec('hiliteColor', 'transparent'); setShowBgColorMenu(false); }} className="p-1 text-ink/50 hover:text-ink"><Ban size={14} /></button>
-                    <button type="button" onClick={() => { setShowBgColorMenu(false); setCustomColorTarget('bg'); setActiveModal('customColor'); }} className="p-1 text-ink/50 hover:text-ink"><Palette size={14} /></button>
+                  <div className="flex items-center justify-between border-t border-ink-900 pt-1.5">
+                    <button type="button" onClick={() => { setCurrentBgColor(null); exec('hiliteColor', 'transparent'); setShowBgColorMenu(false); }} className="p-1 text-ink-900/50 hover:text-ink-900"><Ban size={14} /></button>
+                    <button type="button" onClick={() => { setShowBgColorMenu(false); setCustomColorTarget('bg'); setActiveModal('customColor'); }} className="p-1 text-ink-900/50 hover:text-ink-900"><Palette size={14} /></button>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="w-px h-5 bg-accent/30 mx-1" />
+            <div className="w-px h-5 bg-terracotta/30 mx-1" />
 
             <ToolbarBtn icon={LinkIcon} label="Insert Link" onClick={() => openModal('link')} />
             <ToolbarBtn icon={AlignLeft} label="Align Left" onClick={() => exec('justifyLeft')} />
@@ -686,25 +686,25 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showUnorderedListMenu; closeAllMenus(); setShowUnorderedListMenu(next); }}
-                className="flex items-center gap-0.5  p-1.5 text-ink/50 hover:bg-accent/40 hover:text-ink transition-colors"
+                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
                 title="Unordered List Style"
               >
                 <List size={15} />
                 <ChevronDown size={10} />
               </button>
               {showUnorderedListMenu && (
-              <div className="absolute left-0 z-[130] mt-1 flex items-center gap-1.5 rounded-lg bg-paper p-2 shadow-card max-w-[calc(100vw-2rem)]">
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'disc')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border transition-colors ${currentUlStyle === 'disc' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+              <div className="absolute left-0 z-[130] mt-1 flex items-center gap-1.5 rounded-lg bg-parchment-raised p-2 shadow-card max-w-[calc(100vw-2rem)]">
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'disc')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'disc' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListDiscSVG />
-                    {currentUlStyle === 'disc' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentUlStyle === 'disc' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'circle')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border transition-colors ${currentUlStyle === 'circle' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'circle')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'circle' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListCircleSVG />
-                    {currentUlStyle === 'circle' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentUlStyle === 'circle' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'square')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border transition-colors ${currentUlStyle === 'square' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'square')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'square' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListSquareSVG />
-                    {currentUlStyle === 'square' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentUlStyle === 'square' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
                 </div>
               )}
@@ -715,37 +715,37 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showOrderedListMenu; closeAllMenus(); setShowOrderedListMenu(next); }}
-                className="flex items-center gap-0.5  p-1.5 text-ink/50 hover:bg-accent/40 hover:text-ink transition-colors"
+                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
                 title="Ordered List Style"
               >
                 <ListOrdered size={15} />
                 <ChevronDown size={10} />
               </button>
               {showOrderedListMenu && (
-              <div className="absolute left-0 z-[130] mt-1 grid grid-cols-3 gap-1.5 rounded-lg bg-paper p-2.5 shadow-card w-52 max-w-[calc(100vw-2rem)]">
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'decimal')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'decimal' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+              <div className="absolute left-0 z-[130] mt-1 grid grid-cols-3 gap-1.5 rounded-lg bg-parchment-raised p-2.5 shadow-card w-52 max-w-[calc(100vw-2rem)]">
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'decimal')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'decimal' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListDecimalSVG />
-                    {currentOlStyle === 'decimal' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'decimal' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-alpha')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-alpha' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-alpha')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-alpha' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListLowerAlphaSVG />
-                    {currentOlStyle === 'lower-alpha' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'lower-alpha' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-greek')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-greek' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-greek')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-greek' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListLowerGreekSVG />
-                    {currentOlStyle === 'lower-greek' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'lower-greek' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-roman')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-roman' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'lower-roman')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'lower-roman' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListLowerRomanSVG />
-                    {currentOlStyle === 'lower-roman' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'lower-roman' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'upper-alpha')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'upper-alpha' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'upper-alpha')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'upper-alpha' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListUpperAlphaSVG />
-                    {currentOlStyle === 'upper-alpha' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'upper-alpha' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'upper-roman')} className={`relative p-2  bg-paper hover:bg-accent text-ink hover:text-ink border flex items-center justify-center transition-colors ${currentOlStyle === 'upper-roman' ? 'border-accent-soft text-ink' : 'border-ink'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ol', 'upper-roman')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border flex items-center justify-center transition-colors ${currentOlStyle === 'upper-roman' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <OrderedListUpperRomanSVG />
-                    {currentOlStyle === 'upper-roman' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-accent-soft p-0.5 text-ink" />}
+                    {currentOlStyle === 'upper-roman' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
                 </div>
               )}
@@ -758,14 +758,14 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 title="More Tools"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={toggleMoreTools}
-                className={`flex items-center justify-center  p-1.5 transition-colors ${showMoreTools ? 'bg-paper/20 text-ink' : 'text-ink/50 hover:bg-accent/40 hover:text-ink'}`}
+                className={`flex items-center justify-center  p-1.5 transition-colors ${showMoreTools ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900'}`}
               >
                 <MoreHorizontal size={15} />
               </button>
               {showMoreTools && (
                 <div
                   className={
-                    moreToolsOpenRight ? 'absolute left-0 top-full z-[130] mt-1 flex flex-nowrap items-center gap-1 rounded-lg bg-paper p-2 shadow-card w-max max-w-[calc(100vw-1.5rem)] overflow-x-auto' : 'absolute right-0 top-full z-[130] mt-1 w-60 max-w-[calc(100vw-2rem)] rounded-lg bg-paper p-2 shadow-card grid grid-cols-4 gap-1'
+                    moreToolsOpenRight ? 'absolute left-0 top-full z-[130] mt-1 flex flex-nowrap items-center gap-1 rounded-lg bg-parchment-raised p-2 shadow-card w-max max-w-[calc(100vw-1.5rem)] overflow-x-auto' : 'absolute right-0 top-full z-[130] mt-1 w-60 max-w-[calc(100vw-2rem)] rounded-lg bg-parchment-raised p-2 shadow-card grid grid-cols-4 gap-1'
                   }
                 >
                   <ToolbarBtn icon={Indent} label="Indent" onClick={() => exec('indent')} />
@@ -790,26 +790,26 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
               onInput={emitChange}
               onBlur={emitChange}
               data-placeholder={placeholder || 'Write your description...'}
-              className="description-editable min-h-[220px] max-h-[450px] overflow-y-auto px-5 py-4 text-sm text-ink font-normal focus:outline-none 
-              [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:my-4 [&_h1]:text-ink [&_h1]:tracking-tight
-              [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-3 [&_h2]:text-ink [&_h2]:tracking-tight
-              [&_h3]:text-xl [&_h3]:font-bold [&_h3]:my-2 [&_h3]:text-ink
-              [&_h4]:text-lg [&_h4]:font-bold [&_h4]:my-2 [&_h4]:text-ink
-              [&_h5]:text-base [&_h5]:font-bold [&_h5]:my-2 [&_h5]:text-ink
-              [&_h6]:text-sm [&_h6]:font-bold [&_h6]:my-2 [&_h6]:text-ink
+              className="description-editable min-h-[220px] max-h-[450px] overflow-y-auto px-5 py-4 text-sm text-ink-900 font-normal focus:outline-none 
+              [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:my-4 [&_h1]:text-ink-900 [&_h1]:tracking-tight
+              [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:my-3 [&_h2]:text-ink-900 [&_h2]:tracking-tight
+              [&_h3]:text-xl [&_h3]:font-bold [&_h3]:my-2 [&_h3]:text-ink-900
+              [&_h4]:text-lg [&_h4]:font-bold [&_h4]:my-2 [&_h4]:text-ink-900
+              [&_h5]:text-base [&_h5]:font-bold [&_h5]:my-2 [&_h5]:text-ink-900
+              [&_h6]:text-sm [&_h6]:font-bold [&_h6]:my-2 [&_h6]:text-ink-900
               [&_p]:mb-3 [&_p]:leading-relaxed
               [&_a]:text-accent-soft [&_a]:underline [&_a]:font-medium
               [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6
-              [&_blockquote]:border-l-2 [&_blockquote]:border-accent [&_blockquote]:bg-accent/[0.06] [&_blockquote]:pl-4 [&_blockquote]:py-1 [&_blockquote]:italic [&_blockquote]:text-ink
-              [&_pre]:bg-ink [&_pre]:text-accent [&_pre]:border [&_pre]:border-ink [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap
-              [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_table]:border [&_table]:border-ink/10 [&_table]:rounded-lg
-              [&_th]:border [&_th]:border-ink/10 [&_th]:bg-accent/[0.12] [&_th]:p-2 [&_th]:text-left [&_th]:font-bold
-              [&_td]:border [&_td]:border-ink/10 [&_td]:p-2"
+              [&_blockquote]:border-l-2 [&_blockquote]:border-terracotta-soft [&_blockquote]:bg-terracotta/[0.06] [&_blockquote]:pl-4 [&_blockquote]:py-1 [&_blockquote]:italic [&_blockquote]:text-ink-900
+              [&_pre]:bg-ink-900 [&_pre]:text-accent [&_pre]:border [&_pre]:border-ink-900 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap
+              [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_table]:border [&_table]:border-parchment-border [&_table]:rounded-lg
+              [&_th]:border [&_th]:border-parchment-border [&_th]:bg-terracotta/[0.12] [&_th]:p-2 [&_th]:text-left [&_th]:font-bold
+              [&_td]:border [&_td]:border-parchment-border [&_td]:p-2"
             />
 
             {linkPopup && (
               <div
-                className="absolute z-[140] rounded-lg bg-paper shadow-card"
+                className="absolute z-[140] rounded-lg bg-parchment-raised shadow-card"
                 style={{ top: linkPopup.top, left: linkPopup.left }}
               >
                 <button
@@ -822,7 +822,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                       openModal('link');
                     }
                   }}
-                  className="block px-3 py-1.5 text-xs font-medium text-ink font-bold hover:bg-accent/40 hover:text-ink  transition-colors"
+                  className="block px-3 py-1.5 text-xs font-medium text-ink-900 font-bold hover:bg-terracotta/40 hover:text-ink-900  transition-colors"
                 >
                   Link...
                 </button>
@@ -830,9 +830,9 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-ink bg-paper px-4 py-2">
-            <span className="text-[11px] uppercase tracking-wider text-ink/40 font-mono">{currentFormatTag.toLowerCase()}</span>
-            <span className="text-[11px] uppercase tracking-wider text-ink/40 font-mono">{wordCount} words</span>
+          <div className="flex items-center justify-between border-t border-ink-900 bg-parchment-raised px-4 py-2">
+            <span className="text-[11px] uppercase tracking-wider text-ink-900/40 font-mono">{currentFormatTag.toLowerCase()}</span>
+            <span className="text-[11px] uppercase tracking-wider text-ink-900/40 font-mono">{wordCount} words</span>
           </div>
         </>
       ) : (
@@ -842,17 +842,17 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
             onChange={(e) => setMdText(e.target.value)}
             rows={8}
             placeholder={placeholder}
-            className="block w-full resize-y bg-transparent px-4 py-3.5 text-sm text-ink placeholder-ink/40 focus:outline-none font-mono"
+            className="block w-full resize-y bg-transparent px-4 py-3.5 text-sm text-ink-900 placeholder-ink-900/400/40 focus:outline-none font-mono"
           />
         </>
       )}
 
       {activeModal === 'customColor' && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-ink/70 ">
-          <div className="w-80 rounded-lg bg-paper p-4 shadow-card">
-            <div className="flex items-center justify-between border-b border-ink pb-2 mb-3">
-              <h4 className="text-xs font-semibold text-ink font-bold">{customColorTarget === 'bg' ? 'Background Color' : 'Color Picker'}</h4>
-              <button type="button" onClick={closeModal} className="text-ink/50 hover:text-ink"><X size={16} /></button>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-ink-900/70 ">
+          <div className="w-80 rounded-lg bg-parchment-raised p-4 shadow-card">
+            <div className="flex items-center justify-between border-b border-ink-900 pb-2 mb-3">
+              <h4 className="text-xs font-semibold text-ink-900 font-bold">{customColorTarget === 'bg' ? 'Background Color' : 'Color Picker'}</h4>
+              <button type="button" onClick={closeModal} className="text-ink-900/50 hover:text-ink-900"><X size={16} /></button>
             </div>
             <div className="flex gap-3 mb-4">
               <input
@@ -863,25 +863,25 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
               />
               <div className="flex-1 space-y-1.5 text-xs font-mono">
                 <div className="flex items-center gap-2">
-                  <span className="text-ink/50">R</span>
-                  <input type="text" value={customR} onChange={(e) => setCustomR(e.target.value)} className="w-full bg-paper border border-ink/10 rounded px-2 py-1 text-ink" />
+                  <span className="text-ink-900/50">R</span>
+                  <input type="text" value={customR} onChange={(e) => setCustomR(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded px-2 py-1 text-ink-900" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-ink/50">G</span>
-                  <input type="text" value={customG} onChange={(e) => setCustomG(e.target.value)} className="w-full bg-paper border border-ink/10 rounded px-2 py-1 text-ink" />
+                  <span className="text-ink-900/50">G</span>
+                  <input type="text" value={customG} onChange={(e) => setCustomG(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded px-2 py-1 text-ink-900" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-ink/50">B</span>
-                  <input type="text" value={customB} onChange={(e) => setCustomB(e.target.value)} className="w-full bg-paper border border-ink/10 rounded px-2 py-1 text-ink" />
+                  <span className="text-ink-900/50">B</span>
+                  <input type="text" value={customB} onChange={(e) => setCustomB(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded px-2 py-1 text-ink-900" />
                 </div>
                 <div className="flex items-center gap-2 pt-1">
-                  <span className="text-ink/50">#</span>
-                  <input type="text" value={customHex} onChange={(e) => setCustomHex(e.target.value)} className="w-full bg-paper border border-ink/10 rounded px-2 py-1 text-ink" />
+                  <span className="text-ink-900/50">#</span>
+                  <input type="text" value={customHex} onChange={(e) => setCustomHex(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded px-2 py-1 text-ink-900" />
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-ink pt-3">
-              <button type="button" onClick={closeModal} className="px-3 py-1 text-xs text-ink/50 hover:text-ink">Cancel</button>
+            <div className="flex justify-end gap-2 border-t border-ink-900 pt-3">
+              <button type="button" onClick={closeModal} className="px-3 py-1 text-xs text-ink-900/50 hover:text-ink-900">Cancel</button>
               <button
                 type="button"
                 onClick={() => {
@@ -895,7 +895,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                   }
                   closeModal();
                 }}
-                className="px-4 py-1 text-xs bg-accent-soft hover:bg-[#1976D2] text-ink rounded font-medium"
+                className="px-4 py-1 text-xs bg-terracotta-soft hover:bg-[#1976D2] text-ink-900 rounded font-medium"
               >
                 Save
               </button>
@@ -926,19 +926,19 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           closeModal();
         }}>
           <div className="mb-3">
-            <label className="block text-xs text-ink/50 mb-1">URL</label>
-            <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" placeholder="https://..." />
+            <label className="block text-xs text-ink-900/50 mb-1">URL</label>
+            <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" placeholder="https://..." />
           </div>
           <div className="mb-3">
-            <label className="block text-xs text-ink/50 mb-1">Text to display</label>
-            <input type="text" value={linkText} onChange={(e) => setLinkText(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+            <label className="block text-xs text-ink-900/50 mb-1">Text to display</label>
+            <input type="text" value={linkText} onChange={(e) => setLinkText(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
           </div>
           <div className="mb-3">
-            <label className="block text-xs text-ink/50 mb-1">Title</label>
-            <input type="text" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+            <label className="block text-xs text-ink-900/50 mb-1">Title</label>
+            <input type="text" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
           </div>
           <div>
-            <label className="block text-xs text-ink/50 mb-1">Open link in...</label>
+            <label className="block text-xs text-ink-900/50 mb-1">Open link in...</label>
             <CustomSelect
               value={linkTarget === '_blank' ? 'New tab' : 'Current tab'}
               options={['New tab', 'Current tab']}
@@ -955,35 +955,35 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           closeModal();
         }}>
           <div className="mb-3">
-            <label className="block text-xs text-ink/50 mb-1">Language</label>
+            <label className="block text-xs text-ink-900/50 mb-1">Language</label>
             <CustomSelect value={codeLanguage} options={CODE_LANGUAGES} onChange={setCodeLanguage} />
           </div>
           <div className="mb-3">
-            <label className="block text-xs text-ink/50 mb-1">Code</label>
-            <textarea rows={6} value={codeText} onChange={(e) => setCodeText(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-3 text-xs font-mono text-ink" />
+            <label className="block text-xs text-ink-900/50 mb-1">Code</label>
+            <textarea rows={6} value={codeText} onChange={(e) => setCodeText(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-3 text-xs font-mono text-ink-900" />
           </div>
         </EditorModal>
       )}
       {activeModal === 'image' && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink/70 ">
-          <div className="relative w-full max-w-lg rounded-lg bg-paper shadow-card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-ink px-5 py-3.5">
-              <h4 className="text-sm font-semibold text-ink">Insert/Edit Image</h4>
-              <button type="button" onClick={closeModal} className="text-ink/40 hover:text-ink"><X size={18} /></button>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink-900/70 ">
+          <div className="relative w-full max-w-lg rounded-lg bg-parchment-raised shadow-card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-ink-900 px-5 py-3.5">
+              <h4 className="text-sm font-semibold text-ink-900">Insert/Edit Image</h4>
+              <button type="button" onClick={closeModal} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
             </div>
             <div className="flex">
-              <div className="w-28 shrink-0 border-r border-ink py-3">
+              <div className="w-28 shrink-0 border-r border-ink-900 py-3">
                 <button
                   type="button"
                   onClick={() => setImageTab('general')}
-                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'general' ? 'text-accent-soft border-l-2 border-accent-soft bg-paper' : 'text-ink/50 hover:text-ink'}`}
+                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'general' ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                 >
                   General
                 </button>
                 <button
                   type="button"
                   onClick={() => setImageTab('upload')}
-                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'upload' ? 'text-accent-soft border-l-2 border-accent-soft bg-paper' : 'text-ink/50 hover:text-ink'}`}
+                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'upload' ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                 >
                   Upload
                 </button>
@@ -992,33 +992,33 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 {imageTab === 'general' ? (
                   <>
                     <div className="mb-3">
-                      <label className="block text-xs text-ink/50 mb-1">Source</label>
-                      <input type="url" value={imageSrc} onChange={(e) => setImageSrc(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" placeholder="https://..." />
+                      <label className="block text-xs text-ink-900/50 mb-1">Source</label>
+                      <input type="url" value={imageSrc} onChange={(e) => setImageSrc(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" placeholder="https://..." />
                     </div>
                     <div className="mb-3">
-                      <label className="block text-xs text-ink/50 mb-1">Alternative description</label>
-                      <input type="text" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                      <label className="block text-xs text-ink-900/50 mb-1">Alternative description</label>
+                      <input type="text" value={imageAlt} onChange={(e) => setImageAlt(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                     </div>
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
-                        <label className="block text-xs text-ink/50 mb-1">Width</label>
-                        <input type="text" inputMode="numeric" value={imageWidth} onChange={(e) => handleImageWidthChange(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                        <label className="block text-xs text-ink-900/50 mb-1">Width</label>
+                        <input type="text" inputMode="numeric" value={imageWidth} onChange={(e) => handleImageWidthChange(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-xs text-ink/50 mb-1">Height</label>
-                        <input type="text" inputMode="numeric" value={imageHeight} onChange={(e) => handleImageHeightChange(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                        <label className="block text-xs text-ink-900/50 mb-1">Height</label>
+                        <input type="text" inputMode="numeric" value={imageHeight} onChange={(e) => handleImageHeightChange(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                       </div>
                       <button
                         type="button"
                         onClick={() => setImageAspectLocked((p) => !p)}
                         title={imageAspectLocked ? 'Rasio terkunci' : 'Rasio bebas'}
-                        className="mb-0.5 shrink-0  p-2 text-ink/50 hover:bg-accent/40 hover:text-ink transition-colors"
+                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
                       >
                         {imageAspectLocked ? <Lock size={14} /> : <Unlock size={14} />}
                       </button>
                     </div>
                     {imageSrc && (
-                      <img src={imageSrc} alt="preview" className="mt-3 max-h-28  border border-ink/10 rounded-lg object-contain" />
+                      <img src={imageSrc} alt="preview" className="mt-3 max-h-28  border border-parchment-border rounded-lg object-contain" />
                     )}
                   </>
                 ) : (
@@ -1029,11 +1029,11 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                       const file = e.dataTransfer.files?.[0];
                       if (file) handleImageFile(file);
                     }}
-                    className="flex flex-col items-center justify-center gap-2  border border-dashed border-white/15 bg-paper px-3 py-10 text-xs text-ink/50 hover:bg-paper hover:text-ink cursor-pointer transition-colors text-center"
+                    className="flex flex-col items-center justify-center gap-2  border border-dashed border-white/15 bg-parchment-raised px-3 py-10 text-xs text-ink-900/50 hover:bg-parchment-raised hover:text-ink-900 cursor-pointer transition-colors text-center"
                   >
                     <UploadCloud size={22} />
                     <span>{imageUploading ? 'Uploading...' : 'Drop an image here'}</span>
-                    <span className="mt-1 inline-block  bg-accent px-3 py-1.5 text-[11px] font-medium text-ink font-bold">
+                    <span className="mt-1 inline-block  bg-terracotta px-3 py-1.5 text-[11px] font-medium text-ink-900 font-bold">
                       Browse for an image
                     </span>
                     <input
@@ -1050,8 +1050,8 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 )}
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-ink px-5 py-3">
-              <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-bold uppercase text-ink/50 hover:text-ink transition-colors">Cancel</button>
+            <div className="flex justify-end gap-2 border-t border-ink-900 px-5 py-3">
+              <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-bold uppercase text-ink-900/50 hover:text-ink-900 transition-colors">Cancel</button>
               <button
                 type="button"
                 onClick={() => {
@@ -1062,7 +1062,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                   }
                   closeModal();
                 }}
-                className="rounded-lg bg-accent hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink transition-all"
+                className="rounded-lg bg-terracotta hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink-900 transition-all"
               >
                 Save
               </button>
@@ -1072,20 +1072,20 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
       )}
 
       {activeModal === 'media' && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink/70 ">
-          <div className="relative w-full max-w-lg rounded-lg bg-paper shadow-card overflow-hidden">
-            <div className="flex items-center justify-between border-b border-ink px-5 py-3.5">
-              <h4 className="text-sm font-semibold text-ink">Insert/Edit Media</h4>
-              <button type="button" onClick={closeModal} className="text-ink/40 hover:text-ink"><X size={18} /></button>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink-900/70 ">
+          <div className="relative w-full max-w-lg rounded-lg bg-parchment-raised shadow-card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-ink-900 px-5 py-3.5">
+              <h4 className="text-sm font-semibold text-ink-900">Insert/Edit Media</h4>
+              <button type="button" onClick={closeModal} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
             </div>
             <div className="flex">
-              <div className="w-28 shrink-0 border-r border-ink py-3">
+              <div className="w-28 shrink-0 border-r border-ink-900 py-3">
                 {(['general', 'embed', 'advanced'] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setMediaTab(tab)}
-                    className={`block w-full text-left px-4 py-2 text-xs font-medium capitalize transition-colors ${mediaTab === tab ? 'text-accent-soft border-l-2 border-accent-soft bg-paper' : 'text-ink/50 hover:text-ink'}`}
+                    className={`block w-full text-left px-4 py-2 text-xs font-medium capitalize transition-colors ${mediaTab === tab ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                   >
                     {tab}
                   </button>
@@ -1095,23 +1095,23 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 {mediaTab === 'general' && (
                   <>
                     <div className="mb-3">
-                      <label className="block text-xs text-ink/50 mb-1">Source</label>
-                      <input type="url" value={mediaSrc} onChange={(e) => setMediaSrc(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" placeholder="https://..." />
+                      <label className="block text-xs text-ink-900/50 mb-1">Source</label>
+                      <input type="url" value={mediaSrc} onChange={(e) => setMediaSrc(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" placeholder="https://..." />
                     </div>
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
-                        <label className="block text-xs text-ink/50 mb-1">Width</label>
-                        <input type="text" inputMode="numeric" value={mediaWidth} onChange={(e) => handleMediaWidthChange(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                        <label className="block text-xs text-ink-900/50 mb-1">Width</label>
+                        <input type="text" inputMode="numeric" value={mediaWidth} onChange={(e) => handleMediaWidthChange(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                       </div>
                       <div className="flex-1">
-                        <label className="block text-xs text-ink/50 mb-1">Height</label>
-                        <input type="text" inputMode="numeric" value={mediaHeight} onChange={(e) => handleMediaHeightChange(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                        <label className="block text-xs text-ink-900/50 mb-1">Height</label>
+                        <input type="text" inputMode="numeric" value={mediaHeight} onChange={(e) => handleMediaHeightChange(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                       </div>
                       <button
                         type="button"
                         onClick={() => setMediaAspectLocked((p) => !p)}
                         title={mediaAspectLocked ? 'Rasio terkunci' : 'Rasio bebas'}
-                        className="mb-0.5 shrink-0  p-2 text-ink/50 hover:bg-accent/40 hover:text-ink transition-colors"
+                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
                       >
                         {mediaAspectLocked ? <Lock size={14} /> : <Unlock size={14} />}
                       </button>
@@ -1120,31 +1120,31 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 )}
                 {mediaTab === 'embed' && (
                   <div>
-                    <label className="block text-xs text-ink/50 mb-1">Paste your embed code below:</label>
+                    <label className="block text-xs text-ink-900/50 mb-1">Paste your embed code below:</label>
                     <textarea
                       rows={7}
                       value={mediaEmbed}
                       onChange={(e) => setMediaEmbed(e.target.value)}
-                      className="w-full bg-paper border border-ink/10 rounded-lg  p-3 text-xs font-mono text-ink resize-none"
+                      className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-3 text-xs font-mono text-ink-900 resize-none"
                     />
                   </div>
                 )}
                 {mediaTab === 'advanced' && (
                   <>
                     <div className="mb-3">
-                      <label className="block text-xs text-ink/50 mb-1">Alternative source URL</label>
-                      <input type="url" value={mediaAltSrc} onChange={(e) => setMediaAltSrc(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                      <label className="block text-xs text-ink-900/50 mb-1">Alternative source URL</label>
+                      <input type="url" value={mediaAltSrc} onChange={(e) => setMediaAltSrc(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                     </div>
                     <div>
-                      <label className="block text-xs text-ink/50 mb-1">Media poster (Image URL)</label>
-                      <input type="url" value={mediaPoster} onChange={(e) => setMediaPoster(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+                      <label className="block text-xs text-ink-900/50 mb-1">Media poster (Image URL)</label>
+                      <input type="url" value={mediaPoster} onChange={(e) => setMediaPoster(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
                     </div>
                   </>
                 )}
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-ink px-5 py-3">
-              <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-bold uppercase text-ink/50 hover:text-ink transition-colors">Cancel</button>
+            <div className="flex justify-end gap-2 border-t border-ink-900 px-5 py-3">
+              <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-bold uppercase text-ink-900/50 hover:text-ink-900 transition-colors">Cancel</button>
               <button
                 type="button"
                 onClick={() => {
@@ -1159,7 +1159,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                   }
                   closeModal();
                 }}
-                className="rounded-lg bg-accent hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink transition-all"
+                className="rounded-lg bg-terracotta hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink-900 transition-all"
               >
                 Save
               </button>
@@ -1183,15 +1183,15 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
         }}>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-ink/50 mb-1">Rows</label>
-              <input type="number" min={1} value={tableRows} onChange={(e) => setTableRows(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+              <label className="block text-xs text-ink-900/50 mb-1">Rows</label>
+              <input type="number" min={1} value={tableRows} onChange={(e) => setTableRows(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
             </div>
             <div>
-              <label className="block text-xs text-ink/50 mb-1">Columns</label>
-              <input type="number" min={1} value={tableCols} onChange={(e) => setTableCols(e.target.value)} className="w-full bg-paper border border-ink/10 rounded-lg  p-2.5 text-xs text-ink" />
+              <label className="block text-xs text-ink-900/50 mb-1">Columns</label>
+              <input type="number" min={1} value={tableCols} onChange={(e) => setTableCols(e.target.value)} className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-2.5 text-xs text-ink-900" />
             </div>
           </div>
-          <p className="mt-3 text-[11px] text-ink/40">Baris pertama otomatis jadi header tabel.</p>
+          <p className="mt-3 text-[11px] text-ink-900/40">Baris pertama otomatis jadi header tabel.</p>
         </EditorModal>
       )}
 
@@ -1209,7 +1209,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
             rows={12}
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value)}
-            className="w-full bg-paper border border-ink/10 rounded-lg  p-3 text-xs font-mono text-ink resize-none"
+            className="w-full bg-parchment-raised border border-parchment-border rounded-lg  p-3 text-xs font-mono text-ink-900 resize-none"
           />
         </EditorModal>
       )}
@@ -1224,7 +1224,7 @@ function ToolbarBtn({ icon: Icon, label, onClick, active }: { icon: React.Compon
       title={label}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className={`flex items-center justify-center  p-1.5 transition-colors ${active ? 'bg-paper/20 text-ink' : 'text-ink/50 hover:bg-accent/40 hover:text-ink'}`}
+      className={`flex items-center justify-center  p-1.5 transition-colors ${active ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900'}`}
     >
       <Icon size={15} />
     </button>
@@ -1233,16 +1233,16 @@ function ToolbarBtn({ icon: Icon, label, onClick, active }: { icon: React.Compon
 
 function EditorModal({ title, onClose, onSave, children }: { title: string; onClose: () => void; onSave: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink/70 ">
-      <div className="relative w-full max-w-md rounded-lg bg-paper p-5 shadow-card">
-        <div className="flex items-center justify-between mb-4 border-b border-ink pb-3">
-          <h4 className="text-sm font-semibold text-ink">{title}</h4>
-          <button type="button" onClick={onClose} className="text-ink/40 hover:text-ink"><X size={18} /></button>
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-ink-900/70 ">
+      <div className="relative w-full max-w-md rounded-lg bg-parchment-raised p-5 shadow-card">
+        <div className="flex items-center justify-between mb-4 border-b border-ink-900 pb-3">
+          <h4 className="text-sm font-semibold text-ink-900">{title}</h4>
+          <button type="button" onClick={onClose} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
         </div>
         {children}
-        <div className="mt-5 flex justify-end gap-2 border-t border-ink pt-3">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold uppercase text-ink/50 hover:text-ink transition-colors">Cancel</button>
-          <button type="button" onClick={onSave} className="rounded-lg bg-accent hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink transition-all">Save</button>
+        <div className="mt-5 flex justify-end gap-2 border-t border-ink-900 pt-3">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold uppercase text-ink-900/50 hover:text-ink-900 transition-colors">Cancel</button>
+          <button type="button" onClick={onSave} className="rounded-lg bg-terracotta hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px shadow-card px-5 py-2 text-xs font-bold uppercase text-ink-900 transition-all">Save</button>
         </div>
       </div>
     </div>

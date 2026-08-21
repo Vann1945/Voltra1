@@ -7,8 +7,8 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-ink/[0.06] border border-ink/10 rounded-lg',
-        'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent',
+        'relative overflow-hidden bg-ink-900/[0.06] border border-parchment-border rounded-lg',
+        'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent',
         className
       )}
       {...props}
@@ -20,7 +20,7 @@ export function SkeletonCard() {
   return (
     <div
       aria-hidden="true"
-      className="flex flex-col overflow-hidden bg-paper rounded-lg shadow-card glass"
+      className="flex flex-col overflow-hidden bg-parchment-raised rounded-lg shadow-card glass"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Skeleton className="h-full w-full rounded-none border-0" />
@@ -45,7 +45,7 @@ export function SkeletonCard() {
           <Skeleton className="h-3.5 w-4/5" />
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4">
+        <div className="mt-5 flex items-center justify-between border-t border-parchment-border pt-4">
           <div className="flex items-center gap-2">
             <Skeleton className="h-7 w-7 rounded-full" />
             <Skeleton className="h-3.5 w-16" />
@@ -66,7 +66,7 @@ export function AddonDetailSkeleton() {
     <div className="mx-auto max-w-5xl px-4 py-12 min-h-[100dvh]" aria-hidden="true">
       <Skeleton className="h-5 w-40 mb-8" />
 
-      <div className="overflow-hidden rounded-lg bg-paper shadow-card glass">
+      <div className="overflow-hidden rounded-lg bg-parchment-raised shadow-card glass">
         <Skeleton className="aspect-[21/9] w-full rounded-none border-x-0 border-t-0" />
 
         <div className="p-8">
@@ -86,7 +86,7 @@ export function AddonDetailSkeleton() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-ink/10 pt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-parchment-border pt-8">
             <div className="lg:col-span-2 space-y-3">
               <Skeleton className="h-5 w-32 mb-2" />
               <Skeleton className="h-4 w-full" />

@@ -21,7 +21,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-ink/70"
+            className="absolute inset-0 bg-ink-900/70"
           />
 
           <motion.div
@@ -33,7 +33,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           >
             <button
               onClick={onClose}
-              className="absolute -top-12 right-0 p-2 bg-accent rounded-lg shadow-card text-ink btn-3d"
+              className="absolute -top-12 right-0 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 btn-3d"
             >
               <X size={20} />
             </button>

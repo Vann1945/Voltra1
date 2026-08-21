@@ -24,7 +24,7 @@ export function FadeImage({ className, containerClassName, src, alt, ...props }:
         <Skeleton className="absolute inset-0 h-full w-full rounded-none" />
       )}
       {hasError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink/[0.04] text-ink/35">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink-900/[0.04] text-ink-900/35">
           <ImageOff size={20} strokeWidth={1.75} />
           <span className="text-[10px] font-bold uppercase tracking-wide">No image</span>
         </div>
