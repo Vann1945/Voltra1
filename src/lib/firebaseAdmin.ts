@@ -14,15 +14,21 @@ function getAdminApp(): App {
   const privateKey = rawPrivateKey?.replace(/\\n/g, '\n');
 
   if (!projectId || !clientEmail || !privateKey) {
+    console.error('[firebaseAdmin] Missing env vars. projectId:', !!projectId, 'clientEmail:', !!clientEmail, 'privateKey:', !!privateKey);
     throw new Error(
       'Firebase Admin env vars belum diset: FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, FIREBASE_ADMIN_PRIVATE_KEY'
     );
   }
 
-  adminApp = initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
-  });
-  return adminApp;
+  try {
+    adminApp = initializeApp({
+      credential: cert({ projectId, clientEmail, privateKey }),
+    });
+    return adminApp;
+  } catch (error) {
+    console.error('[firebaseAdmin] Failed to initializeApp:', error);
+    throw error;
+  }
 }
 
 export function getAdminDb() {

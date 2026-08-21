@@ -15,7 +15,7 @@ const DUMMY_PASSWORD_HASH = '$2a$10$fTy1OLV1a11SPxPYmixkk.cIXbrd2o3qNIvurHqKJCK2
 
 export const authConfig: AuthConfig = {
   basePath: '/api/auth',
-  secret: getEncryptedEnv('AUTH_SECRET_ENC', 'AUTH_SECRET'),
+  secret: getEncryptedEnv('AUTH_SECRET_ENC', 'AUTH_SECRET') || process.env.AUTH_SECRET || 'fallback-secret-for-build-and-dev-only-do-not-use-in-prod',
   trustHost: true,
   session: { strategy: 'jwt' },
   providers: [
@@ -137,11 +137,13 @@ export const authConfig: AuthConfig = {
       }
       if (token.uid) {
         try {
-          (session as any).firebaseToken = await getAdminAuth().createCustomToken(token.uid as string, {
+          const adminAuth = getAdminAuth();
+          (session as any).firebaseToken = await adminAuth.createCustomToken(token.uid as string, {
             role: token.role,
           });
         } catch (err) {
           safeLogError('[AuthJS] failed to create firebaseToken (createCustomToken):', err);
+          // Don't throw, allow the session to be returned without firebaseToken
         }
       }
       return session;
