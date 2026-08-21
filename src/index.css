@@ -203,21 +203,26 @@ body {
 .theme-shell header,
 .theme-shell section,
 .theme-shell article,
-.theme-shell [class*="bg-"],
-.theme-shell [class*="text-"],
-.theme-shell [class*="border-"],
 .theme-shell .glass,
-.theme-shell .neumorph {
-  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
-  transition-duration: 220ms;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+.theme-shell .neumorph,
+.streak-wrapper,
+.streak-wrapper main,
+.streak-wrapper header,
+.streak-wrapper section,
+.streak-wrapper article,
+.streak-wrapper .glass,
+.streak-wrapper .neumorph {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: linear;
 }
 
-.theme-shell [class*="transition-transform"],
-.theme-shell [class*="transition-all"] {
-  transition-property: transform, opacity, background-color, color, border-color, box-shadow, filter;
-  transition-duration: 220ms;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+/* Keep motion classes in charge of transform/opacity. Overriding them globally
+   makes rapid theme changes compete with Framer Motion and causes visible jumps. */
+.theme-shell,
+.streak-wrapper {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -250,8 +255,12 @@ body {
   --sa-accent: var(--color-terracotta);
   --sa-accent-soft: color-mix(in srgb, var(--color-terracotta) 15%, transparent);
   --sa-accent-border: color-mix(in srgb, var(--color-terracotta) 30%, transparent);
+  --sa-cta-text: #ffffff;
+  --sa-cta-text-soft: rgba(255, 255, 255, 0.88);
+  --sa-cta-tint: rgba(255, 255, 255, 0.16);
+  --sa-cta-tint-hover: rgba(255, 255, 255, 0.26);
   background-color: var(--sa-bg);
-  transition: background-color 0.25s ease;
+  transition: background-color 180ms linear;
 }
 
 .streak-wrapper.dark {
@@ -265,6 +274,10 @@ body {
   --sa-accent: var(--color-terracotta-text);
   --sa-accent-soft: color-mix(in srgb, var(--color-terracotta-text) 15%, transparent);
   --sa-accent-border: color-mix(in srgb, var(--color-terracotta-text) 30%, transparent);
+  --sa-cta-text: #21140e;
+  --sa-cta-text-soft: rgba(33, 20, 14, 0.84);
+  --sa-cta-tint: rgba(33, 20, 14, 0.12);
+  --sa-cta-tint-hover: rgba(33, 20, 14, 0.20);
 }
 
 .streak-wrapper.oled {
@@ -278,6 +291,10 @@ body {
   --sa-accent: var(--color-terracotta-text);
   --sa-accent-soft: rgba(255, 138, 69, 0.16);
   --sa-accent-border: rgba(255, 138, 69, 0.34);
+  --sa-cta-text: #000000;
+  --sa-cta-text-soft: rgba(0, 0, 0, 0.78);
+  --sa-cta-tint: rgba(0, 0, 0, 0.12);
+  --sa-cta-tint-hover: rgba(0, 0, 0, 0.20);
 }
 
 @media (prefers-reduced-motion: reduce) {

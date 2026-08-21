@@ -295,7 +295,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
   return (
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
-        <main className="min-h-dvh bg-[var(--sa-bg)] text-[var(--sa-text)] font-sans flex flex-col items-center py-8 sm:py-12 px-5 sm:px-12 selection:bg-[var(--sa-accent-border)] transition-colors duration-300">
+        <main className="min-h-dvh bg-[var(--sa-bg)] text-[var(--sa-text)] font-sans flex flex-col items-center py-8 sm:py-12 px-5 sm:px-12 selection:bg-[var(--sa-accent-border)] transition-colors duration-200 ease-linear">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -323,7 +323,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
             />
 
             <article className="flex flex-col items-center text-center relative -mt-6">
-              <MainActionControls statusToday={statusToday} onRecordStatus={handleRecordStatus} />
+              <MainActionControls theme={theme} statusToday={statusToday} onRecordStatus={handleRecordStatus} />
 
               <AnimatePresence>
                 {isBroken && (
@@ -352,17 +352,17 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
 
             <div className="w-full flex flex-col gap-6 pt-8 sm:pt-10 border-t border-[var(--sa-border)]">
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-300 shadow-card neumorph glass">
+                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-200 ease-linear shadow-card neumorph glass">
                   <TrendingUp className="w-4 h-4 text-[var(--sa-accent)]" aria-hidden="true" />
                   <span className="text-xl font-semibold text-[var(--sa-text)] tabular-nums">{longestStreak}</span>
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--sa-text-muted)] text-center">Longest Streak</span>
                 </div>
-                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-300 shadow-card neumorph glass">
+                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-200 ease-linear shadow-card neumorph glass">
                   <CalendarCheck className="w-4 h-4 text-[var(--sa-accent)]" aria-hidden="true" />
                   <span className="text-xl font-semibold text-[var(--sa-text)] tabular-nums">{stats.activeDays}</span>
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--sa-text-muted)] text-center">Active Days</span>
                 </div>
-                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-300 shadow-card neumorph glass">
+                <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-200 ease-linear shadow-card neumorph glass">
                   <Percent className="w-4 h-4 text-[var(--sa-accent)]" aria-hidden="true" />
                   <span className="text-xl font-semibold text-[var(--sa-text)] tabular-nums">{stats.completionRate}%</span>
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--sa-text-muted)] text-center">Completion</span>
@@ -384,7 +384,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
                       <div
                         key={ms.days}
                         title={unlocked ? `${ms.label} — ${ms.description}` : `Locked — reach a ${ms.days} day streak`}
-                        className="flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-1.5 transition-colors duration-300 shadow-card neumorph glass"
+                        className="flex flex-col items-center gap-1.5 rounded-2xl border py-3 px-1.5 transition-colors duration-200 ease-linear shadow-card neumorph glass"
                         style={
                           unlocked
                             ? { backgroundColor: 'var(--sa-accent-soft)', borderColor: 'var(--sa-accent-border)' }

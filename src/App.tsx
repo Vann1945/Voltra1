@@ -112,6 +112,37 @@ function AppShell() {
     const v = window.localStorage.getItem('voltra-layout');
     return v === 'list' ? 'list' : 'grid';
   });
+  const themeRef = useRef(theme);
+  const queuedThemeRef = useRef<'light' | 'dark' | 'oled' | null>(null);
+  const themeFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
+
+  useEffect(() => {
+    return () => {
+      if (themeFrameRef.current !== null) window.cancelAnimationFrame(themeFrameRef.current);
+    };
+  }, []);
+
+  const queueThemeChange = (nextTheme: 'light' | 'dark' | 'oled') => {
+    queuedThemeRef.current = nextTheme;
+    if (themeFrameRef.current !== null || typeof window === 'undefined') return;
+    themeFrameRef.current = window.requestAnimationFrame(() => {
+      themeFrameRef.current = null;
+      const next = queuedThemeRef.current;
+      queuedThemeRef.current = null;
+      if (!next || next === themeRef.current) return;
+      themeRef.current = next;
+      setTheme(next);
+    });
+  };
+
+  const cycleTheme = () => {
+    const current = queuedThemeRef.current ?? themeRef.current;
+    queueThemeChange(current === 'light' ? 'dark' : current === 'dark' ? 'oled' : 'light');
+  };
 
   useEffect(() => {
     window.localStorage.setItem('voltra-theme', theme);
@@ -198,8 +229,8 @@ function AppShell() {
           onNavigate={handleNavigate}
           currentView={currentView}
           theme={theme}
-          onToggleTheme={() => setTheme(t => t === 'light' ? 'dark' : t === 'dark' ? 'oled' : 'light')}
-          onSetTheme={(nextTheme) => setTheme(nextTheme)}
+          onToggleTheme={cycleTheme}
+          onSetTheme={queueThemeChange}
           layoutMode={layoutMode}
           onSetLayoutMode={(m) => setLayoutMode(m)}
         />
