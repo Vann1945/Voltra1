@@ -5,6 +5,9 @@ let pool: mysql.Pool | undefined;
 
 export function getPool(): mysql.Pool {
   if (!pool) {
+    if (!process.env.TIDB_HOST) {
+      throw new Error('Database environment variables are missing (TIDB_HOST).');
+    }
     pool = mysql.createPool({
       host: process.env.TIDB_HOST,
       port: Number(process.env.TIDB_PORT || 4000),

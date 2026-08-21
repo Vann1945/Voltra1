@@ -143,6 +143,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
+      if (!process.env.TIDB_HOST) {
+        return res.status(200).json({ addons: [] });
+      }
       const user = await getSessionUser(req);
       let rows: any[];
       if (user?.role === 'admin') {
