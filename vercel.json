@@ -5,6 +5,26 @@
       "destination": "/api/auth"
     },
     {
+      "source": "/streak",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/voltra",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/voltra/streak",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/voltra/home",
+      "destination": "/index.html"
+    },
+    {
       "source": "/((?!api/|assets/|fonts/|.*\\.(?:css|js|mjs|json|ico|png|jpg|jpeg|svg|webp|gif|woff|woff2|ttf|eot|map|txt|xml)$).*)",
       "destination": "/index.html"
     }

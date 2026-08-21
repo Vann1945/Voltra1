@@ -895,7 +895,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                   }
                   closeModal();
                 }}
-                className="px-4 py-1 text-xs bg-terracotta-soft hover:bg-[#1976D2] text-ink-900 rounded font-medium"
+                className="px-4 py-1 text-xs bg-terracotta-soft hover:bg-terracotta text-ink-900 rounded font-medium"
               >
                 Save
               </button>

@@ -112,7 +112,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold text-ink-900 tracking-tight leading-[0.95] mb-6">
               Build. Share.<br />
-              <span className="text-[#800000] italic">Play More.</span>
+              <span className="text-terracotta-text italic">Play More.</span>
             </h1>
             <p className="text-base sm:text-lg font-normal text-ink-900/60 max-w-md mb-10 leading-relaxed">
               Voltra is where Minecraft creators publish add-ons and players find their next favorite pack — reviewed, organized, and free of clutter.
@@ -218,7 +218,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                 </div>
                 <p className="text-sm italic font-normal text-ink-900/80 leading-relaxed mb-6 flex-1">"{t.quote}"</p>
                 <div className="flex items-center gap-3 border-t border-parchment-border pt-4">
-                  <div className="w-10 h-10 bg-[#000080] border border-parchment-border rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  <div className="w-10 h-10 bg-terracotta-text border border-parchment-border rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">
                     {t.name.charAt(0)}
                   </div>
                   <div>

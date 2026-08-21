@@ -300,16 +300,16 @@ export function BorderEffectStyles() {
          selector, jadi tidak perlu ubah tiap komponen satu-satu. */
 
       /* halaman (background utama) */
-      .dark [class*="bg-parchment-raised"], .dark[class*="bg-parchment-raised"] { background-color: #2a2824 !important; }
+      .dark [class*="bg-parchment"], .dark[class*="bg-parchment"] { background-color: var(--color-parchment) !important; }
 
       /* kartu / modal / form (surface) — urutan: umum dulu, varian opacity setelahnya */
-      .dark [class*="bg-parchment-raised"], .dark[class*="bg-parchment-raised"] { background-color: #1c1a17 !important; }
-      .dark [class*="bg-parchment-raised/20"], .dark[class*="bg-parchment-raised/20"] { background-color: rgba(28,26,23,0.2) !important; }
-      .dark [class*="bg-parchment-raised/60"], .dark[class*="bg-parchment-raised/60"] { background-color: rgba(28,26,23,0.6) !important; }
-      .dark [class*="bg-parchment-raised/70"], .dark[class*="bg-parchment-raised/70"] { background-color: rgba(28,26,23,0.7) !important; }
+      .dark [class*="bg-parchment-raised"], .dark[class*="bg-parchment-raised"] { background-color: var(--color-parchment-raised) !important; }
+      .dark [class*="bg-parchment-raised/20"], .dark[class*="bg-parchment-raised/20"] { background-color: color-mix(in srgb, var(--color-parchment-raised) 20%, transparent) !important; }
+      .dark [class*="bg-parchment-raised/60"], .dark[class*="bg-parchment-raised/60"] { background-color: color-mix(in srgb, var(--color-parchment-raised) 60%, transparent) !important; }
+      .dark [class*="bg-parchment-raised/70"], .dark[class*="bg-parchment-raised/70"] { background-color: color-mix(in srgb, var(--color-parchment-raised) 70%, transparent) !important; }
 
       /* teks ink -> teks terang */
-      .dark [class*="text-ink-900"], .dark[class*="text-ink-900"] { color: #f0eee2 !important; }
+      .dark [class*="text-ink-900"], .dark[class*="text-ink-900"] { color: var(--color-ink-900) !important; }
       .dark [class*="text-ink-900/30"], .dark[class*="text-ink-900/30"] { color: rgba(240,238,226,0.3) !important; }
       .dark [class*="text-ink-900/40"], .dark[class*="text-ink-900/40"] { color: rgba(240,238,226,0.4) !important; }
       .dark [class*="text-ink-900/50"], .dark[class*="text-ink-900/50"] { color: rgba(240,238,226,0.5) !important; }

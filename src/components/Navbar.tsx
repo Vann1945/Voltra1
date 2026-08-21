@@ -75,7 +75,7 @@ export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
       <style>{`
         .wtt-card { transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), filter 0.28s ease; }
         .wtt-card:hover { transform: translateY(-6px) scale(1.015); filter: brightness(1.05); }
-        .wtt-card:hover .wtt-frame { box-shadow: 0 34px 90px rgba(0,0,0,0.52), 0 0 48px rgba(255,190,100,0.22); }
+        .wtt-card:hover .wtt-frame { box-shadow: 0 34px 90px rgba(0,0,0,0.52), 0 0 48px rgba(255,138,69,0.24); }
         .wtt-card:active { transform: translateY(-1px) scale(0.985); transition-duration: 0.12s; }
         .wtt-frame { transition: box-shadow 0.28s ease, background 0.6s ease; }
         .wtt-sky { transition: background 0.7s ease; }
@@ -105,8 +105,8 @@ export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
             className="wtt-sky absolute inset-0"
             style={{
               background: theme === 'light'
-                ? 'linear-gradient(180deg, #6fb3e0 0%, #9ed4ef 55%, #cfeaf7 100%)'
-                : 'linear-gradient(180deg, #0d1128 0%, #1a1f3d 55%, #2a2650 100%)',
+                ? 'linear-gradient(180deg, #f6a56c 0%, #ffd0a3 55%, #fff0d9 100%)'
+                : 'linear-gradient(180deg, #1c0d08 0%, #3b1b10 55%, #71351c 100%)',
             }}
           />
           <div

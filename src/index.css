@@ -19,176 +19,173 @@
     100% { background-position: 200% 50%; }
   }
 
-  --color-paper: #f0eee2;
-  --color-paper-soft: #f5f4ed;
-  --color-paper-deep: #e8e5d6;
-  --color-ink: #141413;
-  --color-ink-soft: color-mix(in srgb, var(--color-ink) 60%, transparent);
-  --color-ink-faint: color-mix(in srgb, var(--color-ink) 40%, transparent);
-  --color-ink-hairline: color-mix(in srgb, var(--color-ink) 8%, transparent);
-  --color-accent: #c96442;
-  --color-accent-soft: #d97757;
-  --color-accent-deep: #a8543a;
-  --color-danger: #b3261e;
-  --color-success: #6b8f5c;
-  --color-gold: #b8860b;
-  --shadow-card: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 2px 12px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 6px 20px rgba(0, 0, 0, 0.1);
-  --shadow-card-float: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 20px 50px rgba(0, 0, 0, 0.15);
-  
-  /* Refined Cool Colors & Unified Palette */
-  --color-cool-bg: #eef2f6;
-  --color-cool-surface: #ffffff;
-  --color-cool-primary: #3b82f6;
-  --color-cool-secondary: #0ea5e9;
-  --color-cool-accent: #6366f1;
-  --color-cool-text: #0f172a;
-  --color-cool-text-muted: #64748b;
+  /* Palet utama: netral hangat 60%, surface krem 30%, oranye 10%. */
+  --color-paper: #fff8f1;
+  --color-paper-soft: #fffaf6;
+  --color-paper-deep: #f5e8dc;
+  --color-ink: #2b1810;
+  --color-ink-soft: color-mix(in srgb, var(--color-ink) 62%, transparent);
+  --color-ink-faint: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  --color-ink-hairline: color-mix(in srgb, var(--color-ink) 10%, transparent);
+  --color-accent: #e8753b;
+  --color-accent-soft: #f29a62;
+  --color-accent-deep: #b94e24;
+  --color-danger: #c74634;
+  --color-success: #4d8a68;
+  --color-gold: #c88a26;
+  --shadow-card: 0 0 0 1px rgba(122, 65, 35, 0.10), 0 4px 18px rgba(102, 54, 28, 0.07);
+  --shadow-card-hover: 0 0 0 1px rgba(122, 65, 35, 0.13), 0 10px 28px rgba(102, 54, 28, 0.12);
+  --shadow-card-float: 0 0 0 1px rgba(122, 65, 35, 0.10), 0 20px 50px rgba(102, 54, 28, 0.14);
 
-  --color-parchment: #f8fafc;
+  /* Alias lama dipertahankan agar komponen lama tetap mengikuti palet baru. */
+  --color-cool-bg: #fff8f1;
+  --color-cool-surface: #ffffff;
+  --color-cool-primary: #e8753b;
+  --color-cool-secondary: #f29a62;
+  --color-cool-accent: #c95d2d;
+  --color-cool-text: #2b1810;
+  --color-cool-text-muted: #8b6b58;
+
+  --color-parchment: #fff8f1;
   --color-parchment-raised: #ffffff;
-  --color-parchment-border: #e2e8f0;
-  --color-ink-900: #0f172a;
-  --color-ink-700: #334155;
-  --color-olive-600: #475569;
-  --color-stone-500: #64748b;
-  --color-terracotta: #3b82f6;
-  --color-terracotta-text: #2563eb;
-  --color-terracotta-ink: #1d4ed8;
+  --color-parchment-border: #f0dacc;
+  --color-ink-900: #2b1810;
+  --color-ink-700: #684737;
+  --color-olive-600: #8b6b58;
+  --color-stone-500: #9d7d68;
+  --color-terracotta: #e8753b;
+  --color-terracotta-text: #b94e24;
+  --color-terracotta-ink: #7d321b;
 
   --color-linen-50: var(--color-parchment-raised);
   --color-linen-100: var(--color-parchment);
   --color-linen-200: var(--color-parchment-border);
-  --color-linen-muted: #cbd5e1;
+  --color-linen-muted: #e8cfc0;
   --color-ink-500: var(--color-olive-600);
   --color-ember-500: var(--color-terracotta);
   --color-ember-600: var(--color-terracotta-text);
 }
 
 .dark {
-  --color-paper: #1e293b;
-  --color-paper-soft: #0f172a;
-  --color-paper-deep: #020617;
-  --color-ink: #f8fafc;
-  --color-ink-soft: rgba(248, 250, 252, 0.7);
-  --color-ink-faint: rgba(248, 250, 252, 0.4);
-  --color-accent: #3b82f6;
-  --color-accent-soft: #60a5fa;
-  --color-accent-deep: #2563eb;
-  --color-parchment: #0f172a;
-  --color-parchment-raised: #1e293b;
-  --color-parchment-border: #334155;
-  --color-ink-900: #f8fafc;
-  --color-ink-700: #cbd5e1;
-  --color-olive-600: #94a3b8;
-  --color-stone-500: #64748b;
-  --color-terracotta: #3b82f6;
-  --color-terracotta-text: #60a5fa;
-  --color-terracotta-ink: #93c5fd;
+  --color-paper: #21140e;
+  --color-paper-soft: #160c08;
+  --color-paper-deep: #0d0705;
+  --color-ink: #fff5ec;
+  --color-ink-soft: rgba(255, 245, 236, 0.72);
+  --color-ink-faint: rgba(255, 245, 236, 0.44);
+  --color-accent: #f08a4b;
+  --color-accent-soft: #ffad76;
+  --color-accent-deep: #ff9a62;
+  --color-parchment: #160c08;
+  --color-parchment-raised: #21140e;
+  --color-parchment-border: #4a2a1d;
+  --color-ink-900: #fff5ec;
+  --color-ink-700: #f0cdb8;
+  --color-olive-600: #c49b82;
+  --color-stone-500: #a77a63;
+  --color-terracotta: #f08a4b;
+  --color-terracotta-text: #ffad76;
+  --color-terracotta-ink: #ffd0b0;
   --color-linen-50: var(--color-parchment-raised);
   --color-linen-100: var(--color-parchment);
   --color-linen-200: var(--color-parchment-border);
-  --color-linen-muted: #475569;
+  --color-linen-muted: #633b29;
+  --color-cool-bg: var(--color-parchment);
+  --color-cool-surface: var(--color-parchment-raised);
+  --color-cool-primary: var(--color-terracotta);
+  --color-cool-secondary: var(--color-terracotta-text);
+  --color-cool-accent: var(--color-terracotta-ink);
+  --color-cool-text: var(--color-ink-900);
+  --color-cool-text-muted: var(--color-olive-600);
 }
 
 .oled {
   --color-paper: #000000;
   --color-paper-soft: #000000;
   --color-paper-deep: #000000;
-  --color-ink: #f8fafc;
-  --color-ink-soft: rgba(248, 250, 252, 0.7);
-  --color-ink-faint: rgba(248, 250, 252, 0.4);
-  --color-accent: #3b82f6;
-  --color-accent-soft: #60a5fa;
-  --color-accent-deep: #2563eb;
-  --shadow-card: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 12px rgba(0,0,0,0.8);
-  --shadow-card-hover: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 20px rgba(0,0,0,0.9);
-  --shadow-card-float: 0 0 0 1px rgba(255,255,255,0.15), 0 20px 50px rgba(0,0,0,0.9);
-  
-  --color-cool-bg: #000000;
-  --color-cool-surface: #0a0a0a;
-  --color-cool-text: #f8fafc;
-  --color-cool-text-muted: #94a3b8;
+  --color-ink: #fff3e8;
+  --color-ink-soft: rgba(255, 243, 232, 0.72);
+  --color-ink-faint: rgba(255, 243, 232, 0.42);
+  --color-ink-hairline: rgba(255, 243, 232, 0.10);
+  --color-accent: #ff8a45;
+  --color-accent-soft: #ffb078;
+  --color-accent-deep: #ff9a5b;
+  --shadow-card: 0 0 0 1px rgba(255, 139, 75, 0.20), 0 5px 20px rgba(0, 0, 0, 0.88);
+  --shadow-card-hover: 0 0 0 1px rgba(255, 139, 75, 0.34), 0 10px 28px rgba(0, 0, 0, 0.96);
+  --shadow-card-float: 0 0 0 1px rgba(255, 139, 75, 0.25), 0 20px 50px rgba(0, 0, 0, 0.96);
 
+  --color-cool-bg: #000000;
+  --color-cool-surface: #0b0705;
+  --color-cool-primary: var(--color-accent);
+  --color-cool-secondary: var(--color-accent-soft);
+  --color-cool-accent: var(--color-accent-deep);
+  --color-cool-text: var(--color-ink);
+  --color-cool-text-muted: #b68a70;
   --color-parchment: #000000;
-  --color-parchment-raised: #0a0a0a;
-  --color-parchment-border: #262626;
-  --color-ink-900: #f8fafc;
-  --color-ink-700: #cbd5e1;
-  --color-olive-600: #94a3b8;
-  --color-stone-500: #64748b;
-  --color-terracotta: #3b82f6;
-  --color-terracotta-text: #60a5fa;
-  --color-terracotta-ink: #93c5fd;
+  --color-parchment-raised: #0b0705;
+  --color-parchment-border: #3c1f14;
+  --color-ink-900: #fff3e8;
+  --color-ink-700: #f0c5a8;
+  --color-olive-600: #c29378;
+  --color-stone-500: #a87459;
+  --color-terracotta: #ff8a45;
+  --color-terracotta-text: #ffb078;
+  --color-terracotta-ink: #ffd2b8;
   --color-linen-50: var(--color-parchment-raised);
   --color-linen-100: var(--color-parchment);
   --color-linen-200: var(--color-parchment-border);
-  --color-linen-muted: #404040;
+  --color-linen-muted: #522916;
 }
 
-/* Glassmorphism Utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  background: color-mix(in srgb, var(--color-parchment-raised) 76%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in srgb, var(--color-terracotta) 18%, transparent);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-ink) 8%, transparent);
 }
 
 .dark .glass {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  background: color-mix(in srgb, var(--color-parchment-raised) 78%, transparent);
+  border-color: color-mix(in srgb, var(--color-terracotta) 24%, transparent);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
 }
 
 .oled .glass {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  background: rgba(11, 7, 5, 0.78);
+  border-color: rgba(255, 138, 69, 0.28);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.82);
 }
 
-/* Neumorphism Utilities */
 .neumorph {
   background: var(--color-paper);
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.06), -8px -8px 16px rgba(255, 255, 255, 0.9);
+  box-shadow: 8px 8px 18px color-mix(in srgb, var(--color-ink) 10%, transparent), -8px -8px 18px rgba(255, 255, 255, 0.72);
   border-radius: 16px;
 }
 
 .dark .neumorph {
   background: var(--color-paper);
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.03);
+  box-shadow: 7px 7px 16px rgba(0, 0, 0, 0.44), -5px -5px 14px rgba(255, 160, 108, 0.035);
 }
 
 .oled .neumorph {
   background: #000000;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.05);
+  box-shadow: 7px 7px 16px rgba(0, 0, 0, 0.9), -3px -3px 12px rgba(255, 138, 69, 0.04);
 }
 
-/* 3D Button Effect */
 .btn-3d {
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
   transform: translateY(0);
-  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-accent) 60%, black);
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--color-accent-deep) 76%, black);
   border-radius: 12px;
 }
 
-.btn-3d:active {
-  transform: translateY(4px);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, black);
-}
+.btn-3d:hover { filter: saturate(1.06) brightness(1.02); }
+.btn-3d:active { transform: translateY(4px); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-deep) 76%, black); }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-}
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
 
-html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-}
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   background-color: var(--color-parchment);
   color: var(--color-ink-900);
@@ -198,61 +195,26 @@ body {
   width: 100%;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-terracotta-text);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+:focus-visible { outline: 2px solid var(--color-terracotta); outline-offset: 2px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-::selection {
-  background-color: color-mix(in oklab, var(--color-terracotta) 35%, transparent);
-}
+::selection { background-color: color-mix(in oklab, var(--color-terracotta) 35%, transparent); color: var(--color-ink-900); }
 
 @keyframes cell-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
+.animate-cell-in { animation: cell-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-.animate-cell-in {
-  animation: cell-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Shimmer animation for Skeleton */
 @keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-cell-in {
-    animation: none;
-  }
-}
-
-.streak-root { }
-.streak-root.led { }
-.streak-root.oled .bg-paper { background: #0c0c0c; color: #d8d5c9; }
+.streak-root.oled .bg-paper { background: #0b0705; color: #fff3e8; }
 
 .streak-wrapper {
   --sa-bg: var(--color-cool-bg);
@@ -265,7 +227,6 @@ body {
   --sa-accent: var(--color-terracotta);
   --sa-accent-soft: color-mix(in srgb, var(--color-terracotta) 15%, transparent);
   --sa-accent-border: color-mix(in srgb, var(--color-terracotta) 30%, transparent);
-
   background-color: var(--sa-bg);
   transition: background-color 0.25s ease;
 }
@@ -274,7 +235,7 @@ body {
   --sa-bg: var(--color-paper-soft);
   --sa-card: var(--color-paper);
   --sa-card-2: var(--color-parchment-border);
-  --sa-border: rgba(255, 255, 255, 0.1);
+  --sa-border: rgba(255, 175, 123, 0.16);
   --sa-text: var(--color-ink);
   --sa-text-soft: var(--color-ink-700);
   --sa-text-muted: var(--color-olive-600);
@@ -285,13 +246,17 @@ body {
 
 .streak-wrapper.oled {
   --sa-bg: #000000;
-  --sa-card: #0a0a0a;
-  --sa-card-2: #000000;
-  --sa-border: rgba(255, 255, 255, 0.12);
+  --sa-card: #0b0705;
+  --sa-card-2: #120a07;
+  --sa-border: rgba(255, 138, 69, 0.22);
   --sa-text: var(--color-ink);
   --sa-text-soft: var(--color-ink-700);
   --sa-text-muted: var(--color-olive-600);
   --sa-accent: var(--color-terracotta-text);
-  --sa-accent-soft: color-mix(in srgb, var(--color-terracotta-text) 15%, transparent);
-  --sa-accent-border: color-mix(in srgb, var(--color-terracotta-text) 35%, transparent);
+  --sa-accent-soft: rgba(255, 138, 69, 0.16);
+  --sa-accent-border: rgba(255, 138, 69, 0.34);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cell-in { animation: none; }
 }

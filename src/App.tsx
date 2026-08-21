@@ -37,6 +37,28 @@ export const slugify = (text: string) =>
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 
+function normalizeAppPath(pathname: string): string {
+  const normalized = pathname.replace(/\/+$/, '') || '/';
+  if (normalized === '/voltra') return '/';
+  if (normalized.startsWith('/voltra/')) return normalized.slice('/voltra'.length) || '/';
+  return normalized;
+}
+
+function getInitialView(pathname: string, search: string): ViewState {
+  const path = normalizeAppPath(pathname);
+  if (path === '/' || path === '/home') return 'home';
+  if (path === '/landing') return 'landing';
+  if (path === '/streak') return 'streak';
+  if (path === '/profile') return 'profile';
+  if (path === '/admin') return 'admin';
+  if (path === '/reset-password') {
+    const params = new URLSearchParams(search);
+    return { type: 'reset-password', token: params.get('token') || '', uid: params.get('uid') || '' };
+  }
+  if (path.startsWith('/author/')) return { type: 'author', id: decodeURIComponent(path.split('/')[2] || '') };
+  return 'home';
+}
+
 const FAVICONS = {
   default: {
     light: '/favicon/icon-light.svg',
@@ -75,7 +97,9 @@ function AppShell() {
   const { toast, hideToast } = useToast();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<ViewState>('home');
+  const [currentView, setCurrentView] = useState<ViewState>(() =>
+    typeof window === 'undefined' ? 'home' : getInitialView(window.location.pathname, window.location.search)
+  );
   const { addons, loading, userLikes, toggleLike, refetchAddons } = useAddons();
   const [verifyBanner, setVerifyBanner] = useState<'success' | 'already' | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark' | 'oled'>(() => {
@@ -122,37 +146,20 @@ function AppShell() {
 
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path === '/' || path === '') setCurrentView('home');
-      else if (path === '/landing') setCurrentView('landing');
-      else if (path === '/streak') setCurrentView('streak');
-      else if (path === '/profile') setCurrentView('profile');
-      else if (path === '/admin') setCurrentView('admin');
-      else if (path.startsWith('/addon/')) {
-        const slug = path.split('/')[2];
+      const path = normalizeAppPath(window.location.pathname);
+      if (path.startsWith('/addon/')) {
+        const slug = decodeURIComponent(path.split('/')[2] || '');
         const addon = addons.find(a => slugify(a.title) === slug || a.id === slug);
         if (addon) setCurrentView({ type: 'addon', id: addon.id });
-        else setCurrentView('home');
-      } else if (path.startsWith('/author/')) {
-        const id = path.split('/')[2];
-        setCurrentView({ type: 'author', id });
-      } else if (path === '/reset-password') {
-        const params = new URLSearchParams(window.location.search);
-        setCurrentView({
-          type: 'reset-password',
-          token: params.get('token') || '',
-          uid: params.get('uid') || '',
-        });
-      } else {
-        setCurrentView('home');
+        return;
       }
+      setCurrentView(getInitialView(window.location.pathname, window.location.search));
     };
-    if (!loading) {
-      handlePopState();
-      window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
-    }
-  }, [addons, loading]);
+
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [addons]);
 
   const handleNavigate = (view: ViewState) => {
     setCurrentView(view);
