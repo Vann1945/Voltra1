@@ -6,39 +6,39 @@
     },
     {
       "source": "/streak",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/home",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/home/:path*",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/addon/:path*",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/voltra",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/voltra/streak",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/voltra/home",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/voltra/home/:path*",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/((?!api/|assets/|fonts/|.*\\.(?:css|js|mjs|json|ico|png|jpg|jpeg|svg|webp|gif|woff|woff2|ttf|eot|map|txt|xml)$).*)",
-      "destination": "/index.html"
+      "destination": "/"
     }
   ],
   "headers": [
