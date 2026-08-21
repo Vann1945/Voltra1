@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Heart, Download, Star, ArrowDownToLine,
-  Info, Loader2, Check, ExternalLink
+  Info, Check, ExternalLink, Clock
 } from 'lucide-react';
 import { Addon } from '../types';
 import { useAuth } from '../hooks/useAuth';
@@ -9,6 +9,38 @@ import { useToast } from '../hooks/useToast';
 import { ViewState } from '../App';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
+
+// Cache kecil di level modul supaya banyak <AddonCard> dari author yang sama
+// tidak masing-masing nembak /api/users sendiri-sendiri (N+1 request tiap
+// render list). In-flight promise juga di-dedupe biar 2 card yang mount
+// bersamaan cuma bikin 1 request jaringan.
+type AuthorInfo = { photoURL: string | null; profileBorder: string };
+const authorInfoCache = new Map<string, AuthorInfo>();
+const authorInfoInFlight = new Map<string, Promise<AuthorInfo>>();
+
+function fetchAuthorInfo(authorId: string): Promise<AuthorInfo> {
+  const cached = authorInfoCache.get(authorId);
+  if (cached) return Promise.resolve(cached);
+
+  const inFlight = authorInfoInFlight.get(authorId);
+  if (inFlight) return inFlight;
+
+  const promise = fetch(`/api/users?id=${authorId}`)
+    .then(async (res) => {
+      const info: AuthorInfo = res.ok
+        ? await res.json().then((data) => ({ photoURL: data.photoURL || null, profileBorder: data.profileBorder || 'none' }))
+        : { photoURL: null, profileBorder: 'none' };
+      authorInfoCache.set(authorId, info);
+      return info;
+    })
+    .catch(() => ({ photoURL: null, profileBorder: 'none' }))
+    .finally(() => {
+      authorInfoInFlight.delete(authorId);
+    });
+
+  authorInfoInFlight.set(authorId, promise);
+  return promise;
+}
 
 function stripHtml(html: string): string {
   if (!html) return '';
@@ -20,6 +52,27 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+function formatCount(n: number): string {
+  if (!n) return '0';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  if (n >= 10_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return n.toLocaleString('en-US');
+}
+
+function formatRelativeTime(dateInput: string | number | Date): string {
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return '';
+  const diffMs = Date.now() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < 1) return 'today';
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 30) return `${diffDays} days ago`;
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths < 12) return diffMonths <= 1 ? '1 month ago' : `${diffMonths} months ago`;
+  const diffYears = Math.floor(diffMonths / 12);
+  return diffYears <= 1 ? '1 year ago' : `${diffYears} years ago`;
+}
+
 interface AddonCardProps {
   addon: Addon;
   isLiked: boolean;
@@ -27,9 +80,10 @@ interface AddonCardProps {
   onRequireAuth?: () => void;
   onNavigate?: (view: ViewState) => void;
   priority?: boolean;
+  compact?: boolean;
 }
 
-export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate, priority = false }: AddonCardProps) {
+export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate, priority = false, compact = false }: AddonCardProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
@@ -44,19 +98,12 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   React.useEffect(() => {
     if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) return;
     let cancelled = false;
-    const fetchAuthor = async () => {
-      try {
-        const res = await fetch(`/api/users?id=${addon.authorId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (!cancelled) {
-            setAuthorPhoto(data.photoURL || null);
-            setAuthorBorder(data.profileBorder || 'none');
-          }
-        }
-      } catch (e) {}
-    };
-    fetchAuthor();
+    fetchAuthorInfo(addon.authorId).then((info) => {
+      if (!cancelled) {
+        setAuthorPhoto(info.photoURL);
+        setAuthorBorder(info.profileBorder);
+      }
+    });
     return () => { cancelled = true; };
   }, [addon.authorId, addon.authorPhoto, addon.authorBorder]);
 
@@ -81,18 +128,30 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
     e.stopPropagation();
     e.preventDefault();
     if (isDownloading || downloadSuccess) return;
+
+    // Buka tab download LANGSUNG di dalam handler klik (masih dalam user-gesture
+    // yang sama secara sinkron). Kalau ditunda lewat await/setTimeout, banyak
+    // browser (Chrome, Safari, Firefox) akan mem-blokir window.open sebagai
+    // popup karena dianggap bukan hasil interaksi langsung pengguna.
+    const downloadWindow = window.open('', '_blank');
+    if (downloadWindow) {
+      downloadWindow.opener = null;
+      downloadWindow.location.href = addon.downloadUrl;
+    } else {
+      showToast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu coba lagi.', 'error');
+    }
+
     setIsDownloading(true);
     setDownloadProgress(0);
     const interval = setInterval(() => {
       setDownloadProgress(prev => { if (prev >= 100) { clearInterval(interval); return 100; } return prev + 10; });
     }, 200);
     try {
-      try {
-        await fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' });
-      } catch (countError) {}
-      await new Promise(resolve => setTimeout(resolve, 2200));
+      // Hitung download di background; jangan sampai kegagalan hitung
+      // menghalangi UX (file sudah kebuka duluan).
+      fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' }).catch(() => {});
+      await new Promise(resolve => setTimeout(resolve, 900));
       setDownloadSuccess(true);
-      window.open(addon.downloadUrl, '_blank');
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (error) {
       showToast('Download failed. Please try again.', 'error');
@@ -108,17 +167,89 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
     setShowInfo(!showInfo);
   };
 
+  if (compact) {
+    return (
+      <div
+        onClick={handleCardClick}
+        className="group flex w-full cursor-pointer items-center gap-3 bg-paper px-3 py-2.5 transition-colors hover:bg-ink/[0.03] active:bg-ink/[0.05]"
+      >
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink">
+          <FadeImage
+            src={coverImage}
+            alt={addon.title}
+            containerClassName="h-full w-full"
+            className="h-full w-full object-cover"
+            referrerPolicy="no-referrer"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-1.5">
+            <h3 className="truncate text-sm font-bold text-ink">{addon.title}</h3>
+            <span className="shrink-0 text-xs font-medium text-ink/45">by {addon.authorName}</span>
+            {addon.status === 'pending' && (
+              <span className="shrink-0 rounded-md bg-accent px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-ink">Pending</span>
+            )}
+            {addon.status === 'rejected' && (
+              <span className="shrink-0 rounded-md bg-danger px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">Rejected</span>
+            )}
+          </div>
+          <p className="mt-0.5 truncate text-xs font-medium text-ink/55">
+            {stripHtml(addon.description)}
+          </p>
+          {addon.tags && addon.tags.length > 0 && (
+            <div className="mt-1.5 flex items-center gap-1.5">
+              {addon.tags.slice(0, 3).map((tag, i) => (
+                <span
+                  key={i}
+                  className="shrink-0 rounded-md bg-ink/[0.05] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/55"
+                >
+                  {tag}
+                </span>
+              ))}
+              {addon.tags.length > 3 && (
+                <span className="shrink-0 text-[10px] font-bold text-ink/35">+{addon.tags.length - 3}</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <div className="flex items-center gap-2.5 text-xs font-bold text-ink/75">
+            <span className="flex items-center gap-1" title="Downloads">
+              <ArrowDownToLine size={12} />
+              {formatCount(addon.downloadsCount || 0)}
+            </span>
+            <button
+              onClick={handleLikeClick}
+              className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-accent-deep' : 'hover:text-accent-deep'}`}
+            >
+              <Heart size={12} className={isLiked ? 'fill-current' : ''} />
+              {formatCount(addon.likesCount)}
+            </button>
+          </div>
+          <span className="flex items-center gap-1 text-[11px] font-medium text-ink/40">
+            <Clock size={11} />
+            {formatRelativeTime(addon.createdAt)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={handleCardClick}
-      className="group relative flex cursor-pointer flex-col overflow-hidden bg-paper rounded-lg shadow-card transition-all duration-200 hover:scale-[1.03] hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-paper transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm' : 'rounded-lg shadow-card hover:scale-[1.03]'}`}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink">
+      <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink`}>
         <FadeImage
           src={coverImage}
           alt={addon.title}
           containerClassName="h-full w-full"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
           referrerPolicy="no-referrer"
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
@@ -142,9 +273,9 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col p-5 bg-paper">
+      <div className={`flex flex-1 flex-col ${compact ? 'p-3' : 'p-5'} bg-paper`}>
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-base font-bold text-ink leading-tight line-clamp-1 uppercase tracking-tight">
+          <h3 className={`font-bold text-ink leading-tight line-clamp-1 uppercase tracking-tight ${compact ? 'text-sm' : 'text-base'}`}>
             {addon.title}
           </h3>
           <div className="flex items-center gap-2 shrink-0">
@@ -165,7 +296,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         </div>
 
         {addon.tags && addon.tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className={`mt-2 flex flex-wrap gap-1.5 ${compact ? 'hidden' : ''}`}>
             {addon.tags.slice(0, 3).map((tag, i) => (
               <span
                 key={i}
@@ -178,7 +309,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         )}
 
         {showInfo ? (
-          <div className="mt-3 flex-1 overflow-y-auto pr-1 space-y-3 text-sm text-ink/70 custom-scrollbar">
+          <div className={`mt-3 flex-1 overflow-y-auto pr-1 space-y-3 ${compact ? 'text-xs' : 'text-sm'} text-ink/70 custom-scrollbar`}>
             {addon.demoUrl && (
               <div>
                 <strong className="text-ink text-xs uppercase tracking-wider font-bold">Demo</strong>
@@ -212,21 +343,21 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             )}
           </div>
         ) : (
-          <p className="mt-2.5 line-clamp-2 flex-1 text-sm text-ink/60 leading-relaxed font-medium">
+          <p className={`mt-2.5 line-clamp-2 flex-1 ${compact ? 'text-xs' : 'text-sm'} text-ink/60 leading-relaxed font-medium`}>
             {stripHtml(addon.description)}
           </p>
         )}
 
-        <div className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4">
+        <div className={`flex items-center justify-between border-t border-ink/10 ${compact ? 'mt-3 pt-3' : 'mt-5 pt-4'}`}>
           <div
             className="flex items-center gap-2 text-xs font-bold text-ink cursor-pointer hover:text-accent-deep transition-colors"
             onClick={handleAuthorClick}
           >
-            <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName="h-7 w-7" textSizeClassName="text-xs" />
+            <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName={compact ? 'h-6 w-6' : 'h-7 w-7'} textSizeClassName={compact ? 'text-[10px]' : 'text-xs'} />
             <span className="truncate max-w-[100px]">{addon.authorName}</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${compact ? 'gap-2' : ''}`}>
             <button
               onClick={handleLikeClick}
               className={`flex items-center gap-1 text-xs font-bold transition-colors ${isLiked ? 'text-accent-deep' : 'text-ink hover:text-accent-deep'}`}
@@ -254,7 +385,9 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
                 />
               )}
               <div className="relative z-10 flex items-center gap-1">
-                {isDownloading ? <Loader2 size={13} className="animate-spin" /> : downloadSuccess ? <Check size={13} /> : <Download size={13} />}
+                {isDownloading ? (
+                  <div className="h-3.5 w-3.5 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                ) : downloadSuccess ? <Check size={13} /> : <Download size={13} />}
                 <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Done!' : 'Get'}</span>
               </div>
             </button>

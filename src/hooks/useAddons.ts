@@ -3,30 +3,6 @@ import { Addon } from '../types';
 import { useAuth } from './useAuth';
 import { AddonUploadInput } from '../lib/utils';
 
-// ===========================================================================
-// KENAPA strategi refresh diubah dari "polling buta setiap 15 detik":
-//
-// /api/addons adalah endpoint dengan traffic tertinggi di seluruh aplikasi —
-// dipanggil oleh hook ini yang di-mount SEKALI di App.tsx dan hidup selama
-// tab terbuka. Polling setiap 15 detik, TERUS-MENERUS, bahkan saat:
-//   - tab sedang di background / user pindah ke tab lain (tidak ada gunanya,
-//     tidak ada yang melihat datanya),
-//   - tidak ada perubahan data sama sekali sejak fetch terakhir,
-// ...adalah pemborosan besar. Dengan banyak user aktif bersamaan, ini
-// mengalikan beban ke TiDB (connection pool + RU quota) tanpa manfaat nyata
-// bagi siapa pun — inilah kontributor utama sistem terasa "macet" saat ramai.
-//
-// Strategi baru:
-// 1. Fetch sekali saat mount (tetap sama).
-// 2. Refetch saat tab kembali terlihat (Page Visibility API) — inilah momen
-//    yang benar-benar berharga: user baru saja kembali melihat layar, jadi
-//    wajar untuk menyegarkan data saat itu.
-// 3. Interval latar belakang jauh lebih jarang (90 detik, bukan 15) sebagai
-//    jaring pengaman untuk tab yang dibiarkan terbuka & terlihat lama —
-//    dan HANYA jalan kalau tab sedang aktif/visible (document.hidden === false).
-// 4. Refetch instan setelah aksi yang memang mengubah data (create addon)
-//    tetap dipertahankan seperti sebelumnya.
-// ===========================================================================
 const BACKGROUND_POLL_INTERVAL_MS = 90000;
 
 export function useAddons() {
@@ -35,7 +11,7 @@ export function useAddons() {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const lastFetchedAtRef = useRef(0);
-  const MIN_REFETCH_GAP_MS = 3000; // hindari fetch dobel kalau visibilitychange & interval tumpang tindih
+  const MIN_REFETCH_GAP_MS = 3000;
 
   const fetchAddons = useCallback(async () => {
     lastFetchedAtRef.current = Date.now();
@@ -138,5 +114,5 @@ export function useAddons() {
     return data.id as string;
   }, [user, fetchAddons]);
 
-  return { addons, loading, userLikes, toggleLike, createAddon };
+  return { addons, loading, userLikes, toggleLike, createAddon, refetchAddons: fetchAddons };
 }

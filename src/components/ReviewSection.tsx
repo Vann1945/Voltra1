@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Loader2, MessageSquare } from 'lucide-react';
+import { Star, MessageSquare } from 'lucide-react';
 import { Review } from '../types';
 import { ProfileAvatar } from './borderEffects';
 import { useAuth } from '../hooks/useAuth';
@@ -130,7 +130,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
               disabled={submitting}
               className="flex items-center gap-2 bg-accent rounded-lg px-5 py-2.5 text-xs font-bold text-ink uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting && <Loader2 size={14} className="animate-spin" />}
+              {submitting ? <div className="h-3.5 w-3.5 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : null}
               {submitting ? 'Submitting...' : 'Submit Review'}
             </button>
           </div>

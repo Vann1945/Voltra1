@@ -1,9 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Georgia, "Fraunces", ui-serif, serif;
   --animate-electric: electric 3s linear infinite;
 
   @keyframes electric {
@@ -11,59 +19,172 @@
     100% { background-position: 200% 50%; }
   }
 
-  /* ===============================================================
-     Design tokens — Voltra Marketplace
-     Warm parchment palette with a terracotta accent. These are the
-     ONLY colors that should appear in the app; every raw hex value
-     that used to be scattered across components now resolves to one
-     of these names (bg-ink, text-accent, border-ink/10, etc.).
-     Keeping a single source of truth here is what prevents the
-     "two near-identical blacks" / "two near-identical accents" drift
-     that existed before (see #141413 vs #1A1A1A, #c96442 vs #d97757).
-     =============================================================== */
-
-  /* Surfaces */
-  --color-paper: #f0eee2;        /* primary app background & card surface */
-  --color-paper-soft: #f5f4ed;   /* subtle alternate surface (hover rows, inputs) */
-  --color-paper-deep: #e8e5d6;   /* recessed surface (wells, track backgrounds) */
-
-  /* Ink (text & high-contrast surfaces) — single canonical near-black */
+  --color-paper: #f0eee2;
+  --color-paper-soft: #f5f4ed;
+  --color-paper-deep: #e8e5d6;
   --color-ink: #141413;
   --color-ink-soft: color-mix(in srgb, var(--color-ink) 60%, transparent);
   --color-ink-faint: color-mix(in srgb, var(--color-ink) 40%, transparent);
   --color-ink-hairline: color-mix(in srgb, var(--color-ink) 8%, transparent);
-
-  /* Accent — terracotta. -deep is the ONLY shade allowed to carry white
-     text (it's the one shade in the family that clears WCAG AA 4.5:1
-     against white); -DEFAULT and -soft always pair with --color-ink text. */
   --color-accent: #c96442;
   --color-accent-soft: #d97757;
   --color-accent-deep: #a8543a;
-
-  /* Semantic status colors */
   --color-danger: #b3261e;
   --color-success: #6b8f5c;
   --color-gold: #b8860b;
-
-  /* Card shadow signature — the app's one repeated "soft card" elevation.
-     Named here instead of being retyped as an arbitrary value ~180 times. */
   --shadow-card: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 2px 12px rgba(0, 0, 0, 0.06);
   --shadow-card-hover: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 6px 20px rgba(0, 0, 0, 0.1);
   --shadow-card-float: 0 0 0 1px rgba(20, 20, 19, 0.08), 0 20px 50px rgba(0, 0, 0, 0.15);
+
+  --color-parchment: #f5f4ed;
+  --color-parchment-raised: #faf9f5;
+  --color-parchment-border: #f0eee6;
+  --color-ink-900: #141413;
+  --color-ink-700: #3a3934;
+  --color-olive-600: #5e5d59;
+  --color-stone-500: #87867f;
+  --color-terracotta: #c96442;
+  --color-terracotta-text: #a84a26;
+  --color-terracotta-ink: #8f3f1c;
+
+  --color-linen-50: var(--color-parchment-raised);
+  --color-linen-100: var(--color-parchment);
+  --color-linen-200: var(--color-parchment-border);
+  --color-linen-muted: #d8d5c9;
+  --color-ink-500: var(--color-olive-600);
+  --color-ember-500: var(--color-terracotta);
+  --color-ember-600: var(--color-terracotta-text);
+}
+
+.oled {
+  --color-paper: #0c0c0c;
+  --color-paper-soft: #0c0c0c;
+  --color-paper-deep: #0c0c0c;
+  --color-ink: #d8d5c9;
+  --color-ink-soft: rgba(216,213,201,0.6);
+  --color-ink-faint: rgba(216,213,201,0.4);
+  --color-accent: #d97757;
+  --color-accent-soft: #f4a889;
+  --color-accent-deep: #b35a3f;
+  --shadow-card: 0 0 0 1px rgba(216,213,201,0.05), 0 2px 12px rgba(0,0,0,0.6);
+  --shadow-card-hover: 0 0 0 1px rgba(216,213,201,0.05), 0 6px 20px rgba(0,0,0,0.7);
+  --shadow-card-float: 0 0 0 1px rgba(216,213,201,0.05), 0 20px 50px rgba(0,0,0,0.75);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-/* Visible keyboard-focus ring, app-wide fallback. Any element still using
-   `focus:outline-none` without its own focus:shadow-[...]/focus:ring-*
-   replacement will fall back to this instead of losing focus visibility
-   entirely (WCAG 2.4.7) — keyboard users must always be able to see where
-   focus is. Only applies for :focus-visible (keyboard/programmatic focus),
-   not mouse clicks, so it never looks like unwanted "highlighting" on click. */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+body {
+  background-color: var(--color-parchment);
+  color: var(--color-ink-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 :focus-visible {
-  outline: 2px solid var(--color-accent-deep);
+  outline: 2px solid var(--color-terracotta-text);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-terracotta) 35%, transparent);
+}
+
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-cell-in {
+  animation: cell-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/*
+ * Bug: Skeleton.tsx sudah lama memakai `animate-[shimmer_1.5s_infinite]`
+ * tapi keyframe `shimmer` ini tidak pernah didefinisikan di mana pun di
+ * project — jadi tiap skeleton loading di seluruh aplikasi (card
+ * marketplace, halaman detail, admin panel, dst.) selama ini cuma tampil
+ * sebagai kotak abu-abu statis, bukan efek shimmer yang mengalir.
+ */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cell-in {
+    animation: none;
+  }
+}
+
+.streak-root { }
+.streak-root.led { }
+.streak-root.oled .bg-paper { background: #0c0c0c; color: #d8d5c9; }
+
+.streak-wrapper {
+  --sa-bg: #f0eee6;
+  --sa-card: #ffffff;
+  --sa-card-2: #f0eee6;
+  --sa-border: #e6e2d5;
+  --sa-text: #141413;
+  --sa-text-soft: #3a3934;
+  --sa-text-muted: #8c897f;
+  --sa-accent: #c96442;
+  --sa-accent-soft: rgba(201, 100, 66, 0.1);
+  --sa-accent-border: rgba(201, 100, 66, 0.3);
+
+  background-color: var(--sa-bg);
+  transition: background-color 0.25s ease;
+}
+
+.streak-wrapper.dark {
+  --sa-bg: #17181b;
+  --sa-card: #202226;
+  --sa-card-2: #1c1e21;
+  --sa-border: rgba(255, 255, 255, 0.09);
+  --sa-text: #f1f0ea;
+  --sa-text-soft: #cfcdc6;
+  --sa-text-muted: #93928c;
+  --sa-accent: #d97757;
+  --sa-accent-soft: rgba(217, 119, 87, 0.12);
+  --sa-accent-border: rgba(217, 119, 87, 0.32);
+}
+
+.streak-wrapper.oled {
+  --sa-bg: #000000;
+  --sa-card: #0c0c0c;
+  --sa-card-2: #000000;
+  --sa-border: rgba(255, 255, 255, 0.09);
+  --sa-text: #f5f6f2;
+  --sa-text-soft: #c8cac3;
+  --sa-text-muted: #86877f;
+  --sa-accent: #e2896a;
+  --sa-accent-soft: rgba(226, 137, 106, 0.12);
+  --sa-accent-border: rgba(226, 137, 106, 0.34);
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
@@ -161,20 +161,20 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                     {confirmError && <p className="text-xs font-bold text-danger">{confirmError}</p>}
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
- className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : (
-                      <>
-                        <span>Reset password</span>
-                        <ArrowRight size={18} />
-                      </>
-                    )}
-                  </button>
+                  {loading ? (
+                    <div className="mt-2">
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                    </div>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span>Reset password</span>
+                      <ArrowRight size={18} />
+                    </button>
+                  )}
                 </form>
               )}
             </>

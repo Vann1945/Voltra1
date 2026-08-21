@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { query, queryOne } from '../src/lib/db.js';
 import { getSessionUser, requireUser } from '../src/lib/apiAuth.js';
 import { buildAddonPayload, AddonUploadInput, validateAddonPatch } from '../src/lib/utils.js';
+import { sanitizeDescriptionForStorage } from '../src/lib/sanitizeServer.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
 
@@ -12,13 +13,6 @@ function rowToAddon(r: any, truncateDescription: boolean) {
   return {
     id: r.id,
     title: r.title,
-    // Untuk listing (bukan halaman detail), potong description di server.
-    // Kartu addon di grid cuma menampilkan cuplikan 2 baris (line-clamp-2)
-    // dari description ini — mengirim deskripsi lengkap (bisa sampai 20.000
-    // karakter HTML per addon) ke SEMUA user di endpoint dengan traffic
-    // tertinggi di aplikasi ini cuma buang-buang bandwidth & waktu transfer.
-    // Halaman detail sekarang punya endpoint sendiri (GET ?id=) yang selalu
-    // mengirim teks lengkap.
     description: truncateDescription && rawDescription.length > DESCRIPTION_PREVIEW_LENGTH
       ? rawDescription.slice(0, DESCRIPTION_PREVIEW_LENGTH) + '…'
       : rawDescription,
@@ -27,6 +21,7 @@ function rowToAddon(r: any, truncateDescription: boolean) {
     projectClass: r.project_class,
     imageUrl: r.image_url,
     imageUrls: r.image_urls || [],
+    panoramaUrl: r.panorama_url,
     tags: r.tags || [],
     downloadUrl: r.download_url,
     demoUrl: r.demo_url,
@@ -51,15 +46,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = typeof req.query.id === 'string' ? req.query.id : undefined;
   const action = typeof req.query.action === 'string' ? req.query.action : undefined;
 
-  // ---------- ?id=xxx&action=download ----------
   if (id && action === 'download') {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     try {
-      // Tidak wajib login (biar tetap bisa hitung download anonim), tapi dibatasi
-      // per-IP per-addon supaya tidak bisa di-spam untuk menggelembungkan angka.
       const ip = getClientIp(req);
       const allowed = await checkRateLimit(`download:${ip}:${id}`, 5, 60_000);
-      if (!allowed) return res.status(200).json({ ok: true }); // diam-diam diabaikan, jangan bocorkan rate limit ke bot
+      if (!allowed) return res.status(200).json({ ok: true });
       await query('UPDATE addons SET downloads_count = downloads_count + 1 WHERE id = ?', [id]);
       return res.status(200).json({ ok: true });
     } catch (err) {
@@ -110,8 +102,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (isAdmin && typeof body.category === 'string') { fields.push('category = ?'); values.push(body.category); }
         if (isAdmin && Array.isArray(body.tags)) { fields.push('tags = ?'); values.push(JSON.stringify(body.tags)); }
         if (typeof body.title === 'string') { fields.push('title = ?'); values.push(body.title); }
-        if (typeof body.description === 'string') { fields.push('description = ?'); values.push(body.description); }
+        if (typeof body.description === 'string') { fields.push('description = ?'); values.push(sanitizeDescriptionForStorage(body.description)); }
         if (typeof body.downloadUrl === 'string') { fields.push('download_url = ?'); values.push(body.downloadUrl); }
+        if (typeof body.panoramaUrl === 'string') { fields.push('panorama_url = ?'); values.push(body.panoramaUrl); }
         if (typeof body.demoUrl === 'string') { fields.push('demo_url = ?'); values.push(body.demoUrl); }
         if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted); }
         if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments); }
@@ -148,7 +141,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ---------- base: /api/addons ----------
   if (req.method === 'GET') {
     try {
       const user = await getSessionUser(req);
@@ -178,17 +170,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const input = req.body as AddonUploadInput;
       const addonId = crypto.randomUUID();
       const payload = buildAddonPayload(input, addonId, user.uid, user.name || 'Anonymous');
+      // Sanitasi HTML deskripsi di server (bukan cuma andalkan sanitasi client) —
+      // ini file API, aman diimpor `jsdom` di sini tanpa ikut ke bundle browser.
+      payload.description = sanitizeDescriptionForStorage(payload.description);
 
       await query(
         `INSERT INTO addons
            (id, title, description, category, additional_category, project_class, image_url, image_urls,
-            tags, download_url, demo_url, license, distribution_pref, socials, author_id, author_name,
+            panorama_url, tags, download_url, demo_url, license, distribution_pref, socials, author_id, author_name,
             status, is_featured, unlisted, allow_comments, likes_count, downloads_count, rating_count, average_rating)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
         [
           payload.id, payload.title, payload.description, payload.category, payload.additionalCategory,
-          payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), JSON.stringify(payload.tags),
-          payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
+          payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), payload.panoramaUrl,
+          JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
           JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
           payload.isFeatured, payload.unlisted, payload.allowComments,
         ]

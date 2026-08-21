@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2, User as UserIcon } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle2, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -20,35 +20,62 @@ declare global {
 function RecaptchaWidget({ onChange }: { onChange: (token: string | null) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
     if (!siteKey) {
       console.warn('VITE_RECAPTCHA_SITE_KEY belum diset — reCAPTCHA tidak akan tampil.');
+      setStatus('error');
       return;
     }
 
     let cancelled = false;
+    setStatus('loading');
+    widgetIdRef.current = null;
+    if (containerRef.current) containerRef.current.innerHTML = '';
 
     loadRecaptcha()
       .then(() => {
         if (cancelled) return;
         if (containerRef.current && window.grecaptcha && widgetIdRef.current === null) {
-          widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
-            sitekey: siteKey,
-            callback: (token: string) => onChange(token),
-            'expired-callback': () => onChange(null),
-          });
+          try {
+            widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+              sitekey: siteKey,
+              callback: (token: string) => onChange(token),
+              'expired-callback': () => onChange(null),
+            });
+            setStatus('ready');
+          } catch (err) {
+            console.warn('Failed to render reCAPTCHA widget.', err);
+            setStatus('error');
+          }
         }
       })
       .catch(() => {
+        if (cancelled) return;
         console.warn('Failed to load reCAPTCHA.');
+        setStatus('error');
       });
 
     return () => { cancelled = true; };
-  }, [onChange]);
+  }, [onChange, retryCount]);
 
-  return <div ref={containerRef} className="my-2" />;
+  return (
+    <div className="my-2">
+      <div ref={containerRef} />
+      {status === 'error' && (
+        <button
+          type="button"
+          onClick={() => setRetryCount(c => c + 1)}
+          className="text-xs font-semibold text-ink/60 underline hover:text-ink"
+        >
+          Couldn't load reCAPTCHA — tap to retry
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function AuthCard({ onSuccess }: AuthCardProps) {
@@ -194,7 +221,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
       }
     } finally {
       setLoading(false);
-      // reCAPTCHA v2 cuma bisa dipakai sekali, reset tiap submit
       if (window.grecaptcha) window.grecaptcha.reset();
       setRecaptchaToken(null);
     }
@@ -223,9 +249,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
   return (
     <div className="w-full max-w-[420px]">
-      {/* Card */}
       <div className="bg-paper rounded-lg shadow-card p-8 sm:p-10">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
             {view === 'login' && 'Welcome back'}
@@ -241,7 +265,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           </p>
         </div>
 
-        {/* Error */}
         <AnimatePresence mode="wait">
           {error && (
             <motion.div
@@ -273,7 +296,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           )}
         </AnimatePresence>
 
-        {/* Unverified state */}
         {view === 'unverified' ? (
           <div className="text-center space-y-5 py-4">
             <div className="w-14 h-14 bg-accent-soft/[0.06] border border-accent-soft/20 rounded-lg flex items-center justify-center mx-auto">
@@ -297,7 +319,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name field (register only) */}
             <AnimatePresence>
               {view === 'register' && (
                 <motion.div
@@ -327,7 +348,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               )}
             </AnimatePresence>
 
-            {/* Email */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-ink uppercase tracking-widest">
                 Email
@@ -347,7 +367,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               {emailError && <p className="text-xs font-bold text-danger">{emailError}</p>}
             </div>
 
-            {/* Password */}
             <AnimatePresence mode="wait">
               {view !== 'forgot' && (
                 <motion.div
@@ -388,18 +407,23 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               )}
             </AnimatePresence>
 
-            {/* reCAPTCHA v2 — tidak ditampilkan di form forgot-password? tetap ditampilkan
-                supaya endpoint forgot-password juga terlindungi dari bot */}
             <RecaptchaWidget onChange={setRecaptchaToken} />
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
- className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-2 bg-accent rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink uppercase text-sm shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <Loader2 size={18} className="animate-spin" />
+                <div className="w-full">
+                  <div className="h-7 w-full">
+                    <div className="">
+                      <div className="relative">
+                        <div className="h-7 w-full rounded-lg bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <>
                   <span>
@@ -414,7 +438,6 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           </form>
         )}
 
-        {/* Google OAuth */}
         {view !== 'forgot' && view !== 'unverified' && (
           <>
             <div className="flex items-center gap-3 my-7">
@@ -423,6 +446,9 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               <div className="flex-1 h-[2px] bg-ink/20" />
             </div>
 
+            {loading ? (
+              <div className="w-full bg-paper rounded-lg py-3.5 px-4" />
+            ) : (
             <button
               type="button"
               onClick={handleGoogle}
@@ -437,7 +463,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               </svg>
               Continue with Google
             </button>
+            )}
 
+            {loading ? (
+              <div className="w-full mt-3 bg-paper rounded-lg py-3.5 px-4" />
+            ) : (
             <button
               type="button"
               onClick={handleGithub}
@@ -449,11 +479,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               </svg>
               Continue with GitHub
             </button>
+            )}
           </>
         )}
       </div>
 
-      {/* Footer links */}
       {view !== 'unverified' && (
         <div className="mt-5 text-center text-sm font-bold text-ink">
           {view === 'login' && (

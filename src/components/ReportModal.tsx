@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, AlertTriangle, Loader2, ChevronDown, Check } from 'lucide-react';
+import { X, AlertTriangle, ChevronDown, Check } from 'lucide-react';
+import { Skeleton } from './Skeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { motion, AnimatePresence } from 'motion/react';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -19,6 +21,7 @@ const REPORT_REASONS = [
 ];
 
 export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
+  useBodyScrollLock(isOpen);
   const { user } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -168,14 +171,19 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                  className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading && <Loader2 size={15} className="animate-spin" />}
-                  {loading ? 'Submitting...' : 'Submit Report'}
-                </button>
+                {loading ? (
+                  <div className="px-7 py-3">
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading || (reason === 'Other' && !otherReason.trim())}
+                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Submit Report
+                  </button>
+                )}
               </div>
             </form>
           </motion.div>

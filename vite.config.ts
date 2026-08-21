@@ -1,29 +1,63 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
+import type { OutputAsset } from 'rollup';
+
+function inlineCssPlugin(): Plugin {
+  return {
+    name: 'inline-css-into-html',
+    apply: 'build',
+    enforce: 'post',
+    generateBundle(_options, bundle) {
+      const isAsset = (f: (typeof bundle)[string]): f is OutputAsset => f.type === 'asset';
+
+      const htmlFile = Object.values(bundle).find((f) => isAsset(f) && f.fileName.endsWith('.html')) as
+        | OutputAsset
+        | undefined;
+      if (!htmlFile) return;
+
+      const cssFiles = Object.values(bundle).filter(
+        (f) => isAsset(f) && f.fileName.endsWith('.css'),
+      ) as OutputAsset[];
+      if (cssFiles.length === 0) return;
+
+      let html = htmlFile.source as string;
+
+      for (const cssFile of cssFiles) {
+        const linkRegex = new RegExp(
+          `<link[^>]*href="[^"]*${cssFile.fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`,
+        );
+        const cssSource = typeof cssFile.source === 'string' ? cssFile.source : Buffer.from(cssFile.source).toString('utf-8');
+        html = html.replace(linkRegex, `<style>${cssSource}</style>`);
+        delete bundle[cssFile.fileName];
+      }
+
+      htmlFile.source = html;
+    },
+  };
+}
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    plugins: [react(), tailwindcss()],
-    // PENTING: jangan pernah taruh secret (API key server) di sini — apapun yang masuk
-    // ke `define` akan di-inline ke bundle JS dan bisa dibaca siapa saja lewat DevTools.
-    // GEMINI_API_KEY & IMGBB_API_KEY sudah tidak diinject ke client sama sekali (server-only,
-    // diakses lewat process.env asli di runtime Vercel functions).
-    // Cloudinary cloud name/upload preset itu memang secara desain publik (unsigned preset),
-    // tapi tetap harus lewat prefix VITE_ agar eksplisit "ini memang untuk client" — lihat
-    // src/lib/uploadConfig.ts & .env.example.
+    base: process.env.BASE_PATH ?? '/',
+    plugins: [react(), tailwindcss(), inlineCssPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
     server: {
+      host: '0.0.0.0',
+      port: 3000,
       hmr: process.env.DISABLE_HMR !== 'true',
     },
     build: {
-      sourcemap: true,
+      sourcemap: false,
+      target: 'es2020',
+      cssCodeSplit: false,
+      cssMinify: true,
       minify: 'terser',
       terserOptions: {
         compress: {

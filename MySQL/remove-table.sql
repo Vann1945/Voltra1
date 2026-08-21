@@ -1,7 +1,0 @@
-USE marketplace;
-
-DROP TABLE IF EXISTS reports;
-DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS likes;
-DROP TABLE IF EXISTS addons;
-DROP TABLE IF EXISTS users;

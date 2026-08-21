@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Addon, Report, User } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { Shield, Check, X, Loader2, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles } from 'lucide-react';
+import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles } from 'lucide-react';
 import { ViewState } from '../App';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { FadeImage } from './FadeImage';
+import { PageSkeletonCards, Skeleton } from './Skeleton';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+
+const EXCLUDED_ADMIN_EMAILS = ['unknownfeed76@gmail.com', 'kanzakbarraihanriyanto86@gmail.com'];
 
 interface AdminPanelProps {
   addons: Addon[];
   loading: boolean;
   onNavigate: (view: ViewState) => void;
+  onAddonsChanged: () => void;
 }
 
 const listVariants: Variants = {
@@ -19,7 +24,7 @@ const listVariants: Variants = {
 };
 const itemVariants: Variants = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } };
 
-export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
+export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: AdminPanelProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [reports, setReports] = useState<Report[]>([]);
@@ -31,6 +36,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
   const [confirmDeleteAddonId, setConfirmDeleteAddonId] = useState<string | null>(null);
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
   const [editingAddon, setEditingAddon] = useState<Addon | null>(null);
+  useBodyScrollLock(!!confirmDeleteAddonId || !!confirmDeleteUserId || !!editingAddon);
 
   useEffect(() => {
     if (user && user.role === 'admin') {
@@ -82,6 +88,10 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
     );
   }
 
+  if (loading) {
+    return <PageSkeletonCards count={8} />;
+  }
+
   const pendingAddons = addons.filter(a => a.status === 'pending');
   const approvedAddons = addons.filter(a => a.status === 'approved');
   const rejectedAddons = addons.filter(a => a.status === 'rejected');
@@ -97,6 +107,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
       });
       if (!res.ok) throw new Error('failed');
       showToast(`Add-on ${newStatus} successfully.`, 'success');
+      onAddonsChanged();
     } catch (error) {
       showToast('Failed to update status.', 'error');
     } finally {
@@ -115,6 +126,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
       });
       if (!res.ok) throw new Error('failed');
       showToast(`Add-on ${!currentFeatured ? 'featured' : 'unfeatured'} successfully.`, 'success');
+      onAddonsChanged();
     } catch (error) {
       showToast('Failed to update feature status.', 'error');
     } finally {
@@ -129,6 +141,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
       const res = await fetch(`/api/addons?id=${confirmDeleteAddonId}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('failed');
       showToast('Add-on deleted successfully.', 'success');
+      onAddonsChanged();
     } catch (error) {
       showToast('Failed to delete add-on.', 'error');
     } finally {
@@ -204,6 +217,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
       if (!res.ok) throw new Error('failed');
       showToast('Add-on updated.', 'success');
       setEditingAddon(null);
+      onAddonsChanged();
     } catch (error) {
       showToast('Failed to update add-on.', 'error');
     } finally {
@@ -330,14 +344,14 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                           onClick={() => handleStatusChange(addon.id, 'approved')}
                           disabled={processingId === addon.id}
                           tone="success"
-                          icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                           label="Approve"
                         />
                         <ActionButton
                           onClick={() => handleStatusChange(addon.id, 'rejected')}
                           disabled={processingId === addon.id}
                           tone="danger"
-                          icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
                           label="Reject"
                         />
                       </div>
@@ -379,7 +393,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                           onClick={() => handleStatusChange(addon.id, 'approved')}
                           disabled={processingId === addon.id}
                           tone="success"
-                          icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                          icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                           label="Approve"
                         />
                       )}
@@ -389,14 +403,14 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                             onClick={() => handleFeatureToggle(addon.id, !!addon.isFeatured)}
                             disabled={processingId === addon.id}
                             tone={addon.isFeatured ? 'success' : 'default'}
-                            icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Sparkles size={16} />}
                             label={addon.isFeatured ? 'Unfeature' : 'Feature'}
                           />
                           <ActionButton
                             onClick={() => handleStatusChange(addon.id, 'rejected')}
                             disabled={processingId === addon.id}
                             tone="warn"
-                            icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
+                            icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <X size={16} />}
                             label="Reject"
                           />
                         </>
@@ -412,7 +426,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                         onClick={() => setConfirmDeleteAddonId(addon.id)}
                         disabled={processingId === addon.id}
                         tone="danger"
-                        icon={processingId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                        icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                         label="Delete"
                       />
                     </div>
@@ -432,7 +446,9 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
               <AlertTriangle className="text-accent-deep" size={22} /> User Reports
             </h2>
             {loadingReports ? (
-              <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-ink/40" /></div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-56" />)}
+              </div>
             ) : reports.length === 0 ? (
               <div className="rounded-lg bg-paper p-12 text-center shadow-card">
                 <AlertTriangle size={28} className="mx-auto mb-3 text-ink/30" />
@@ -469,7 +485,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                             onClick={() => handleResolveReport(report.id)}
                             disabled={processingId === report.id}
                             tone="default"
-                            icon={processingId === report.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                            icon={processingId === report.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                             label="Mark Resolved"
                           />
                           {reportedAddon && (
@@ -477,7 +493,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                               onClick={() => setConfirmDeleteAddonId(reportedAddon.id)}
                               disabled={processingId === reportedAddon.id}
                               tone="danger"
-                              icon={processingId === reportedAddon.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                              icon={processingId === reportedAddon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                               label="Delete Add-on"
                             />
                           )}
@@ -497,7 +513,9 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
               <Users className="text-accent-soft" size={22} /> User Management
             </h2>
             {loadingUsers ? (
-              <div className="flex justify-center p-12"><Loader2 size={32} className="animate-spin text-ink/40" /></div>
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-20 border border-ink/10 rounded-lg bg-ink/5" />)}
+              </div>
             ) : users.length === 0 ? (
               <div className="rounded-lg bg-paper p-12 text-center shadow-card">
                 <Users size={28} className="mx-auto mb-3 text-ink/30" />
@@ -540,20 +558,20 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                       {u.role !== 'admin' && (
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'admin')} disabled={processingId === u.uid} tone="info" icon={<Shield size={14} />} label="Make Admin" />
                       )}
-                      {u.role === 'admin' && u.email !== 'unknownfeed76@gmail.com' && (
+                      {u.role === 'admin' && !EXCLUDED_ADMIN_EMAILS.includes(u.email) && (
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'user')} disabled={processingId === u.uid} tone="default" icon={<X size={14} />} label="Remove Admin" />
                       )}
-                      {u.role !== 'banned' && u.email !== 'unknownfeed76@gmail.com' && (
+                      {u.role !== 'banned' && !EXCLUDED_ADMIN_EMAILS.includes(u.email) && (
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'banned')} disabled={processingId === u.uid} tone="danger" icon={<Ban size={14} />} label="Ban" />
                       )}
-                      {u.role !== 'suspended' && u.email !== 'unknownfeed76@gmail.com' && (
+                      {u.role !== 'suspended' && !EXCLUDED_ADMIN_EMAILS.includes(u.email) && (
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'suspended')} disabled={processingId === u.uid} tone="warn" icon={<AlertTriangle size={14} />} label="Suspend" />
                       )}
                       {(u.role === 'banned' || u.role === 'suspended') && (
                         <ActionButton onClick={() => handleUserRoleChange(u.uid, 'user')} disabled={processingId === u.uid} tone="success" icon={<Check size={14} />} label="Restore" />
                       )}
-                      {u.email !== 'unknownfeed76@gmail.com' && (
-                        <ActionButton onClick={() => setConfirmDeleteUserId(u.uid)} disabled={processingId === u.uid} tone="danger" icon={<Trash2 size={14} />} label="Delete" />
+                      {!EXCLUDED_ADMIN_EMAILS.includes(u.email) && (
+                        <ActionButton onClick={() => setConfirmDeleteUserId(u.uid)} disabled={processingId === u.uid} tone="danger" icon={processingId === u.uid ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={14} />} label="Delete" />
                       )}
                     </div>
                   </motion.div>
@@ -615,7 +633,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                     disabled={!!processingId}
                     className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {processingId === editingAddon.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                    {processingId === editingAddon.id ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                     Save Changes
                   </button>
                 </div>
@@ -651,7 +669,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                   disabled={!!processingId}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processingId === confirmDeleteAddonId ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  {processingId === confirmDeleteAddonId ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>
@@ -686,7 +704,7 @@ export function AdminPanel({ addons, loading, onNavigate }: AdminPanelProps) {
                   disabled={!!processingId}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processingId === confirmDeleteUserId ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  {processingId === confirmDeleteUserId ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>

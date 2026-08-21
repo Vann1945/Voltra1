@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { ViewState } from '../App';
 import { motion } from 'motion/react';
-import { SkeletonCard, Skeleton } from './Skeleton';
+import { SkeletonCard, Skeleton, PageSkeletonCards } from './Skeleton';
 import { ProfileAvatar } from './borderEffects';
 
 interface AuthorProfileProps {
@@ -50,24 +50,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
   const totalLikes = useMemo(() => authorAddons.reduce((sum, addon) => sum + (addon.likesCount || 0), 0), [authorAddons]);
 
   if (loading) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 min-h-[100dvh]">
-        <div className="mb-8 w-32 h-6"><Skeleton className="w-full h-full" /></div>
-        <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6 relative bg-paper rounded-lg shadow-card p-8">
-          <Skeleton className="h-28 w-28" />
-          <div className="flex-1 w-full space-y-4">
-            <Skeleton className="h-8 w-48" />
-            <div className="flex gap-4">
-              <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-5 w-24" />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
-        </div>
-      </div>
-    );
+    return <PageSkeletonCards count={8} />;
   }
 
   if (authorAddons.length === 0) {

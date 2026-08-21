@@ -17,9 +17,11 @@ const AuthorProfile = lazy(() => import('./components/AuthorProfile').then(m => 
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const StreakApp = lazy(() => import('./StreakApp').then(m => ({ default: m.default })));
 
 export type ViewState =
   | 'landing'
+  | 'streak'
   | 'home'
   | 'profile'
   | 'admin'
@@ -35,8 +37,19 @@ export const slugify = (text: string) =>
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 
-// Skeleton generik yang langsung tampil saat pindah halaman / nunggu lazy-load,
-// jadi nggak ada layar kosong sama sekali sebelum konten asli muncul.
+const FAVICONS = {
+  default: {
+    light: '/favicon/icon-light.svg',
+    dark: '/favicon/icon-dark.svg',
+    oled: '/favicon/icon-oled.svg',
+  },
+  streak: {
+    light: '/favicon/streak-light.svg',
+    dark: '/favicon/streak-dark.svg',
+    oled: '/favicon/streak-oled.svg',
+  },
+} as const;
+
 function PageSkeleton() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12" aria-hidden="true">
@@ -63,16 +76,39 @@ function AppShell() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentView, setCurrentView] = useState<ViewState>('home');
-  const { addons, loading, userLikes, toggleLike } = useAddons();
+  const { addons, loading, userLikes, toggleLike, refetchAddons } = useAddons();
   const [verifyBanner, setVerifyBanner] = useState<'success' | 'already' | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem('voltra-theme') === 'dark';
+  const [theme, setTheme] = useState<'light' | 'dark' | 'oled'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const t = window.localStorage.getItem('voltra-theme');
+    return (t === 'dark' || t === 'oled') ? (t as 'dark' | 'oled') : 'light';
+  });
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window === 'undefined') return 'grid';
+    const v = window.localStorage.getItem('voltra-layout');
+    return v === 'list' ? 'list' : 'grid';
   });
 
   useEffect(() => {
-    window.localStorage.setItem('voltra-theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
+    window.localStorage.setItem('voltra-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    window.localStorage.setItem('voltra-layout', layoutMode);
+  }, [layoutMode]);
+
+  useEffect(() => {
+    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+
+    const set = currentView === 'streak' ? FAVICONS.streak : FAVICONS.default;
+    link.type = 'image/svg+xml';
+    link.href = set[theme];
+  }, [currentView, theme]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -89,6 +125,7 @@ function AppShell() {
       const path = window.location.pathname;
       if (path === '/' || path === '') setCurrentView('home');
       else if (path === '/landing') setCurrentView('landing');
+      else if (path === '/streak') setCurrentView('streak');
       else if (path === '/profile') setCurrentView('profile');
       else if (path === '/admin') setCurrentView('admin');
       else if (path.startsWith('/addon/')) {
@@ -122,6 +159,7 @@ function AppShell() {
     let path = '/';
     if (view === 'home') path = '/';
     else if (view === 'landing') path = '/landing';
+    else if (view === 'streak') path = '/streak';
     else if (view === 'profile') path = '/profile';
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
@@ -139,9 +177,10 @@ function AppShell() {
     return `${view.type}-${view.id}`;
   };
 
+  const isDarkMode = theme === 'dark' || theme === 'oled';
+
   return (
-    /* Claude Warm Parchment: pergaminho surface, quase-preto ink, Georgia serif (inherited from body) */
-    <div className={`${isDarkMode ? 'dark' : ''} relative isolate min-h-[100dvh] bg-paper-soft text-ink selection:bg-accent selection:text-paper`}>
+    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} relative isolate min-h-[100dvh] bg-paper-soft text-ink selection:bg-accent selection:text-paper`}>
       <BorderEffectStyles />
       {currentView !== 'landing' && (
         <Navbar
@@ -149,8 +188,11 @@ function AppShell() {
           onOpenAuth={() => setIsAuthOpen(true)}
           onNavigate={handleNavigate}
           currentView={currentView}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={() => setIsDarkMode((v) => !v)}
+          theme={theme}
+          onToggleTheme={() => setTheme(t => t === 'light' ? 'dark' : t === 'dark' ? 'oled' : 'light')}
+          onSetTheme={(nextTheme) => setTheme(nextTheme)}
+          layoutMode={layoutMode}
+          onSetLayoutMode={(m) => setLayoutMode(m)}
         />
       )}
 
@@ -187,6 +229,8 @@ function AppShell() {
             <Suspense fallback={<PageSkeleton />}>
               {currentView === 'landing' ? (
                 <LandingPage onNavigate={handleNavigate} />
+              ) : currentView === 'streak' ? (
+                <StreakApp theme={theme} onNavigate={handleNavigate} />
               ) : currentView === 'home' ? (
                 <Marketplace
                   addons={addons}
@@ -195,6 +239,7 @@ function AppShell() {
                   onToggleLike={toggleLike}
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
+                  layoutMode={layoutMode}
                 />
               ) : currentView === 'profile' ? (
                 <UserProfile
@@ -209,6 +254,7 @@ function AppShell() {
                   addons={addons}
                   loading={loading}
                   onNavigate={handleNavigate}
+                  onAddonsChanged={refetchAddons}
                 />
               ) : typeof currentView === 'object' && currentView.type === 'author' ? (
                 <AuthorProfile
@@ -229,6 +275,7 @@ function AppShell() {
                   onToggleLike={toggleLike}
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
+                  isDarkMode={isDarkMode}
                 />
               ) : typeof currentView === 'object' && currentView.type === 'reset-password' ? (
                 <ResetPasswordPage

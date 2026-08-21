@@ -3,12 +3,13 @@ import { AddonCard } from './AddonCard';
 import { Addon, Report } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { Package, Heart, Edit2, Check, X, Loader2, AlertTriangle, Trash2, Settings, Upload } from 'lucide-react';
+import { Package, Heart, Edit2, Check, X, AlertTriangle, Trash2, Settings, Upload } from 'lucide-react';
 import { ViewState } from '../App';
 import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonCard } from './Skeleton';
 import { FadeImage } from './FadeImage';
 import { BORDER_OPTIONS, getBorderEffect, renderBorderDecoration, getBorderRingClass, ProfileAvatar } from './borderEffects';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 function convertToWebp(file: File, maxDimension = 512, quality = 0.85): Promise<File> {
   return new Promise(resolve => {
@@ -85,6 +86,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
   const [photoUploadProgress, setPhotoUploadProgress] = useState<number | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [isBorderModalOpen, setIsBorderModalOpen] = useState(false);
+  useBodyScrollLock(!!addonToDelete || isBorderModalOpen);
 
   useEffect(() => {
     if (user) {
@@ -266,7 +268,11 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     disabled={photoUploadProgress !== null}
                     className="shrink-0 flex items-center gap-2 bg-paper rounded-lg text-ink px-4 py-3 text-sm font-bold shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {photoUploadProgress !== null ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                    {photoUploadProgress !== null ? (
+                      <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                    ) : (
+                      <Upload size={16} />
+                    )}
                   </button>
                 </div>
                 <input type="file" ref={photoInputRef} onChange={handlePhotoUpload} accept="image/*" className="hidden" />
@@ -312,7 +318,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   disabled={savingProfile}
                   className="flex items-center gap-2 bg-paper rounded-lg text-ink px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {savingProfile ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                  {savingProfile ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Check size={16} />}
                   Save Changes
                 </button>
                 <button
@@ -494,7 +500,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   disabled={deletingAddon}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white uppercase bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {deletingAddon ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  {deletingAddon ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
                 </button>
               </div>

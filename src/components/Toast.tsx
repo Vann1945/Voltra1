@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { TOAST_DURATION_MS } from '../hooks/useToast';
 
 export interface ToastState {
   message: string;
@@ -12,14 +13,12 @@ interface ToastProps {
   onClose: () => void;
 }
 
-const DURATION = { success: 4000, error: 5000 };
-
 export function Toast({ toast, onClose }: ToastProps) {
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
     if (!toast) { setProgress(100); return; }
-    const total = DURATION[toast.type];
+    const total = TOAST_DURATION_MS[toast.type];
     const start = Date.now();
     const tick = () => {
       const elapsed = Date.now() - start;

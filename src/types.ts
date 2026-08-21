@@ -18,11 +18,12 @@ export interface Addon {
   id: string;
   title: string;
   description: string;
-  category: 'Resource Pack' | 'Behavior Pack' | 'World' | 'Skin Pack' | 'Mod';
+  category: 'Bukkit Plugins' | 'Modpack' | 'Customization' | 'Add-Ons' | 'Shaders' | 'Mods' | 'Resource Packs' | 'Data Pack' | 'World' | 'Skin Pack';
   projectClass: 'Bukkit Plugins' | 'Modpack' | 'Customization' | 'Add-Ons' | 'Shaders' | 'Mods' | 'Resource Packs' | 'Data Pack' | 'World' | 'Skin Pack';
   additionalCategory?: string;
   imageUrl: string;
   imageUrls?: string[];
+  panoramaUrl: string;
   downloadUrl: string;
   demoUrl?: string;
   authorId: string;

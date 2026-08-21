@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { CustomSelect } from './CustomSelect';
 import { sanitizeHtml } from './RichTextContent';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 export { RichTextContent } from './RichTextContent';
 
@@ -36,9 +37,9 @@ const FORMAT_BLOCKS = [
 ];
 
 const PALETTE_COLORS = [
-  '#2dbb63', '#f6c344', '#e563e5', '#8a5cf6', '#4aa8ff',
-  '#22b8a3', '#f0a63c', '#e2504e', '#a06be0', '#3aa0e0',
-  '#d8dde3', '#ffffff', '#8f97a3', '#4b5563', '#000000'
+  '#2dbb63', '#F5CC04', '#CE9ED3', '#8a5cf6', '#4aa8ff',
+  '#22b8a3', '#f0a63c', '#E2434B', '#8732E0', '#3aa0e0',
+  '#d8dde3', '#FAF9F6', '#8f97a3', '#4b5563', '#010013'
 ];
 
 const UnorderedListDiscSVG = () => (
@@ -153,6 +154,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
   const editingLinkRef = useRef<HTMLAnchorElement | null>(null);
   const [mode, setMode] = useState<EditorMode>('wysiwyg');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+  useBodyScrollLock(activeModal !== null);
   const [showMoreTools, setShowMoreTools] = useState(false);
   const [showFormatMenu, setShowFormatMenu] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
@@ -204,7 +206,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  const [currentColor, setCurrentColor] = useState('#ffffff');
+  const [currentColor, setCurrentColor] = useState('#FAF9F6');
   const [currentBgColor, setCurrentBgColor] = useState<string | null>(null);
   const [customColorTarget, setCustomColorTarget] = useState<'text' | 'bg'>('text');
   const [customR, setCustomR] = useState('153');
@@ -601,7 +603,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showColorMenu; closeAllMenus(); setShowColorMenu(next); }}
-                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#ffffff' ? 'bg-paper/20 text-ink' : 'text-ink hover:bg-accent/40 hover:text-ink'}`}
+                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#FAF9F6' ? 'bg-paper/20 text-ink' : 'text-ink hover:bg-accent/40 hover:text-ink'}`}
                 title="Text Color"
               >
                 <div className="flex flex-col items-center">
@@ -622,12 +624,12 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         style={{ backgroundColor: c }}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-ink/10 hover:scale-110 transition-transform"
                       >
-                        {currentColor === c && <Check size={12} className={c === '#ffffff' ? 'text-ink' : 'text-ink'} />}
+                        {currentColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink' : 'text-ink'} />}
                       </button>
                     ))}
                   </div>
                   <div className="flex items-center justify-between border-t border-ink pt-1.5">
-                    <button type="button" onClick={() => { setCurrentColor('#ffffff'); exec('foreColor', '#ffffff'); setShowColorMenu(false); }} className="p-1 text-ink/50 hover:text-ink"><Ban size={14} /></button>
+                    <button type="button" onClick={() => { setCurrentColor('#FAF9F6'); exec('foreColor', '#FAF9F6'); setShowColorMenu(false); }} className="p-1 text-ink/50 hover:text-ink"><Ban size={14} /></button>
                     <button type="button" onClick={() => { setShowColorMenu(false); setCustomColorTarget('text'); setActiveModal('customColor'); }} className="p-1 text-ink/50 hover:text-ink"><Palette size={14} /></button>
                   </div>
                 </div>
@@ -660,7 +662,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         style={{ backgroundColor: c }}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-ink/10 hover:scale-110 transition-transform"
                       >
-                        {currentBgColor === c && <Check size={12} className={c === '#ffffff' ? 'text-ink' : 'text-ink'} />}
+                        {currentBgColor === c && <Check size={12} className={c === '#FAF9F6' ? 'text-ink' : 'text-ink'} />}
                       </button>
                     ))}
                   </div>

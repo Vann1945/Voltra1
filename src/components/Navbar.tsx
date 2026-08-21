@@ -1,5 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sun, Moon, Upload, LogIn, LogOut, Shield } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import {
+  Upload,
+  LogIn,
+  LogOut,
+  Shield,
+  LayoutGrid,
+  List,
+  Settings2,
+  Flame,
+  Zap,
+  Palette,
+  SunMedium,
+  MoonStar,
+  Monitor,
+  Rows3,
+  X,
+  Home,
+  Menu,
+} from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
@@ -9,21 +28,37 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onNavigate: (view: ViewState) => void;
   currentView: ViewState;
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
+  theme: 'light' | 'dark' | 'oled';
+  onToggleTheme: () => void;
+  onSetTheme: (theme: 'light' | 'dark' | 'oled') => void;
+  layoutMode: 'grid' | 'list';
+  onSetLayoutMode: (m: 'grid' | 'list') => void;
+}
+
+interface MobileBottomNavProps {
+  user: { displayName?: string; photoURL?: string | null; profileBorder?: string; role?: string } | null;
+  currentView: ViewState;
+  layoutMode: 'grid' | 'list';
+  theme: 'light' | 'dark' | 'oled';
+  onNavigate: (view: ViewState) => void;
+  onOpenAuth: () => void;
+  onOpenUpload: () => void;
+  onSetLayoutMode: (m: 'grid' | 'list') => void;
+  onToggleTheme: () => void;
+  onLogout: () => void;
 }
 
 interface ThemeToggleProps {
-  isDarkMode: boolean;
-  onToggle: () => void;
+  theme: 'light' | 'dark' | 'oled';
+  onToggle?: () => void;
 }
 
 interface WindowThemeToggleProps {
-  isDarkMode: boolean;
+  theme: 'light' | 'dark' | 'oled';
   onToggle: () => void;
 }
 
-export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeToggleProps) {
+export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
   const stars = React.useMemo(
     () =>
       Array.from({ length: 18 }, (_, i) => ({
@@ -54,7 +89,7 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
       <button
         type="button"
         onClick={onToggle}
-        aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
         className="wtt-card block w-full text-left rounded-3xl p-4 bg-paper shadow-card-float"
       >
         <div className="flex items-center justify-between mb-3 px-1">
@@ -69,14 +104,14 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
           <div
             className="wtt-sky absolute inset-0"
             style={{
-              background: isDarkMode
-                ? 'linear-gradient(180deg, #0d1128 0%, #1a1f3d 55%, #2a2650 100%)'
-                : 'linear-gradient(180deg, #6fb3e0 0%, #9ed4ef 55%, #cfeaf7 100%)',
+              background: theme === 'light'
+                ? 'linear-gradient(180deg, #6fb3e0 0%, #9ed4ef 55%, #cfeaf7 100%)'
+                : 'linear-gradient(180deg, #0d1128 0%, #1a1f3d 55%, #2a2650 100%)',
             }}
           />
           <div
             className="absolute inset-0 transition-opacity duration-700"
-            style={{ opacity: isDarkMode ? 1 : 0 }}
+            style={{ opacity: theme === 'light' ? 0 : 1 }}
           >
             {stars.map((s, i) => (
               <div
@@ -102,8 +137,8 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
               height: 46,
               background: 'radial-gradient(circle, #ffe27a 0%, #ffc23c 60%, #ffb020 100%)',
               boxShadow: '0 0 40px 14px rgba(255,190,60,0.55)',
-              opacity: isDarkMode ? 0 : 1,
-              transform: isDarkMode ? 'scale(0.5) translateY(10px)' : 'scale(1) translateY(0)',
+              opacity: theme === 'light' ? 1 : 0,
+              transform: theme === 'light' ? 'scale(1) translateY(0)' : 'scale(0.5) translateY(10px)',
             }}
           />
           <div
@@ -115,8 +150,8 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
               height: 42,
               background: 'radial-gradient(circle at 35% 35%, #e8ecf5 0%, #b9c2d6 55%, #8f9ab3 100%)',
               boxShadow: '0 0 26px 6px rgba(180,190,220,0.35)',
-              opacity: isDarkMode ? 1 : 0,
-              transform: isDarkMode ? 'scale(1) translateY(0)' : 'scale(0.5) translateY(-10px)',
+              opacity: theme === 'light' ? 0 : 1,
+              transform: theme === 'light' ? 'scale(0.5) translateY(-10px)' : 'scale(1) translateY(0)',
             }}
           />
           {[
@@ -133,19 +168,19 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
                 width: c.w,
                 height: c.h,
                 filter: `blur(${c.blur}px)`,
-                opacity: isDarkMode ? 0.25 : 0.95,
+                opacity: theme === 'light' ? 0.95 : 0.25,
               }}
             />
           ))}
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-3 py-2 bg-gradient-to-t from-black/30 to-transparent">
             <div className="flex items-center gap-1.5">
-              {isDarkMode ? (
-                <Moon size={13} className="text-white drop-shadow" fill="white" strokeWidth={0} />
+              {theme === 'light' ? (
+                <SunMedium size={13} className="text-white drop-shadow" strokeWidth={2.5} />
               ) : (
-                <Sun size={13} className="text-white drop-shadow" fill="white" strokeWidth={0} />
+                <MoonStar size={13} className="text-white drop-shadow" strokeWidth={2.5} />
               )}
               <span className="text-xs font-bold text-white drop-shadow">
-                {isDarkMode ? 'Dark mode' : 'Light mode'}
+                {theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'OLED'}
               </span>
             </div>
             <span className="text-[10px] font-medium text-white/80 drop-shadow">Tap to switch</span>
@@ -156,70 +191,202 @@ export function WindowThemeToggle({ isDarkMode, onToggle }: WindowThemeTogglePro
   );
 }
 
-export function ThemeToggle({ isDarkMode, onToggle }: ThemeToggleProps) {
-  const maskId = React.useId();
-
+export function ThemeToggle({ theme }: ThemeToggleProps) {
   return (
-    <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onToggle(); }}
-      aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${
-        isDarkMode ? 'bg-ink' : 'bg-accent'
+    <div
+      aria-hidden="true"
+      title={theme === 'light' ? 'Theme: Light' : theme === 'dark' ? 'Theme: Dark' : 'Theme: OLED'}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg border border-ink/10 ${
+        theme === 'light' ? 'bg-accent text-ink' : 'bg-ink text-paper'
       }`}
     >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        className="transition-transform duration-500 ease-in-out"
-        style={{ transform: isDarkMode ? 'rotate(-40deg)' : 'rotate(0deg)' }}
-      >
-        <g
-          className="transition-all duration-500 ease-in-out"
-          style={{
-            opacity: isDarkMode ? 0 : 1,
-            transform: isDarkMode ? 'scale(0.4)' : 'scale(1)',
-            transformOrigin: '12px 12px',
-          }}
-        >
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-            <line
-              key={deg}
-              x1="12"
-              y1="2.5"
-              x2="12"
-              y2="5"
-              stroke="#f0eee2"
-              strokeWidth="2"
-              strokeLinecap="round"
-              transform={`rotate(${deg} 12 12)`}
-            />
-          ))}
-        </g>
-
-        <mask id={maskId}>
-          <rect x="0" y="0" width="24" height="24" fill="white" />
-          <circle
-            cx={isDarkMode ? 16.5 : 30}
-            cy="9"
-            r="6"
-            fill="black"
-            className="transition-all duration-500 ease-in-out"
-          />
-        </mask>
-        <circle cx="12" cy="12" r="5.5" fill="#f0eee2" mask={`url(#${maskId})`} />
-      </svg>
-    </button>
+      <Zap size={16} strokeWidth={2.5} className="drop-shadow-sm" />
+    </div>
   );
 }
 
-export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, isDarkMode, onToggleDarkMode }: NavbarProps) {
+function MobileBottomNav({
+  user,
+  currentView,
+  layoutMode,
+  theme,
+  onNavigate,
+  onOpenAuth,
+  onOpenUpload,
+  onSetLayoutMode,
+  onToggleTheme,
+  onLogout,
+}: MobileBottomNavProps) {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const themeLabel = theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'OLED mode';
+
+  const closeSheet = () => setIsSheetOpen(false);
+
+  return (
+    <>
+      <AnimatePresence>
+        {isSheetOpen && (
+          <React.Fragment>
+            <motion.div
+              key="mobile-nav-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeSheet}
+              className="fixed inset-0 z-[190] bg-ink/40 sm:hidden"
+            />
+            <motion.div
+              key="mobile-nav-sheet"
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-[200] mx-3 flex flex-col gap-2 sm:hidden"
+            >
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => { onNavigate(currentView === 'profile' ? 'home' : 'profile'); closeSheet(); }}
+                  className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3.5 text-left shadow-card"
+                >
+                  <ProfileAvatar
+                    photoURL={user.photoURL ?? null}
+                    displayName={user.displayName}
+                    borderValue={user.profileBorder ?? 'none'}
+                    sizeClassName="h-9 w-9"
+                    textSizeClassName="text-sm"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-ink">{user.displayName}</p>
+                    <p className="text-xs font-medium text-ink/50">View profile</p>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { onOpenAuth(); closeSheet(); }}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3.5 text-sm font-bold text-ink shadow-card"
+                >
+                  <LogIn size={16} />
+                  Sign in
+                </button>
+              )}
+
+              {user && (
+                <button
+                  type="button"
+                  onClick={() => { onOpenUpload(); closeSheet(); }}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-paper px-4 py-3.5 text-sm font-bold text-ink shadow-card"
+                >
+                  <Upload size={16} />
+                  Publish
+                </button>
+              )}
+
+              {user?.role === 'admin' && (
+                <button
+                  type="button"
+                  onClick={() => { onNavigate('admin'); closeSheet(); }}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3.5 text-sm font-bold text-ink shadow-card"
+                >
+                  <Shield size={16} />
+                  Admin
+                </button>
+              )}
+
+              <div className="flex gap-1.5 rounded-2xl bg-paper p-1.5 shadow-card">
+                <button
+                  type="button"
+                  onClick={() => onSetLayoutMode('grid')}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-all ${
+                    layoutMode === 'grid' ? 'bg-accent text-ink' : 'text-ink/60'
+                  }`}
+                >
+                  <LayoutGrid size={14} /> Grid
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSetLayoutMode('list')}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-all ${
+                    layoutMode === 'list' ? 'bg-accent text-ink' : 'text-ink/60'
+                  }`}
+                >
+                  <List size={14} /> List
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-paper px-4 py-3.5 text-sm font-bold text-ink shadow-card"
+              >
+                <SunMedium size={16} />
+                Change theme · {themeLabel}
+              </button>
+
+              {user && (
+                <button
+                  type="button"
+                  onClick={() => { onLogout(); closeSheet(); }}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-paper px-4 py-3.5 text-sm font-bold text-ink/70 shadow-card"
+                >
+                  <LogOut size={16} />
+                  Log out
+                </button>
+              )}
+            </motion.div>
+          </React.Fragment>
+        )}
+      </AnimatePresence>
+
+      <nav
+        aria-label="Mobile navigation"
+        className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-ink/10 bg-paper sm:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <button
+          type="button"
+          onClick={() => { onNavigate('home'); closeSheet(); }}
+          className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+            currentView === 'home' ? 'text-accent-deep' : 'text-ink/70'
+          }`}
+        >
+          <Home size={20} strokeWidth={currentView === 'home' ? 2.5 : 2} />
+          Home
+        </button>
+        <button
+          type="button"
+          onClick={() => { onNavigate('streak'); closeSheet(); }}
+          className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+            currentView === 'streak' ? 'text-accent-deep' : 'text-ink/70'
+          }`}
+        >
+          <Flame size={20} strokeWidth={currentView === 'streak' ? 2.5 : 2} />
+          Streak
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsSheetOpen((v) => !v)}
+          className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+            isSheetOpen ? 'text-accent-deep' : 'text-ink/70'
+          }`}
+        >
+          {isSheetOpen ? <X size={20} /> : <Menu size={20} />}
+          Menu
+        </button>
+      </nav>
+    </>
+  );
+}
+
+export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, theme, onToggleTheme, onSetTheme, layoutMode, onSetLayoutMode }: NavbarProps) {
   const { user, logout } = useAuth();
   const [isThemeCardOpen, setIsThemeCardOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const themeWrapperRef = useRef<HTMLDivElement>(null);
+  const settingsWrapperRef = useRef<HTMLDivElement>(null);
+  const themeOptions: Array<'light' | 'dark' | 'oled'> = ['light', 'dark', 'oled'];
 
   useEffect(() => {
     if (!isThemeCardOpen) return;
@@ -232,16 +399,28 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, isDa
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isThemeCardOpen]);
 
+  useEffect(() => {
+    if (!isSettingsOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsWrapperRef.current && !settingsWrapperRef.current.contains(e.target as Node)) {
+        setIsSettingsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSettingsOpen]);
+
   return (
-    <nav className="sticky top-0 z-[100] w-full bg-paper border-b border-ink/10">
+    <>
+    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-paper border-b border-ink/10">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <div className="relative" ref={themeWrapperRef}>
-            <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsThemeCardOpen((v) => !v)} />
+          <div className="flex items-center gap-3">
+          <div className="relative hidden sm:block" ref={themeWrapperRef}>
+            <ThemeToggle theme={theme} />
 
             {isThemeCardOpen && (
               <div
-                className="absolute left-0 top-full mt-3 w-[320px] z-[110]"
+                className="absolute left-0 top-full mt-3 w-[min(320px,calc(100vw-2rem))] z-[110]"
                 style={{ animation: 'wtt-popover-in 0.2s cubic-bezier(0.16,1,0.3,1)' }}
               >
                 <style>{`
@@ -251,9 +430,9 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, isDa
                   }
                 `}</style>
                 <WindowThemeToggle
-                  isDarkMode={isDarkMode}
+                  theme={theme}
                   onToggle={() => {
-                    onToggleDarkMode();
+                    onToggleTheme();
                     setIsThemeCardOpen(false);
                   }}
                 />
@@ -270,7 +449,181 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, isDa
         </div>
 
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="hidden items-center gap-2 sm:flex sm:gap-3">
+          <button
+            type="button"
+            onClick={() => onNavigate('streak')}
+            className={`group/streak flex items-center rounded-lg px-3 py-2 text-sm font-bold transition-all ${
+              currentView === 'streak' ? 'bg-accent text-ink shadow-card' : 'bg-paper text-ink shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px'
+            }`}
+            title="Open streak"
+          >
+            <Flame size={15} className="shrink-0" />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/streak:max-w-[70px] group-hover/streak:opacity-100 group-hover/streak:ml-2">
+              Streak
+            </span>
+          </button>
+
+          <div className="relative" ref={settingsWrapperRef}>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen((v) => !v)}
+              className="group/settings flex items-center rounded-lg bg-paper px-3 py-2 text-sm font-bold text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+              title="Open settings"
+            >
+              <Settings2 size={15} className="shrink-0" />
+              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/settings:max-w-[70px] group-hover/settings:opacity-100 group-hover/settings:ml-2">
+                Settings
+              </span>
+            </button>
+
+            <AnimatePresence>
+              {isSettingsOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-[28px] border border-ink/10 bg-paper/95 p-4 shadow-[0_28px_80px_rgba(20,20,19,0.14),0_12px_28px_rgba(20,20,19,0.08),inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-xl"
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3 border-b border-ink/10 pb-3">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-ink/45">Controls</p>
+                      <h3 className="mt-1 text-base font-bold text-ink">Settings</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-ink shadow-[0_6px_18px_rgba(217,119,87,0.18)]">
+                        <Settings2 size={16} strokeWidth={2.2} />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsSettingsOpen(false)}
+                        aria-label="Close settings"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink/10 bg-paper text-ink/70 transition-all hover:border-ink/20 hover:text-ink"
+                      >
+                        <X size={14} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="rounded-2xl bg-ink/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
+                      <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-ink/55">
+                        <Palette size={12} strokeWidth={2.2} />
+                        Appearance
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {themeOptions.map((option) => {
+                          const isActive = theme === option;
+                          const label = option === 'light' ? 'Light' : option === 'dark' ? 'Dark' : 'OLED';
+                          const Icon = option === 'light' ? SunMedium : option === 'dark' ? MoonStar : Monitor;
+
+                          return (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => {
+                                onSetTheme(option);
+                                setIsSettingsOpen(false);
+                              }}
+                              className={`rounded-xl border px-2 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+                                isActive
+                                  ? 'border-accent bg-accent text-ink shadow-[0_8px_20px_rgba(217,119,87,0.18)]'
+                                  : 'border-ink/10 bg-paper text-ink/70 hover:border-ink/20 hover:text-ink'
+                              }`}
+                            >
+                              <div className="flex flex-col items-center justify-center gap-1">
+                                <Icon size={14} strokeWidth={2.2} />
+                                <span>{label}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-ink/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
+                      <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-ink/55">
+                        <Rows3 size={12} strokeWidth={2.2} />
+                        Design
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSetLayoutMode('grid');
+                            setIsSettingsOpen(false);
+                          }}
+                          className={`rounded-xl border px-2 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+                            layoutMode === 'grid'
+                              ? 'border-accent bg-accent text-ink shadow-[0_8px_20px_rgba(217,119,87,0.18)]'
+                              : 'border-ink/10 bg-paper text-ink/70 hover:border-ink/20 hover:text-ink'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <LayoutGrid size={14} strokeWidth={2.2} />
+                            Grid
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSetLayoutMode('list');
+                            setIsSettingsOpen(false);
+                          }}
+                          className={`rounded-xl border px-2 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-all ${
+                            layoutMode === 'list'
+                              ? 'border-accent bg-accent text-ink shadow-[0_8px_20px_rgba(217,119,87,0.18)]'
+                              : 'border-ink/10 bg-paper text-ink/70 hover:border-ink/20 hover:text-ink'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <List size={14} strokeWidth={2.2} />
+                            List
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-ink/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]">
+                      <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-ink/55">
+                        <Flame size={12} strokeWidth={2.2} />
+                        Streak
+                      </div>
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onNavigate('streak');
+                            setIsSettingsOpen(false);
+                          }}
+                          className="flex w-full items-center justify-between rounded-xl border border-ink/10 bg-paper px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wide text-ink/80 transition-all hover:border-ink/20 hover:text-ink hover:shadow-[0_8px_18px_rgba(0,0,0,0.04)]"
+                        >
+                          <span>Open Streak</span>
+                          <Flame size={12} strokeWidth={2.2} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSetLayoutMode('list');
+                            onNavigate('streak');
+                            setIsSettingsOpen(false);
+                          }}
+                          className="flex w-full items-center justify-between rounded-xl border border-accent bg-accent px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wide text-ink transition-all hover:brightness-105 shadow-[0_8px_20px_rgba(217,119,87,0.16)]"
+                        >
+                          <span>Compact List</span>
+                          <List size={12} strokeWidth={2.2} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {user ? (
             <div className="flex items-center gap-2">
               <button
@@ -333,6 +686,20 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, isDa
         </div>
       </div>
     </nav>
+
+    <MobileBottomNav
+      user={user}
+      currentView={currentView}
+      layoutMode={layoutMode}
+      theme={theme}
+      onNavigate={onNavigate}
+      onOpenAuth={onOpenAuth}
+      onOpenUpload={onOpenUpload}
+      onSetLayoutMode={onSetLayoutMode}
+      onToggleTheme={onToggleTheme}
+      onLogout={logout}
+    />
+    </>
   );
 }
 

@@ -14,16 +14,10 @@ export type DbUser = {
   linked_providers: string[] | null;
 };
 
-// Daftar email admin dibaca dari env var (dipisah koma), bukan hardcoded di kode.
-// Ini defense-in-depth: kalau source code ini bocor/di-share, daftar admin tidak
-// ikut ketahuan, dan mengubah admin tidak perlu redeploy — cukup ubah env var.
-function getAdminEmails(): string[] {
-  const raw = process.env.ADMIN_EMAILS || '';
-  return raw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
-}
+const ADMIN_EMAILS = ['unknownfeed76@gmail.com', 'kanzakbarraihanriyanto86@gmail.com'];
 
 export function isAdminEmail(email: string): boolean {
-  return getAdminEmails().includes(normalizeEmail(email));
+  return ADMIN_EMAILS.includes(normalizeEmail(email));
 }
 
 export function normalizeEmail(email: string): string {
@@ -38,12 +32,6 @@ export async function findUserById(id: string): Promise<DbUser | null> {
   return queryOne<DbUser>('SELECT * FROM users WHERE id = ? LIMIT 1', [id]);
 }
 
-/**
- * Dipanggil dari signIn callback Google/GitHub.
- * SELALU resolve lewat email (kolom UNIQUE) -> baris yang sama dipakai lagi
- * berapa pun provider yang dipakai user untuk login. Ini yang menggantikan
- * upsertFirestoreUser lama yang keliru keyed by provider id / uid Firestore.
- */
 export async function resolveOAuthUser(params: {
   provider: string;
   email: string;

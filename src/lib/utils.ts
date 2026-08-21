@@ -31,6 +31,7 @@ export interface AddonUploadInput {
   tagsInput: string;
   imageUrl: string;
   imageUrls: string[];
+  panoramaUrl: string;
   downloadUrl: string;
   demoUrl: string;
   license: string;
@@ -52,14 +53,6 @@ function isSafeUrl(v: unknown): v is string {
   }
 }
 
-/**
- * Validasi body PATCH /api/addons sebelum masuk ke query SQL. Ini lapisan
- * kedua (setelah parameterized query mencegah SQL injection) untuk mencegah:
- * - string sepanjang berkilo-kilo karakter membengkakkan DB / jadi vektor DoS,
- * - URL non-http(s) seperti `javascript:` disimpan lalu dirender sebagai link,
- * - field admin-only (status, isFeatured, dst) diselundupkan lewat tipe yang salah.
- * Mengembalikan pesan error, atau string kosong kalau valid.
- */
 export function validateAddonPatch(body: Record<string, any>, isAdmin: boolean): string {
   if (isAdmin && 'status' in body && !ALLOWED_STATUSES.includes(body.status)) {
     return 'Invalid status.';
@@ -81,6 +74,9 @@ export function validateAddonPatch(body: Record<string, any>, isAdmin: boolean):
   if ('downloadUrl' in body && !isSafeUrl(body.downloadUrl)) {
     return 'Invalid download URL.';
   }
+  if ('panoramaUrl' in body && !isSafeUrl(body.panoramaUrl)) {
+    return 'Invalid panorama URL.';
+  }
   if ('demoUrl' in body && body.demoUrl !== '' && !isSafeUrl(body.demoUrl)) {
     return 'Invalid demo URL.';
   }
@@ -100,6 +96,7 @@ export function buildAddonPayload(
     category: input.mainCategory,
     imageUrl: input.imageUrl,
     imageUrls: input.imageUrls.length > 0 ? input.imageUrls : [input.imageUrl].filter(Boolean),
+    panoramaUrl: input.panoramaUrl,
     downloadUrl: input.downloadUrl,
     demoUrl: input.demoUrl || '',
     authorId,

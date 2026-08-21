@@ -2,14 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Addon, Review } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { ArrowLeft, Download, AlertTriangle, ArrowDownToLine, Loader2, Check, ExternalLink, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ArrowLeft, Download, AlertTriangle, ArrowDownToLine, Check, ExternalLink, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { ViewState } from '../App';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
 import { RichTextContent } from './RichTextContent';
-import { Skeleton, AddonDetailSkeleton } from './Skeleton';
+import { Skeleton, SkeletonCard } from './Skeleton';
 
 function getYouTubeVideoId(url: string): string | null {
   try {
@@ -38,9 +38,10 @@ interface AddonDetailProps {
   onToggleLike: (addonId: string, isLiked: boolean) => void;
   onRequireAuth: () => void;
   onNavigate: (view: ViewState) => void;
+  isDarkMode: boolean;
 }
 
-export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate }: AddonDetailProps) {
+export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate, isDarkMode }: AddonDetailProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -54,6 +55,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [videoActivated, setVideoActivated] = useState(false);
+  const panoramaStripRef = React.useRef<HTMLDivElement>(null);
 
   const addon = addons.find(a => a.id === addonId);
   const isLiked = userLikes.has(addonId);
@@ -63,9 +65,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     [addon]
   );
 
-  // Addon dari `addons` (list global) punya description yang dipotong server
-  // (lihat api/addons.ts) supaya listing tetap ringan. Halaman detail butuh
-  // teks lengkap, jadi ambil sekali lewat endpoint khusus per-addon.
   useEffect(() => {
     setFullDescription(null);
     if (!addonId) return;
@@ -154,6 +153,41 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   }, []);
 
   useEffect(() => {
+    const strip = panoramaStripRef.current;
+    if (!strip) return;
+    let isDown = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    const start = (x: number) => { isDown = true; startX = x; startScroll = strip.scrollLeft; strip.style.cursor = 'grabbing'; };
+    const move = (x: number) => { if (!isDown) return; strip.scrollLeft = startScroll - (x - startX); };
+    const end = () => { isDown = false; strip.style.cursor = 'grab'; };
+
+    const onMouseDown = (e: MouseEvent) => { start(e.pageX); e.preventDefault(); };
+    const onMouseMove = (e: MouseEvent) => move(e.pageX);
+    const onMouseUp = () => end();
+    const onTouchStart = (e: TouchEvent) => start(e.touches[0].pageX);
+    const onTouchMove = (e: TouchEvent) => move(e.touches[0].pageX);
+    const onTouchEnd = () => end();
+
+    strip.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    strip.addEventListener('touchstart', onTouchStart, { passive: true });
+    strip.addEventListener('touchmove', onTouchMove, { passive: true });
+    strip.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      strip.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      strip.removeEventListener('touchstart', onTouchStart);
+      strip.removeEventListener('touchmove', onTouchMove);
+      strip.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [addon?.panoramaUrl]);
+
+  useEffect(() => {
     if (!addonId) return;
     let cancelled = false;
     let hasLoadedOnce = false;
@@ -167,19 +201,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
           hasLoadedOnce = true;
         }
       } catch {
-        // Cuma tampilkan toast error kalau load AWAL gagal. Kalau refresh
-        // berkala nanti gagal sesaat (blip jaringan), diamkan saja — user
-        // yang lagi baca review tidak perlu diganggu toast error berulang
-        // untuk data yang sudah sempat tampil dengan benar.
         if (!cancelled && !hasLoadedOnce) showToast('Failed to load reviews.', 'error');
       }
     };
     fetchReviews();
-
-    // Sama seperti listing addon: jangan poll buta tiap 15 detik. Refresh
-    // saat tab kembali terlihat, plus interval latar belakang yang jauh
-    // lebih jarang sebagai jaring pengaman, dan berhenti total saat tab
-    // sedang tidak dilihat.
     const interval = setInterval(() => {
       if (!document.hidden) fetchReviews();
     }, 90000);
@@ -195,7 +220,13 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
 
   if (!addon) {
     if (loading) {
-      return <AddonDetailSkeleton />;
+      return (
+        <div className="mx-auto max-w-7xl px-4 py-16 text-center min-h-[100dvh]">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <SkeletonCard />
+          </div>
+        </div>
+      );
     }
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center min-h-[100dvh]">
@@ -228,18 +259,27 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     e.stopPropagation();
     e.preventDefault();
     if (isDownloading || downloadSuccess || !addon) return;
+
+    // Buka tab download LANGSUNG (masih di dalam user-gesture sinkron dari
+    // klik ini). Menunda window.open() di balik await/setTimeout membuat
+    // browser menganggapnya popup dan memblokirnya.
+    const downloadWindow = window.open('', '_blank');
+    if (downloadWindow) {
+      downloadWindow.opener = null;
+      downloadWindow.location.href = addon.downloadUrl;
+    } else {
+      showToast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu coba lagi.', 'error');
+    }
+
     setIsDownloading(true);
     setDownloadProgress(0);
     const interval = setInterval(() => {
       setDownloadProgress(prev => { if (prev >= 100) { clearInterval(interval); return 100; } return prev + 10; });
     }, 200);
     try {
-      try {
-        await fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' });
-      } catch (countError) {}
-      await new Promise(resolve => setTimeout(resolve, 2200));
+      fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' }).catch(() => {});
+      await new Promise(resolve => setTimeout(resolve, 900));
       setDownloadSuccess(true);
-      window.open(addon.downloadUrl, '_blank');
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (error) {
       showToast('Download failed. Please try again.', 'error');
@@ -276,7 +316,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
           <FadeImage
             src={images[currentImageIndex]}
             alt={addon.title}
-            className={`h-full w-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`h-full w-full object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading={currentImageIndex === 0 ? 'eager' : 'lazy'}
             fetchPriority={currentImageIndex === 0 ? 'high' : 'auto'}
           />
@@ -352,7 +392,9 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
                 disabled={isDownloading}
                 className="flex items-center gap-2 bg-accent rounded-lg px-6 py-3 text-sm font-bold text-ink uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isDownloading ? <Loader2 size={18} className="animate-spin" /> : downloadSuccess ? <Check size={18} /> : <Download size={18} />}
+                {isDownloading ? (
+                  <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                ) : downloadSuccess ? <Check size={18} /> : <Download size={18} />}
                 {isDownloading ? 'Downloading...' : downloadSuccess ? 'Downloaded!' : 'Download'}
               </button>
             </div>
@@ -361,7 +403,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-ink/10 pt-8">
             <div className="lg:col-span-2">
               <h2 className="text-lg font-bold text-ink uppercase mb-4">Description</h2>
-              <RichTextContent html={fullDescription ?? addon.description} />
+              <RichTextContent html={fullDescription ?? addon.description} isDarkMode={isDarkMode}/>
             </div>
 
             <div className="space-y-6">
@@ -415,6 +457,27 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
           />
         </div>
       </div>
+
+      {addon.panoramaUrl && (
+        <div className="mt-8 overflow-hidden rounded-lg bg-paper shadow-card">
+          <div className="px-6 pt-6 pb-4 border-b border-ink/10">
+            <h2 className="text-lg font-bold text-ink uppercase">Panorama</h2>
+            <p className="text-xs text-ink/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>
+          </div>
+          <div
+            ref={panoramaStripRef}
+            className="flex overflow-x-auto select-none bg-ink [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-paper/20"
+            style={{ cursor: 'grab', scrollbarWidth: 'thin' }}
+          >
+            <img
+              src={addon.panoramaUrl}
+              alt={`${addon.title} panorama`}
+              draggable={false}
+              className="h-[240px] sm:h-[320px] w-auto max-w-none pointer-events-none"
+            />
+          </div>
+        </div>
+      )}
 
       <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} addonId={addon.id} />
     </div>

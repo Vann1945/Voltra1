@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
 import { Addon } from '../types';
-import { Search, SlidersHorizontal, Sparkles, Loader2, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { Skeleton } from './Skeleton';
 import { ViewState } from '../App';
 import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonCard } from './Skeleton';
@@ -15,13 +16,14 @@ interface MarketplaceProps {
   onToggleLike: (addonId: string, isLiked: boolean) => void;
   onRequireAuth: () => void;
   onNavigate: (view: ViewState) => void;
+  layoutMode?: 'grid' | 'list';
 }
 
 type SortOption = 'newest' | 'oldest' | 'most_liked' | 'highest_rated';
 type CategoryOption = 'All' | 'Bukkit Plugins' | 'Modpack' | 'Customization' | 'Add-Ons' | 'Shaders' | 'Mods' | 'Resource Packs' | 'Data Pack' | 'World' | 'Skin Pack';
 type DateRangeOption = 'all' | 'today' | 'week' | 'month';
 
-export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate }: MarketplaceProps) {
+export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate, layoutMode = 'grid' }: MarketplaceProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption>('All');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
@@ -98,7 +100,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
     if (!debouncedQuery.trim()) return [];
     const q = debouncedQuery.toLowerCase();
     return addons
-      .filter(a => a.title.toLowerCase().includes(q) || a.authorName.toLowerCase().includes(q))
+      .filter(a => (a.title && a.title.toLowerCase().includes(q)) || (a.authorName && a.authorName.toLowerCase().includes(q)))
       .slice(0, 5);
   }, [addons, debouncedQuery]);
 
@@ -397,7 +399,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             initial="hidden"
             animate="visible"
             variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
-            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-paper shadow-card'}
           >
             <AnimatePresence mode="popLayout">
               {filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => (
@@ -407,6 +409,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                   variants={{ hidden: { opacity: 0, scale: 0.96, y: 16 }, visible: { opacity: 1, scale: 1, y: 0 } }}
                   exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
                   transition={{ duration: 0.54, ease: 'easeOut' }}
+                  className={layoutMode === 'list' ? 'w-full' : ''}
                 >
                   <AddonCard
                     addon={addon}
@@ -414,6 +417,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     onToggleLike={onToggleLike}
                     onRequireAuth={onRequireAuth}
                     onNavigate={onNavigate}
+                    compact={layoutMode === 'list'}
                     priority={
                       index === 0 &&
                       !(!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All')
@@ -434,8 +438,8 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           >
             {filteredAndSortedAddons.length > visibleCount && (
               <div className="rounded-lg bg-accent p-3 shadow-card">
-                <Loader2 size={24} className="animate-spin text-ink" />
-              </div>
+                  <Skeleton className="h-6 w-16" />
+                </div>
             )}
           </div>
         )}

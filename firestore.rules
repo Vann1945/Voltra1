@@ -1,11 +1,4 @@
 rules_version = '2';
-// CATATAN MIGRASI: data utama aplikasi ini (users, addons, likes, reviews, reports)
-// sekarang disimpan di TiDB (lihat MySQL/schema.sql dan api/*.ts), bukan lagi di
-// Firestore. Firestore saat ini hanya dipakai sebagai jembatan sesi Auth.js →
-// Firebase (signInWithCustomToken di src/hooks/useAuth.ts). Rules di bawah ini
-// dipertahankan sebagai lapisan pertahanan kalau-kalau ada kode lama yang masih
-// menulis ke Firestore secara langsung (jangan pernah menulis data addon/user/report
-// langsung ke Firestore dari client — selalu lewat /api/* di server).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -189,22 +182,22 @@ service cloud.firestore {
     match /users/{userId} {
       // Users collection contains PII (email), so only the owner can read it.
       allow read: if isOwner(userId) || isAdmin();
-      
+
       // Create: Must be owner. Cannot self-assign admin unless already admin.
-      allow create: if isAuthenticated() && 
-                    isValidUser(request.resource.data) && 
-                    isOwner(userId) && 
+      allow create: if isAuthenticated() &&
+                    isValidUser(request.resource.data) &&
+                    isOwner(userId) &&
                     (request.resource.data.role == 'user' || isAdmin());
-                    
+
       // Update: Must be owner. Cannot change uid, email, createdAt. Cannot self-assign admin.
-      allow update: if isAuthenticated() && 
-                    isValidUser(request.resource.data) && 
-                    (isOwner(userId) || isAdmin()) && 
+      allow update: if isAuthenticated() &&
+                    isValidUser(request.resource.data) &&
+                    (isOwner(userId) || isAdmin()) &&
                     request.resource.data.uid == resource.data.uid &&
                     request.resource.data.email == resource.data.email &&
                     request.resource.data.createdAt == resource.data.createdAt &&
                     (request.resource.data.role == resource.data.role || isAdmin());
-                    
+
       allow delete: if isAdmin();
     }
 
@@ -213,14 +206,14 @@ service cloud.firestore {
       allow read: if resource.data.status == 'approved'
               || (request.auth != null && request.auth.uid == resource.data.authorId)
               || (request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
-      
+
       // Create: Any authenticated user can create an add-on. Status must be pending.
-      allow create: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
                     isValidAddon(request.resource.data) &&
                     request.resource.data.authorId == request.auth.uid &&
                     request.resource.data.likesCount == 0 &&
                     request.resource.data.status == 'pending';
-                    
+
       // Update: Author can update details, OR anyone can increment/decrement likesCount
       allow update: if isAuthenticated() && (
                       // Case 1: Author updating content
@@ -272,52 +265,52 @@ service cloud.firestore {
                         request.resource.data.downloadsCount == resource.data.get('downloadsCount', 0) + 1
                       )
                     );
-                    
+
       allow delete: if isAuthenticated() && (request.auth.uid == resource.data.authorId || isAdmin());
     }
 
     match /likes/{likeId} {
       // Anyone can read likes to see if they liked something
       allow read: if true;
-      
+
       // Create: User can only create a like for themselves. ID must be userId_addonId
-      allow create: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
                     likeId == request.auth.uid + '_' + request.resource.data.addonId &&
                     isValidLike(request.resource.data, request.auth.uid, request.resource.data.addonId);
-                    
+
       // Delete: User can only delete their own like
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      
+
       // Likes cannot be updated, only created or deleted
       allow update: if false;
     }
 
     match /reviews/{reviewId} {
       allow read: if true;
-      
-      allow create: if isAuthenticated() && 
+
+      allow create: if isAuthenticated() &&
                     isValidReview(request.resource.data) &&
                     request.resource.data.userId == request.auth.uid;
-                    
-      allow update: if isAuthenticated() && 
+
+      allow update: if isAuthenticated() &&
                     isValidReview(request.resource.data) &&
                     request.resource.data.userId == request.auth.uid &&
                     request.resource.data.id == resource.data.id &&
                     request.resource.data.addonId == resource.data.addonId &&
                     request.resource.data.userId == resource.data.userId &&
                     request.resource.data.createdAt == resource.data.createdAt;
-                    
+
       allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     match /reports/{reportId} {
       allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-      
-      allow create: if isAuthenticated() && 
+
+      allow create: if isAuthenticated() &&
                     isValidReport(request.resource.data) &&
                     request.resource.data.userId == request.auth.uid &&
                     request.resource.data.status == 'pending';
-                    
+
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }

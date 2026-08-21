@@ -14,72 +14,44 @@ export interface BorderEffect {
 
 export const BORDER_OPTIONS: BorderEffect[] = [
   { value: 'none', label: 'None', family: 'none', colors: [] },
-
-  // --- Sparkle: titik kecil kelap-kelip posisi tetap tapi "muncul-ilang" acak
   { value: 'sparkle-white', label: 'Sparkle', family: 'sparkle', colors: ['#ffffff'] },
   { value: 'sparkle-gold', label: 'Golden Sparkle', family: 'sparkle', colors: ['#facc15'] },
   { value: 'sparkle-cyan', label: 'Frost Sparkle', family: 'sparkle', colors: ['#67e8f9'] },
   { value: 'sparkle-toxic', label: 'Toxic Sparkle', family: 'sparkle', colors: ['#a3e635'] },
   { value: 'sparkle-pink', label: 'Pink Sparkle', family: 'sparkle', colors: ['#f472b6'] },
-
-  // --- Orbit: 3 titik warna mengorbit muter di sekeliling foto
   { value: 'orbit-classic', label: 'Orbit', family: 'orbit', colors: ['#22d3ee', '#e879f9', '#fcd34d'] },
   { value: 'orbit-fire', label: 'Fire Orbit', family: 'orbit', colors: ['#ef4444', '#f97316', '#facc15'] },
   { value: 'orbit-void', label: 'Void Orbit', family: 'orbit', colors: ['#a855f7', '#6366f1', '#f472b6'] },
   { value: 'orbit-ocean', label: 'Ocean Orbit', family: 'orbit', colors: ['#2dd4bf', '#3b82f6', '#34d399'] },
   { value: 'orbit-platinum', label: 'Platinum Orbit', family: 'orbit', colors: ['#e5e7eb', '#9ca3af', '#f8fafc'] },
-
-  // --- Shine Sweep: cincin kilau yang muter kayak lampu sorot
   { value: 'shine-white', label: 'Shine Sweep', family: 'shine', colors: ['#ffffff'] },
   { value: 'shine-gold', label: 'Golden Shine', family: 'shine', colors: ['#fbbf24'] },
   { value: 'shine-crimson', label: 'Crimson Shine', family: 'shine', colors: ['#ef4444'] },
   { value: 'shine-emerald', label: 'Emerald Shine', family: 'shine', colors: ['#34d399'] },
   { value: 'shine-sapphire', label: 'Sapphire Shine', family: 'shine', colors: ['#60a5fa'] },
-
-  // --- Pulse: cincin membesar & memudar (efek radar/ping)
   { value: 'pulse-violet', label: 'Pulse', family: 'pulse', colors: ['#8b5cf6'] },
   { value: 'pulse-rose', label: 'Rose Pulse', family: 'pulse', colors: ['#fb7185'] },
   { value: 'pulse-azure', label: 'Azure Pulse', family: 'pulse', colors: ['#38bdf8'] },
   { value: 'pulse-jade', label: 'Jade Pulse', family: 'pulse', colors: ['#4ade80'] },
   { value: 'pulse-amber', label: 'Amber Pulse', family: 'pulse', colors: ['#fbbf24'] },
-
-  // --- Confetti: partikel kotak kecil tersebar acak, muncul-timbul
   { value: 'confetti-mix', label: 'Confetti', family: 'confetti', colors: ['#f43f5e', '#facc15', '#22d3ee', '#a855f7', '#34d399', '#fb923c', '#60a5fa', '#f472b6'] },
   { value: 'confetti-gold', label: 'Golden Confetti', family: 'confetti', colors: ['#fbbf24', '#fde68a', '#f59e0b', '#fcd34d'] },
   { value: 'confetti-pastel', label: 'Pastel Confetti', family: 'confetti', colors: ['#fbcfe8', '#bfdbfe', '#bbf7d0', '#fef08a', '#ddd6fe'] },
-
-  // --- Electric: kilat menyambar berkedip di sekitar foto
   { value: 'electric-blue', label: 'Electric Blue', family: 'electric', colors: ['#38bdf8'] },
   { value: 'electric-violet', label: 'Electric Violet', family: 'electric', colors: ['#a78bfa'] },
-
-  // --- Comet: bola terang + ekor memudar yang muter kayak komet
   { value: 'comet-gold', label: 'Golden Comet', family: 'comet', colors: ['#fbbf24'] },
   { value: 'comet-cyan', label: 'Cyan Comet', family: 'comet', colors: ['#22d3ee'] },
   { value: 'comet-rose', label: 'Rose Comet', family: 'comet', colors: ['#fb7185'] },
-
-  // --- Firefly: titik cahaya melayang pelan sambil kelap-kelip
   { value: 'firefly-amber', label: 'Amber Firefly', family: 'firefly', colors: ['#fbbf24'] },
   { value: 'firefly-emerald', label: 'Emerald Firefly', family: 'firefly', colors: ['#34d399'] },
-
-  // --- Ripple: gelombang cincin tipis melebar berulang (mirip pulse, lebih banyak lapis)
   { value: 'ripple-silver', label: 'Silver Ripple', family: 'ripple', colors: ['#d1d5db'] },
   { value: 'ripple-teal', label: 'Teal Ripple', family: 'ripple', colors: ['#2dd4bf'] },
-
-  // --- Aurora: gradient ring yang ngalir, KHUSUS warna dingin (teal-biru-ungu)
   { value: 'aurora', label: 'Aurora', family: 'aurora', colors: ['#2dd4bf', '#3b82f6', '#6366f1', '#8b5cf6'] },
-
-  // --- Rainbow: cincin gradasi pelangi penuh yang muter
   { value: 'rainbow', label: 'Rainbow', family: 'rainbow', colors: [] },
-
-  // --- Halo: cahaya lembut yang "bernapas" (membesar-mengecil intensitasnya)
   { value: 'halo-white', label: 'Halo', family: 'halo', colors: ['#ffffff'] },
   { value: 'halo-ruby', label: 'Ruby Halo', family: 'halo', colors: ['#f43f5e'] },
   { value: 'shadow-pulse', label: 'Shadow', family: 'halo', colors: ['#52525b'] },
-
-  // --- Meteor: garis cahaya melintas diagonal sesekali
   { value: 'meteor', label: 'Meteor Shower', family: 'meteor', colors: ['#7dd3fc'] },
-
-  // --- Starburst: paku-paku cahaya berputar pelan kayak bintang
   { value: 'starburst-gold', label: 'Starburst', family: 'starburst', colors: ['#fbbf24'] },
 ];
 
@@ -87,8 +59,6 @@ export function getBorderEffect(value?: string | null): BorderEffect {
   return BORDER_OPTIONS.find(o => o.value === value) || BORDER_OPTIONS[0];
 }
 
-// Ubah sudut (derajat) + radius (%) jadi posisi left/top (%) relatif ke pusat,
-// biar elemen dekorasinya otomatis nyesuain ukuran avatar berapa pun.
 function polarToPercent(angleDeg: number, radiusPercent: number) {
   const rad = (angleDeg * Math.PI) / 180;
   return {
@@ -112,13 +82,9 @@ const CONFETTI_SPOTS = [
   { angle: 310, radius: 58, size: 5, delay: 0.15 },
 ];
 
-// Semua elemen dekorasi di sini render DI LUAR lingkaran foto (harus dipasang
-// di wrapper yang TIDAK overflow-hidden, lihat ProfileAvatar di bawah).
-// Efek animasi ini dipertahankan apa adanya (unsur "playful" cocok dengan
-// semangat neubrutalism) — hanya kontras warna avatar itu sendiri yang diubah.
 export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
   const { family, colors } = effect;
-  const c0 = colors[0] || '#000000';
+  const c0 = colors[0] || '#010013';
 
   switch (family) {
     case 'sparkle':
@@ -289,16 +255,10 @@ export function renderBorderDecoration(effect: BorderEffect): React.ReactNode {
   }
 }
 
-// Cincin dasar avatar: hairline tipis khas editorial (bukan border tebal lagi)
-// di semua kondisi — efek animasi tambahan di atasnya, cincin dasar tetap halus.
 export function getBorderRingClass(effect: BorderEffect): string {
   return effect.family === 'none' ? 'border border-ink/10' : 'border border-ink/10 ring-1 ring-accent/40';
 }
 
-// ============================================================================
-// Komponen CSS global — cukup di-mount SEKALI di root app (di-mount di Navbar,
-// karena selalu ke-render di semua halaman).
-// ============================================================================
 export function BorderEffectStyles() {
   return (
     <style>{`
@@ -455,13 +415,6 @@ export function BorderEffectStyles() {
   );
 }
 
-// ============================================================================
-// ProfileAvatar — pembungkus siap pakai: foto (atau huruf depan nama kalau
-// belum ada foto) + border animasi, dipakai di semua tempat yang nampilin
-// avatar user (Navbar, UserProfile, AuthorProfile, AddonCard, AddonDetail).
-// Neubrutalism: fallback background kuning + huruf hitam tebal, cincin dasar
-// border hitam solid — kontras dan konsisten dengan sisa UI.
-// ============================================================================
 interface ProfileAvatarProps {
   photoURL?: string | null;
   displayName?: string | null;

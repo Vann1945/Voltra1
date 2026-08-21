@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { X, Loader2, FileArchive, Check, HelpCircle, ImagePlus, Trash2 } from 'lucide-react';
+import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2 } from 'lucide-react';
+import { Skeleton } from './Skeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { motion, AnimatePresence } from 'motion/react';
 import { DescriptionEditor } from './DescriptionEditor';
 import { CustomSelect } from './CustomSelect';
 import { FadeImage } from './FadeImage';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -41,6 +43,7 @@ function getAddonPayloadError(data: Record<string, any>): string {
   if (!ADDON_CATEGORIES.includes(data.category)) return 'Main Category is not a valid option — please reselect it.';
   if (!isUrl(data.imageUrl)) return 'Cover image URL is missing or invalid.';
   if (data.imageUrls && !(Array.isArray(data.imageUrls) && data.imageUrls.length <= 30)) return 'Too many cover images (max 30).';
+  if (!isUrl(data.panoramaUrl)) return 'Panorama image URL is missing or invalid.';
   if (!isUrl(data.downloadUrl)) return 'Download URL is missing or invalid.';
   if (!isStr(data.authorName, 1, 100)) return 'Your account is missing a display name — please set one in your profile before publishing.';
   if (!Array.isArray(data.tags) || data.tags.length > 20) return 'Tags are invalid (max 20).';
@@ -146,18 +149,14 @@ function uploadToImgbb(file: File, onProgress: (pct: number) => void): Promise<s
   });
 }
 
-const MAX_ADDON_FILE_BYTES = 200 * 1024 * 1024; // 200MB
-const ALLOWED_ADDON_EXTENSIONS = ['.mcaddon', '.mcpack', '.mcworld', '.mctemplate', '.zip'];
+const MAX_ADDON_FILE_BYTES = 200 * 1024 * 1024;
+const ALLOWED_ADDON_EXTENSIONS = ['.mcaddon', '.mcpack', '.mcworld', '.mctemplate', '.zip', '.jar'];
 
 function hasAllowedExtension(fileName: string): boolean {
   const lower = fileName.toLowerCase();
   return ALLOWED_ADDON_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
-// Upload file addon lewat "signed upload" Cloudinary: kita minta tanda tangan
-// sekali-pakai dari server kita sendiri (yang mewajibkan login), baru browser
-// upload langsung ke Cloudinary pakai tanda tangan itu. Cloudinary API secret
-// tidak pernah menyentuh browser sama sekali.
 function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!hasAllowedExtension(file.name)) {
@@ -220,6 +219,7 @@ export function parseTags(raw: string): string[] {
 }
 
 export function UploadModal({ isOpen, onClose }: UploadModalProps) {
+  useBodyScrollLock(isOpen);
   const { user } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -232,6 +232,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     tagsInput: '',
     imageUrl: '',
     imageUrls: [] as string[],
+    panoramaUrl: '',
     downloadUrl: '',
     demoUrl: '',
     license: 'All Rights Reserved',
@@ -246,8 +247,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [successMessage, setSuccessMessage] = useState('');
   const addonFileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const panoramaInputRef = useRef<HTMLInputElement>(null);
 
   const [imageUploadProgress, setImageUploadProgress] = useState<number | null>(null);
+  const [panoramaUploadProgress, setPanoramaUploadProgress] = useState<number | null>(null);
 
   const [fileUploadProgress, setFileUploadProgress] = useState<number | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
@@ -281,6 +284,28 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     } finally {
       setImageUploadProgress(null);
     }
+  };
+
+  const handlePanoramaSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setPanoramaUploadProgress(0);
+    try {
+      const webpFile = await convertToWebp(file, 2400, 0.85);
+      const url = await uploadToImgbb(webpFile, pct => setPanoramaUploadProgress(pct));
+      setFormData(prev => ({ ...prev, panoramaUrl: url }));
+      showToast('Panorama image uploaded successfully.', 'success');
+    } catch (err: any) {
+      showToast(err?.message || 'Panorama upload failed. Please try again.', 'error');
+    } finally {
+      setPanoramaUploadProgress(null);
+    }
+  };
+
+  const removePanorama = () => {
+    setFormData(prev => ({ ...prev, panoramaUrl: '' }));
   };
 
   const handleAddonFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -325,6 +350,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       if (!formData.downloadUrl.trim()) return 'Download URL is required.';
       if (!isValidHttpUrl(formData.downloadUrl)) return 'Download URL must start with http:// or https://.';
       if (!formData.imageUrl && formData.imageUrls.length === 0) return 'At least 1 cover image must be filled in.';
+      if (!formData.panoramaUrl.trim()) return 'Panorama image is required.';
     }
     if (s === 'description') {
       if (!formData.description.trim()) return 'Description is mandatory.';
@@ -392,6 +418,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         tags: parseTags(formData.tagsInput),
         imageUrl: formData.imageUrl,
         imageUrls: formData.imageUrls.length > 0 ? formData.imageUrls : [formData.imageUrl].filter(Boolean),
+        panoramaUrl: formData.panoramaUrl,
         downloadUrl: formData.downloadUrl,
         demoUrl: formData.demoUrl || '',
         license: formData.license,
@@ -430,6 +457,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           tagsInput: formData.tagsInput,
           imageUrl: formData.imageUrl,
           imageUrls: formData.imageUrls,
+          panoramaUrl: formData.panoramaUrl,
           downloadUrl: formData.downloadUrl,
           demoUrl: formData.demoUrl,
           license: formData.license,
@@ -484,7 +512,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               <h2 className="text-lg font-bold text-ink uppercase tracking-tight">Create Project</h2>
               <button
                 onClick={onClose}
- className="p-2 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="p-2 rounded-lg bg-paper text-ink shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
               >
                 <X size={16} />
               </button>
@@ -508,7 +536,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             <div className="overflow-y-auto p-6 flex-1 space-y-5">
               {successMessage ? (
                 <div className="text-center py-12 space-y-4">
- <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mx-auto shadow-card">
+                  <div className="w-14 h-14 bg-accent rounded-lg flex items-center justify-center mx-auto shadow-card">
                     <Check size={28} className="text-ink" />
                   </div>
                   <h3 className="text-xl font-bold text-ink uppercase">Upload Successful</h3>
@@ -622,7 +650,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         >
                           {imageUploadProgress !== null ? (
                             <>
-                              <Loader2 size={16} className="animate-spin" />
+                              <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
                               Uploading {Math.round(imageUploadProgress)}%
                             </>
                           ) : (
@@ -685,9 +713,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               onClick={() => addonFileInputRef.current?.click()}
                               disabled={fileUploadProgress !== null}
                               title="Upload file"
- className="shrink-0 px-4 py-2.5 rounded-lg bg-accent text-ink font-bold shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="shrink-0 px-4 py-2.5 rounded-lg bg-accent text-ink font-bold shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {fileUploadProgress !== null ? <Loader2 size={16} className="animate-spin" /> : <FileArchive size={16} />}
+                              {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
                             </button>
                             <input
                               type="file"
@@ -736,6 +764,61 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           label="Unlisted Project"
                           sublabel="Won't appear in search or profile. Can be shared via direct link."
                         />
+                      </div>
+
+                      <div className="mt-5 pt-5 border-t border-ink/10">
+                        <Label>Panorama Image *</Label>
+                        <p className="text-[11px] text-ink/50 font-medium mb-2">
+                          Wide screenshot used as the header banner on your add-on page. Required.
+                        </p>
+
+                        {formData.panoramaUrl ? (
+                          <div className="relative w-full aspect-[21/9] rounded-lg shadow-card overflow-hidden group mb-3">
+                            <FadeImage src={formData.panoramaUrl} alt="Panorama preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            <button
+                              type="button"
+                              onClick={removePanorama}
+                              className="absolute bottom-2 right-2 bg-accent border border-ink p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 size={13} className="text-ink" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => panoramaInputRef.current?.click()}
+                            disabled={panoramaUploadProgress !== null}
+                            className="w-full flex items-center justify-center gap-2 border border-dashed border-ink/25 bg-paper py-6 text-sm font-medium text-ink uppercase tracking-wide transition-all hover:bg-accent/10 hover:border-ink/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {panoramaUploadProgress !== null ? (
+                                <>
+                                  <div className="h-4 w-4 rounded-full bg-ink/[0.06] border border-ink/10 relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                                  Uploading {Math.round(panoramaUploadProgress)}%
+                                </>
+                              ) : (
+                                <>
+                                  <ImagePlus size={16} />
+                                  Upload Panorama
+                                </>
+                              )}
+                          </button>
+                        )}
+                        <input
+                          type="file"
+                          ref={panoramaInputRef}
+                          onChange={handlePanoramaSelected}
+                          accept="image/*"
+                          className="hidden"
+                        />
+
+                        {panoramaUploadProgress !== null && (
+                          <div className="mt-2 h-2 border border-ink/10 rounded-lg bg-paper overflow-hidden">
+                            <div
+                              className="h-full bg-accent-soft transition-all duration-200"
+                              style={{ width: `${panoramaUploadProgress}%` }}
+                            />
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -823,15 +906,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       Next
                     </button>
                   ) : (
-                    <button
-                      type="submit"
-                      form="upload-form"
-                      disabled={loading || !!successMessage}
-                      className="px-6 py-2.5 text-xs font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading && <Loader2 size={13} className="animate-spin" />}
-                      Publish Add-on
-                    </button>
+                    loading ? (
+                      <div className="px-6 py-2.5">
+                        <Skeleton className="h-10 w-36 rounded-lg" />
+                      </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        form="upload-form"
+                        disabled={loading || !!successMessage}
+                        className="px-6 py-2.5 text-xs font-bold text-ink bg-accent rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Publish Add-on
+                      </button>
+                    )
                   )}
                 </div>
               </div>
