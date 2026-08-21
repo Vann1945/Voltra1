@@ -147,10 +147,12 @@ function AppShell() {
   useEffect(() => {
     const handlePopState = () => {
       const path = normalizeAppPath(window.location.pathname);
-      if (path.startsWith('/addon/')) {
+      const isAddonPath = path.startsWith('/addon/') || path.startsWith('/home/');
+      if (isAddonPath) {
         const slug = decodeURIComponent(path.split('/')[2] || '');
         const addon = addons.find(a => slugify(a.title) === slug || a.id === slug);
         if (addon) setCurrentView({ type: 'addon', id: addon.id });
+        else if (!loading) setCurrentView('home');
         return;
       }
       setCurrentView(getInitialView(window.location.pathname, window.location.search));
@@ -159,7 +161,7 @@ function AppShell() {
     handlePopState();
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [addons]);
+  }, [addons, loading]);
 
   const handleNavigate = (view: ViewState) => {
     setCurrentView(view);
@@ -171,7 +173,7 @@ function AppShell() {
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
       const addon = addons.find(a => a.id === view.id);
-      path = `/addon/${addon ? slugify(addon.title) : view.id}`;
+      path = `/home/${addon ? slugify(addon.title) : view.id}`;
     } else if (typeof view === 'object' && view.type === 'author') {
       path = `/author/${view.id}`;
     }
@@ -187,7 +189,7 @@ function AppShell() {
   const isDarkMode = theme === 'dark' || theme === 'oled';
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} relative isolate min-h-[100dvh] bg-paper-soft text-ink selection:bg-accent selection:text-paper`}>
+    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-paper-soft text-ink selection:bg-accent selection:text-paper`}>
       <BorderEffectStyles />
       {currentView !== 'landing' && (
         <Navbar

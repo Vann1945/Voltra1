@@ -33,9 +33,9 @@ export default function StreakApp({ theme = 'light', onNavigate }: StreakAppProp
 }
 
 const CONFETTI_COLORS_BY_THEME: Record<'light' | 'dark' | 'oled', string[]> = {
-  light: ['#141413', '#3a3934', '#c96442', '#f0eee6'],
-  dark: ['#f1f0ea', '#d97757', '#93928c', '#17181b'],
-  oled: ['#ffffff', '#e2896a', '#86877f', '#000000'],
+  light: ['#2b1810', '#7d321b', '#e8753b', '#ffd0b0'],
+  dark: ['#fff3e8', '#ffad76', '#c29378', '#21140e'],
+  oled: ['#fff3e8', '#ff8a45', '#ffb078', '#0b0705'],
 };
 
 interface Milestone {

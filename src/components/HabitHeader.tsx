@@ -111,10 +111,10 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
         </div>
       </div>
 
-      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-3xl border border-parchment-border shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
+      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-3xl border border-terracotta/35 shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
         <div className="flex flex-col min-w-0">
-          <span className="text-[10px] font-semibold text-ink-700 uppercase tracking-wider mb-1 whitespace-nowrap">
-            Current Streak
+          <span className="text-[10px] font-bold text-terracotta-text uppercase tracking-[0.14em] mb-1 whitespace-nowrap">
+            Today Streak
           </span>
           <div className="flex items-baseline gap-1.5 min-w-0">
             <span
@@ -127,7 +127,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                   initial={{ x: '100%', opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: '-100%', opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   className="block font-serif text-ink-900 tabular-nums"
                 >
                   {streak.toLocaleString('en-US')}

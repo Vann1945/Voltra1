@@ -13,6 +13,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/home/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/addon/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/voltra",
       "destination": "/index.html"
     },
@@ -22,6 +30,10 @@
     },
     {
       "source": "/voltra/home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/voltra/home/:path*",
       "destination": "/index.html"
     },
     {

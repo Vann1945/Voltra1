@@ -42,7 +42,7 @@ export function ActivityLogView({ activityLog }: ActivityLogViewProps) {
             <div key={day.dateStr} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
               <div
                 className={`text-[10px] font-semibold uppercase tracking-wider truncate ${
-                  isToday ? 'text-ember-600' : 'text-ink-500'
+                  isToday ? 'text-terracotta-text font-bold' : 'text-ink-500'
                 }`}
               >
                 {isToday ? 'Today' : day.displayDay}
@@ -50,15 +50,15 @@ export function ActivityLogView({ activityLog }: ActivityLogViewProps) {
               <m.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.05 * i, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.02 * i, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                 aria-current={isToday ? 'date' : undefined}
-                className={`relative w-full aspect-square rounded-lg sm:rounded-xl flex items-center justify-center transition-colors duration-300 ${
+                className={`relative w-full aspect-square rounded-lg sm:rounded-xl flex items-center justify-center transition-colors duration-200 ease-out ${
                   day.status === 'active'
                     ? 'bg-ink-900 text-linen-50 shadow-sm shadow-ink-900/20'
                     : day.status === 'rest'
                       ? 'bg-linen-200 text-ink-500'
                       : 'bg-linen-50 border-2 border-dashed border-linen-200 text-ink-500'
-                } ${isToday ? 'ring-2 ring-ember-500 ring-offset-2 ring-offset-linen-50' : ''}`}
+                } ${isToday ? 'ring-2 ring-terracotta ring-offset-2 ring-offset-linen-50' : ''}`}
               >
                 <span className="font-serif text-sm sm:text-base">{day.displayDate}</span>
               </m.div>
