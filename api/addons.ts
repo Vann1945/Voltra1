@@ -170,8 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const input = req.body as AddonUploadInput;
       const addonId = crypto.randomUUID();
       const payload = buildAddonPayload(input, addonId, user.uid, user.name || 'Anonymous');
-      // Sanitasi HTML deskripsi di server (bukan cuma andalkan sanitasi client) —
-      // ini file API, aman diimpor `jsdom` di sini tanpa ikut ke bundle browser.
+      // Sanitasi HTML deskripsi di server sebagai defense-in-depth sebelum disimpan.
       payload.description = sanitizeDescriptionForStorage(payload.description);
 
       await query(
