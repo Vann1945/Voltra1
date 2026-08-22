@@ -18,6 +18,7 @@ import {
   Home,
   Menu,
 } from 'lucide-react';
+import { SettingsIcon, LayoutIcon } from './icons';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
@@ -450,7 +451,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               className="group/settings flex items-center rounded-xl bg-parchment-raised px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
               title="Open settings"
             >
-              <Settings2 size={15} className="shrink-0" />
+              <SettingsIcon size={15} className="shrink-0" />
               <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/settings:max-w-[70px] group-hover/settings:opacity-100 group-hover/settings:ml-2">
                 Settings
               </span>
@@ -468,7 +469,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta text-ink-900 shadow-[0_6px_18px_rgba(217,119,87,0.18)]">
-                        <Settings2 size={16} strokeWidth={2.2} />
+                        <SettingsIcon size={16} strokeWidth={2.2} />
                       </div>
                       <button
                         type="button"

@@ -171,7 +171,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
     return (
       <div
         onClick={handleCardClick}
-        className="group flex w-full cursor-pointer items-center gap-3 bg-parchment-raised px-3 py-2.5 transition-colors hover:bg-ink-900/[0.03] active:bg-ink-900/[0.05]"
+        className="group flex w-full cursor-pointer items-center gap-3 bg-parchment-raised px-3 py-2.5 transition-colors hover:bg-ink-900/[0.03] active:bg-ink-900/[0.05] rounded-xl shadow-card glass"
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-900">
           <FadeImage
