@@ -107,9 +107,9 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Copy */}
           <div>
-            <div className="inline-flex items-center gap-2 bg-terracotta border border-terracotta rounded-full px-4 py-2 mb-6 shadow-card">
-              <Sparkles size={13} className="text-ink-900" />
-              <span className="text-xs font-bold text-ink-900 uppercase tracking-widest">The Add-on Marketplace</span>
+            <div className="inline-flex items-center gap-2 bg-terracotta border border-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
+              <Sparkles size={13} className="text-paper" />
+              <span className="text-xs font-bold text-paper uppercase tracking-widest">The Add-on Marketplace</span>
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold text-ink-900 tracking-tight leading-[0.95] mb-6">
               Build. Share.<br />
@@ -285,13 +285,13 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
       {/* ─── Final CTA ─── */}
       <section className="border-b border-parchment-border bg-ink-900 py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-16 h-16 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center mx-auto mb-8 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-            <Users size={28} className="text-ink-900" />
+          <div className="w-16 h-16 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center mx-auto mb-8 shadow-sm">
+            <Users size={28} className="text-paper" />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-6">
+          <h2 className="text-4xl sm:text-5xl font-bold text-paper tracking-tight mb-6">
             Ready to Join the Community?
           </h2>
-          <p className="text-base font-normal text-white/70 max-w-lg mx-auto mb-10">
+          <p className="text-base font-normal text-paper/70 max-w-lg mx-auto mb-10">
             Thousands of creators are already publishing add-ons on Voltra. Your next favorite pack — or your own — is one click away.
           </p>
           <button

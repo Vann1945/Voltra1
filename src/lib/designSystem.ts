@@ -93,8 +93,8 @@ export const getButtonClasses = (variant: 'primary' | 'secondary' | 'ghost' | 'd
   };
   
   const variants = {
-    primary: 'bg-terracotta text-ink-900 shadow-[0_2px_10px_rgba(232,117,59,0.2)] hover:shadow-[0_4px_16px_rgba(232,117,59,0.3)] hover:brightness-105 active:brightness-95',
-    secondary: 'bg-parchment-raised text-ink-900 border border-parchment-border shadow-sm hover:bg-ink-900/5 active:bg-ink-900/10',
+    primary: 'bg-terracotta text-paper shadow-sm hover:shadow-md hover:brightness-105 active:brightness-95',
+    secondary: 'bg-parchment-raised text-ink-900 border border-parchment-border shadow-sm hover:border-terracotta/50 hover:shadow-md active:bg-ink-900/5',
     ghost: 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5 active:bg-ink-900/10',
     danger: 'bg-danger/10 text-danger border border-danger/20 hover:bg-danger hover:text-white active:brightness-95',
   };
@@ -106,7 +106,7 @@ export const getButtonClasses = (variant: 'primary' | 'secondary' | 'ghost' | 'd
 export const getInputClasses = (hasError = false) => {
   return `w-full rounded-xl bg-parchment-raised px-4 py-3 text-sm font-medium text-ink-900 placeholder:text-ink-900/40 outline-none transition-all ${
     hasError 
-      ? 'border-2 border-danger focus:border-danger focus:ring-4 focus:ring-danger/10' 
-      : 'border border-parchment-border focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 hover:border-ink-900/20'
+      ? 'border-2 border-danger focus:border-danger focus:ring-4 focus:ring-danger/20' 
+      : 'border border-parchment-border focus:border-terracotta focus:ring-4 focus:ring-terracotta/20 hover:border-ink-900/20'
   }`;
 };

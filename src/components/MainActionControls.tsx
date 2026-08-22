@@ -30,7 +30,7 @@ export function MainActionControls({ statusToday, onRecordStatus, theme = 'light
           >
             <button
               onClick={() => onRecordStatus('active')}
-              className="group relative overflow-hidden bg-[var(--sa-conquer-bg)] text-[var(--sa-conquer-text)] p-6 sm:p-8 rounded-2xl text-left transition-[filter,box-shadow] duration-150 hover:brightness-105 active:brightness-95 shadow-[0_2px_12px_rgba(20,20,19,0.10)] ring-1 ring-black/5 btn-3d"
+              className="group relative overflow-hidden bg-[var(--sa-conquer-bg)] text-[var(--sa-conquer-text)] p-6 sm:p-8 rounded-2xl text-left transition-[filter,box-shadow] duration-150 hover:brightness-105 active:brightness-95 shadow-sm ring-1 ring-black/5"
             >
               <div className="relative z-10 flex flex-col h-full justify-between gap-5 sm:gap-6">
                 <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--sa-conquer-text)]">{copy.label}</span>
@@ -45,7 +45,7 @@ export function MainActionControls({ statusToday, onRecordStatus, theme = 'light
 
             <button
               onClick={() => onRecordStatus('rest')}
-              className="group relative overflow-hidden bg-parchment-raised text-ink-900 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] border border-parchment-border shadow-sm btn-3d"
+              className="group relative overflow-hidden bg-parchment-raised text-ink-900 p-6 sm:p-8 rounded-2xl text-left transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] border border-parchment-border shadow-sm"
             >
               <div className="relative z-10 flex flex-col h-full justify-between gap-5 sm:gap-6">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-700">Rest</span>

@@ -37,14 +37,7 @@
   --shadow-card-hover: 0 0 0 1px rgba(83, 47, 28, 0.10), 0 6px 16px rgba(48, 29, 18, 0.08);
   --shadow-card-float: 0 0 0 1px rgba(83, 47, 28, 0.08), 0 12px 24px rgba(48, 29, 18, 0.10);
 
-  /* Alias lama dipertahankan agar komponen lama tetap mengikuti palet baru. */
-  --color-cool-bg: #fff8f1;
-  --color-cool-surface: #ffffff;
-  --color-cool-primary: #e8753b;
-  --color-cool-secondary: #f29a62;
-  --color-cool-accent: #c95d2d;
-  --color-cool-text: #2b1810;
-  --color-cool-text-muted: #8b6b58;
+  /* Alias dihapus untuk konsistensi. Jika ada yang masih pakai, akan diganti ke token utama. */
 
   --color-parchment: #fff8f1;
   --color-parchment-raised: #ffffff;
@@ -90,13 +83,7 @@
   --color-linen-100: var(--color-parchment);
   --color-linen-200: var(--color-parchment-border);
   --color-linen-muted: #633b29;
-  --color-cool-bg: var(--color-parchment);
-  --color-cool-surface: var(--color-parchment-raised);
-  --color-cool-primary: var(--color-terracotta);
-  --color-cool-secondary: var(--color-terracotta-text);
-  --color-cool-accent: var(--color-terracotta-ink);
-  --color-cool-text: var(--color-ink-900);
-  --color-cool-text-muted: var(--color-olive-600);
+  /* Alias dihapus untuk konsistensi */
 }
 
 .oled {
@@ -114,13 +101,7 @@
   --shadow-card-hover: 0 0 0 1px rgba(255, 139, 75, 0.20), 0 8px 20px rgba(0, 0, 0, 0.8);
   --shadow-card-float: 0 0 0 1px rgba(255, 139, 75, 0.16), 0 16px 32px rgba(0, 0, 0, 0.9);
 
-  --color-cool-bg: #000000;
-  --color-cool-surface: #0b0705;
-  --color-cool-primary: var(--color-accent);
-  --color-cool-secondary: var(--color-accent-soft);
-  --color-cool-accent: var(--color-accent-deep);
-  --color-cool-text: var(--color-ink);
-  --color-cool-text-muted: #b68a70;
+  /* Alias dihapus untuk konsistensi */
   --color-parchment: #000000;
   --color-parchment-raised: #0b0705;
   --color-parchment-border: #3c1f14;
@@ -146,15 +127,15 @@
 }
 
 .dark .glass {
-  background: color-mix(in srgb, var(--color-parchment-raised) 90%, transparent);
-  border-color: color-mix(in srgb, var(--color-terracotta) 22%, transparent);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+  background: color-mix(in srgb, var(--color-parchment-raised) 85%, transparent);
+  border-color: color-mix(in srgb, var(--color-parchment-border) 80%, transparent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .oled .glass {
-  background: rgba(8, 5, 4, 0.92);
-  border-color: rgba(255, 138, 69, 0.24);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.62);
+  background: rgba(11, 7, 5, 0.88);
+  border-color: rgba(60, 31, 20, 0.80);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
 }
 
 .neumorph {
@@ -258,7 +239,7 @@ body {
   --sa-conquer-text-soft: rgba(36, 18, 8, 0.82);
   --sa-conquer-tint: rgba(36, 18, 8, 0.12);
   --sa-conquer-tint-hover: rgba(36, 18, 8, 0.20);
-  --sa-cta-text: var(--sa-conquer-text);
+  --sa-cta-text: var(--color-paper);
   --sa-cta-text-soft: var(--sa-conquer-text-soft);
   --sa-cta-tint: var(--sa-conquer-tint);
   --sa-cta-tint-hover: var(--sa-conquer-tint-hover);
@@ -282,7 +263,7 @@ body {
   --sa-conquer-text-soft: rgba(53, 23, 13, 0.84);
   --sa-conquer-tint: rgba(53, 23, 13, 0.12);
   --sa-conquer-tint-hover: rgba(53, 23, 13, 0.20);
-  --sa-cta-text: var(--sa-conquer-text);
+  --sa-cta-text: var(--color-paper);
   --sa-cta-text-soft: var(--sa-conquer-text-soft);
   --sa-cta-tint: var(--sa-conquer-tint);
   --sa-cta-tint-hover: var(--sa-conquer-tint-hover);
@@ -304,7 +285,7 @@ body {
   --sa-conquer-text-soft: rgba(7, 26, 18, 0.78);
   --sa-conquer-tint: rgba(7, 26, 18, 0.12);
   --sa-conquer-tint-hover: rgba(7, 26, 18, 0.20);
-  --sa-cta-text: var(--sa-conquer-text);
+  --sa-cta-text: var(--color-paper);
   --sa-cta-text-soft: var(--sa-conquer-text-soft);
   --sa-cta-tint: var(--sa-conquer-tint);
   --sa-cta-tint-hover: var(--sa-conquer-tint-hover);

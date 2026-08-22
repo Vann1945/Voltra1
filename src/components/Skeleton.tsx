@@ -7,8 +7,8 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-ink-900/[0.06] border border-parchment-border rounded-lg',
-        'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent',
+        'relative overflow-hidden bg-ink-900/[0.03] border border-parchment-border rounded-lg',
+        'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/[0.08] before:to-transparent',
         className
       )}
       {...props}

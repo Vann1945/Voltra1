@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { AddonCard } from './AddonCard';
+import { getButtonClasses } from '../lib/designSystem';
 import { Addon } from '../types';
 import { Package, Heart, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -50,7 +51,13 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
   const totalLikes = useMemo(() => authorAddons.reduce((sum, addon) => sum + (addon.likesCount || 0), 0), [authorAddons]);
 
   if (loading) {
-    return <PageSkeletonCards count={8} />;
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 min-h-[100dvh]">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    );
   }
 
   if (authorAddons.length === 0) {
@@ -59,7 +66,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
         <h3 className="text-lg font-bold text-ink-900 uppercase">This author has no public add-ons yet</h3>
         <button
           onClick={() => onNavigate('home')}
-          className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
+          className={`mt-5 ${getButtonClasses('secondary', 'md')}`}
         >
           Return to Marketplace
         </button>

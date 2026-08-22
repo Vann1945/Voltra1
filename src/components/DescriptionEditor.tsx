@@ -568,7 +568,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showFormatMenu; closeAllMenus(); setShowFormatMenu(next); }}
-                className="flex items-center gap-1  px-2.5 py-1.5 text-xs font-medium text-ink-900 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
+                className="flex items-center gap-1  px-2.5 py-1.5 text-xs font-medium text-ink-900 hover:bg-ink-900/10 hover:text-ink-900 transition-colors"
               >
                 {currentFormatLabel} <ChevronDown size={12} />
               </button>
@@ -580,7 +580,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => { exec('formatBlock', f.value); setShowFormatMenu(false); }}
-                      className={`flex w-full items-center justify-between gap-2  px-3 py-1.5 text-left transition-colors ${currentFormatTag === f.value ? 'bg-terracotta/30 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
+                      className={`flex w-full items-center justify-between gap-2  px-3 py-1.5 text-left transition-colors ${currentFormatTag === f.value ? 'bg-terracotta text-paper' : 'text-ink-900 hover:bg-ink-900/10 hover:text-ink-900'}`}
                     >
                       <span className={f.preview}>{f.label}</span>
                       {currentFormatTag === f.value && <Check size={12} className="shrink-0" />}
@@ -603,7 +603,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showColorMenu; closeAllMenus(); setShowColorMenu(next); }}
-                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#FAF9F6' ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
+                className={`flex items-center gap-1  p-1.5 transition-colors ${showColorMenu || currentColor !== '#FAF9F6' ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-ink-900/10 hover:text-ink-900'}`}
                 title="Text Color"
               >
                 <div className="flex flex-col items-center">
@@ -641,7 +641,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showBgColorMenu; closeAllMenus(); setShowBgColorMenu(next); }}
-                className={`flex items-center gap-1  p-1.5 transition-colors ${showBgColorMenu || currentBgColor ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-terracotta/40 hover:text-ink-900'}`}
+                className={`flex items-center gap-1  p-1.5 transition-colors ${showBgColorMenu || currentBgColor ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900 hover:bg-ink-900/10 hover:text-ink-900'}`}
                 title="Background Color"
               >
                 <div className="flex flex-col items-center">
@@ -686,7 +686,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showUnorderedListMenu; closeAllMenus(); setShowUnorderedListMenu(next); }}
-                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
+                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900 transition-colors"
                 title="Unordered List Style"
               >
                 <List size={15} />
@@ -694,15 +694,15 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
               </button>
               {showUnorderedListMenu && (
               <div className="absolute left-0 z-[130] mt-1 flex items-center gap-1.5 rounded-lg bg-parchment-raised p-2 shadow-card max-w-[calc(100vw-2rem)]">
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'disc')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'disc' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'disc')} className={`relative p-2  bg-parchment-raised hover:bg-ink-900/10 text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'disc' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListDiscSVG />
                     {currentUlStyle === 'disc' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'circle')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'circle' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'circle')} className={`relative p-2  bg-parchment-raised hover:bg-ink-900/10 text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'circle' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListCircleSVG />
                     {currentUlStyle === 'circle' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'square')} className={`relative p-2  bg-parchment-raised hover:bg-terracotta text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'square' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
+                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => applyListStyle('ul', 'square')} className={`relative p-2  bg-parchment-raised hover:bg-ink-900/10 text-ink-900 hover:text-ink-900 border transition-colors ${currentUlStyle === 'square' ? 'border-terracotta-soft text-ink-900' : 'border-ink-900'}`}>
                     <UnorderedListSquareSVG />
                     {currentUlStyle === 'square' && <Check size={10} className="absolute -top-1 -right-1 rounded-full bg-terracotta-soft p-0.5 text-ink-900" />}
                   </button>
@@ -715,7 +715,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { const next = !showOrderedListMenu; closeAllMenus(); setShowOrderedListMenu(next); }}
-                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
+                className="flex items-center gap-0.5  p-1.5 text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900 transition-colors"
                 title="Ordered List Style"
               >
                 <ListOrdered size={15} />
@@ -758,7 +758,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 title="More Tools"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={toggleMoreTools}
-                className={`flex items-center justify-center  p-1.5 transition-colors ${showMoreTools ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900'}`}
+                className={`flex items-center justify-center  p-1.5 transition-colors ${showMoreTools ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900'}`}
               >
                 <MoreHorizontal size={15} />
               </button>
@@ -1012,7 +1012,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         type="button"
                         onClick={() => setImageAspectLocked((p) => !p)}
                         title={imageAspectLocked ? 'Rasio terkunci' : 'Rasio bebas'}
-                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
+                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900 transition-colors"
                       >
                         {imageAspectLocked ? <Lock size={14} /> : <Unlock size={14} />}
                       </button>
@@ -1111,7 +1111,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                         type="button"
                         onClick={() => setMediaAspectLocked((p) => !p)}
                         title={mediaAspectLocked ? 'Rasio terkunci' : 'Rasio bebas'}
-                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900 transition-colors"
+                        className="mb-0.5 shrink-0  p-2 text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900 transition-colors"
                       >
                         {mediaAspectLocked ? <Lock size={14} /> : <Unlock size={14} />}
                       </button>
@@ -1224,7 +1224,7 @@ function ToolbarBtn({ icon: Icon, label, onClick, active }: { icon: React.Compon
       title={label}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className={`flex items-center justify-center  p-1.5 transition-colors ${active ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-terracotta/40 hover:text-ink-900'}`}
+      className={`flex items-center justify-center  p-1.5 transition-colors ${active ? 'bg-parchment-raised/20 text-ink-900' : 'text-ink-900/50 hover:bg-ink-900/10 hover:text-ink-900'}`}
     >
       <Icon size={15} />
     </button>

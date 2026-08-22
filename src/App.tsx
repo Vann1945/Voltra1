@@ -220,7 +220,7 @@ function AppShell() {
   const isDarkMode = theme === 'dark' || theme === 'oled';
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-paper-soft text-ink-900 selection:bg-terracotta selection:text-ink-900`}>
+    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-parchment text-ink-900 selection:bg-terracotta selection:text-ink-900`}>
       <BorderEffectStyles />
       {currentView !== 'landing' && (
         <Navbar

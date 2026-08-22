@@ -3,6 +3,7 @@ import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Skeleton } from './Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 
 interface ResetPasswordPageProps {
   token: string;
@@ -62,13 +63,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
     }
   };
 
-  const inputClass = (hasError: boolean) =>
-    cn(
-      'w-full bg-parchment-raised border py-3 pl-12 pr-4 text-ink-900 font-medium placeholder:text-ink-900/40 focus:outline-none transition-all',
-      hasError
-        ? 'border-danger focus:shadow-[0_2px_12px_rgba(179,38,30,0.15)]'
-        : 'border-ink-900/15 focus:border-terracotta-soft focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)]'
-    );
+  const inputClass = (hasError: boolean) => cn(getInputClasses(hasError), 'pl-12');
 
   return (
     <div className="min-h-[70dvh] flex items-center justify-center p-4">
@@ -85,7 +80,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
               </p>
               <button
                 onClick={() => onNavigate('home')}
- className="w-full bg-parchment-raised rounded-lg py-3 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d"
+                className={`w-full ${getButtonClasses('secondary', 'md')}`}
               >
                 Back to home
               </button>
@@ -170,7 +165,7 @@ export function ResetPasswordPage({ token, uid, onNavigate }: ResetPasswordPageP
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full mt-2 bg-terracotta rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink-900 uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                     >
                       <span>Reset password</span>
                       <ArrowRight size={18} />

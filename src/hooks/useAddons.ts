@@ -11,10 +11,11 @@ export function useAddons() {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const lastFetchedAtRef = useRef(0);
-  const MIN_REFETCH_GAP_MS = 3000;
+  const MIN_REFETCH_GAP_MS = 15000; // Increase to 15s to avoid spamming the DB on fast tab switching
 
-  const fetchAddons = useCallback(async () => {
+  const fetchAddons = useCallback(async (isBackground = false) => {
     lastFetchedAtRef.current = Date.now();
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch('/api/addons', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to retrieve addons');
@@ -43,19 +44,18 @@ export function useAddons() {
   }, [user]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchAddons();
+    fetchAddons(false);
 
     const interval = setInterval(() => {
       if (document.hidden) return; // tab di background: jangan poll sama sekali
-      fetchAddons();
+      fetchAddons(true);
     }, BACKGROUND_POLL_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
       if (document.hidden) return;
       const sinceLastFetch = Date.now() - lastFetchedAtRef.current;
       if (sinceLastFetch > MIN_REFETCH_GAP_MS) {
-        fetchAddons();
+        fetchAddons(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);

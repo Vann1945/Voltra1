@@ -116,9 +116,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
       <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-terracotta rounded-full px-4 py-2 mb-6 shadow-card">
-              <Sparkles size={13} className="text-ink-900" />
-              <span className="text-xs font-bold text-ink-900 uppercase tracking-widest">Minecraft Marketplace</span>
+            <div className="inline-flex items-center gap-2 bg-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
+              <Sparkles size={13} className="text-paper" />
+              <span className="text-xs font-bold text-paper uppercase tracking-widest">Minecraft Marketplace</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4 leading-tight">
               Find Your<br />Next Add-on
@@ -183,14 +183,14 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     <button
                       onClick={() => setSortBy('newest')}
                       aria-pressed={sortBy === 'newest'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'newest' ? 'bg-terracotta text-ink-900' : 'text-ink-900/70 hover:text-ink-900'}`}
+                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'newest' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
                     >
                       Newest
                     </button>
                     <button
                       onClick={() => setSortBy('most_liked')}
                       aria-pressed={sortBy === 'most_liked'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors ${sortBy === 'most_liked' ? 'bg-terracotta text-ink-900' : 'text-ink-900/70 hover:text-ink-900'}`}
+                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'most_liked' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
                     >
                       Popular
                     </button>
@@ -214,7 +214,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     <SlidersHorizontal size={17} aria-hidden="true" />
                     <span>Filters</span>
                     {activeFilterCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center bg-terracotta border border-parchment-border rounded-lg text-[10px] text-ink-900 font-bold">
+                      <span className="flex h-5 w-5 items-center justify-center bg-terracotta border border-parchment-border rounded-lg text-[10px] text-paper font-bold">
                         {activeFilterCount}
                       </span>
                     )}

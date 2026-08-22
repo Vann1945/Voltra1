@@ -513,7 +513,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               <h2 className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
+                className="p-2 rounded-lg bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:bg-ink-900/10 transition-colors"
               >
                 <X size={16} />
               </button>
@@ -526,7 +526,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   type="button"
                   onClick={() => goToStep(s)}
                   className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest border-r border-parchment-border last:border-r-0 transition-colors ${
-                    step === s ? 'bg-terracotta text-ink-900' : 'bg-parchment-raised text-ink-900/50 hover:bg-terracotta/30'
+                    step === s ? 'bg-terracotta text-paper shadow-sm' : 'bg-parchment-raised text-ink-900/50 hover:bg-ink-900/10'
                   }`}
                 >
                   {idx + 1}. {s}
@@ -537,8 +537,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             <div className="overflow-y-auto p-6 flex-1 space-y-5">
               {successMessage ? (
                 <div className="text-center py-12 space-y-4">
-                  <div className="w-14 h-14 bg-terracotta rounded-lg flex items-center justify-center mx-auto shadow-card">
-                    <Check size={28} className="text-ink-900" />
+                  <div className="w-14 h-14 bg-terracotta rounded-lg flex items-center justify-center mx-auto shadow-sm">
+                    <Check size={28} className="text-paper" />
                   </div>
                   <h3 className="text-xl font-bold text-ink-900 uppercase">Upload Successful</h3>
                   <p className="text-sm text-ink-900/60 font-medium max-w-xs mx-auto">{successMessage}</p>
@@ -608,7 +608,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             {parseTags(formData.tagsInput).map((tag, i) => (
                               <span
                                 key={i}
-                                className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-ink-900 shadow-card"
+                                className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-paper shadow-sm"
                               >
                                 {tag}
                               </span>
@@ -629,14 +629,14 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               <div key={url} className="relative w-20 h-20 rounded-lg shadow-card overflow-hidden group">
                                 <FadeImage src={url} alt="Cover preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                 {url === formData.imageUrl && (
-                                  <span className="absolute top-0.5 left-0.5 bg-terracotta border border-ink-900 px-1 text-[9px] font-bold uppercase">Main</span>
+                                  <span className="absolute top-0.5 left-0.5 bg-terracotta text-paper border border-ink-900 px-1 text-[9px] font-bold uppercase">Main</span>
                                 )}
                                 <button
                                   type="button"
                                   onClick={() => removeImage(url)}
-                                  className="absolute bottom-0.5 right-0.5 bg-terracotta border border-ink-900 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="absolute bottom-0.5 right-0.5 bg-terracotta text-paper border border-ink-900 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                  <Trash2 size={11} className="text-ink-900" />
+                                  <Trash2 size={11} className="text-paper" />
                                 </button>
                               </div>
                             ))}
@@ -714,7 +714,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               onClick={() => addonFileInputRef.current?.click()}
                               disabled={fileUploadProgress !== null}
                               title="Upload file"
-                              className="shrink-0 px-4 py-2.5 rounded-lg bg-terracotta text-ink-900 font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="shrink-0 px-4 py-2.5 rounded-lg bg-terracotta text-paper font-bold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105 active:brightness-95 transition-all"
                             >
                               {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
                             </button>
@@ -779,9 +779,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             <button
                               type="button"
                               onClick={removePanorama}
-                              className="absolute bottom-2 right-2 bg-terracotta border border-ink-900 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute bottom-2 right-2 bg-terracotta text-paper border border-ink-900 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <Trash2 size={13} className="text-ink-900" />
+                              <Trash2 size={13} className="text-paper" />
                             </button>
                           </div>
                         ) : (

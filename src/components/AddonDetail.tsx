@@ -356,7 +356,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <div className="p-8">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
             <div>
-              <span className="inline-block bg-terracotta rounded-full px-3 py-1.5 text-xs font-bold uppercase text-ink-900 mb-3 shadow-card">
+              <span className="inline-block bg-terracotta rounded-full px-3 py-1.5 text-xs font-bold uppercase text-paper mb-3 shadow-sm">
                 {addon.category}
               </span>
               <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight leading-tight">{addon.title}</h1>

@@ -257,16 +257,16 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         />
 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
-          <span className="inline-flex items-center bg-terracotta rounded-xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
+          <span className="inline-flex items-center bg-terracotta rounded-xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-paper shadow-sm">
             {addon.category}
           </span>
           {addon.status === 'pending' && (
-            <span className="inline-flex items-center bg-parchment-raised rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
+            <span className="inline-flex items-center bg-parchment-raised rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-sm border border-parchment-border">
               Pending
             </span>
           )}
           {addon.status === 'rejected' && (
-            <span className="inline-flex items-center bg-danger rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-card">
+            <span className="inline-flex items-center bg-danger rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
               Rejected
             </span>
           )}

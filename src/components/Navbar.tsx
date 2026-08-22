@@ -421,7 +421,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
   return (
     <>
-    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/95 border-b border-parchment-border">
+    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/85 backdrop-blur-md border-b border-parchment-border transition-colors duration-200">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
           <div className="relative hidden sm:block" ref={themeWrapperRef}>
@@ -454,7 +454,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             type="button"
             onClick={() => onNavigate('streak')}
             className={`group/streak flex items-center rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-300 ease-out ${
-              currentView === 'streak' ? 'bg-terracotta text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)]' : 'bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:border-terracotta/50 hover:shadow-md active:scale-[0.97]'
+              currentView === 'streak' ? 'bg-terracotta text-paper shadow-[0_4px_12px_rgba(232,117,59,0.25)]' : 'bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:border-terracotta/50 hover:shadow-md active:scale-[0.97]'
             }`}
             title="Open streak"
           >
@@ -633,10 +633,10 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               </button>
 
               {user.role === 'admin' && (
-                <button
-                  onClick={() => onNavigate('admin')}
-                  className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
-                >
+              <button
+                onClick={() => onNavigate('admin')}
+                className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-paper shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
+              >
                   <Shield size={15} className="shrink-0" />
                   <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/admin:max-w-[90px] group-hover/admin:opacity-100 group-hover/admin:ml-2">
                     Admin
@@ -671,7 +671,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           ) : (
             <button
               onClick={onOpenAuth}
-              className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
+              className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-paper shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
             >
               <LogIn size={16} className="shrink-0" />
               <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/signin:max-w-[90px] group-hover/signin:opacity-100 group-hover/signin:ml-2">
