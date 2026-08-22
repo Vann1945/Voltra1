@@ -302,10 +302,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-2xl flex flex-col gap-8 sm:gap-12"
           >
-            <header className="flex justify-between items-center pb-6 border-b border-[var(--sa-border)]">
-              <div className="flex items-center gap-4">
-                <p className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--sa-text)]">Voltra</p>
-              </div>
+            <header className="flex justify-end items-center pb-6 border-b border-[var(--sa-border)]">
               <div className="flex flex-col items-end gap-0.5">
                 <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--sa-text-muted)]">Daily Focus</span>
                 <time dateTime={todayDateStr} className="text-[11px] font-medium text-[var(--sa-text-soft)]">

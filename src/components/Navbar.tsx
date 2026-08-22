@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
 import {
   Upload,
   LogIn,
@@ -225,23 +224,13 @@ function MobileBottomNav({
 
   return (
     <>
-      <AnimatePresence>
         {isSheetOpen && (
           <React.Fragment>
-            <motion.div
-              key="mobile-nav-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <div
               onClick={closeSheet}
               className="fixed inset-0 z-[190] bg-ink-900/40 sm:hidden"
             />
-            <motion.div
-              key="mobile-nav-sheet"
-              initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+            <div
               className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-[200] mx-3 flex flex-col gap-2 sm:hidden"
             >
               {user ? (
@@ -299,7 +288,7 @@ function MobileBottomNav({
                 <button
                   type="button"
                   onClick={() => onSetLayoutMode('grid')}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-colors ${
                     layoutMode === 'grid' ? 'bg-terracotta text-ink-900' : 'text-ink-900/60'
                   }`}
                 >
@@ -308,7 +297,7 @@ function MobileBottomNav({
                 <button
                   type="button"
                   onClick={() => onSetLayoutMode('list')}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-colors ${
                     layoutMode === 'list' ? 'bg-terracotta text-ink-900' : 'text-ink-900/60'
                   }`}
                 >
@@ -335,14 +324,13 @@ function MobileBottomNav({
                   Log out
                 </button>
               )}
-            </motion.div>
+            </div>
           </React.Fragment>
         )}
-      </AnimatePresence>
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-8px_24px_rgba(43,24,16,0.08)] backdrop-blur-md sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-6px_16px_rgba(43,24,16,0.06)] sm:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <button
@@ -412,23 +400,14 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
   return (
     <>
-    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/95 border-b border-parchment-border glass">
+    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/95 border-b border-parchment-border">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
           <div className="relative hidden sm:block" ref={themeWrapperRef}>
             <ThemeToggle theme={theme} />
 
             {isThemeCardOpen && (
-              <div
-                className="absolute left-0 top-full mt-3 w-[min(320px,calc(100vw-2rem))] z-[110]"
-                style={{ animation: 'wtt-popover-in 0.2s cubic-bezier(0.16,1,0.3,1)' }}
-              >
-                <style>{`
-                  @keyframes wtt-popover-in {
-                    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-                    to { opacity: 1; transform: translateY(0) scale(1); }
-                  }
-                `}</style>
+              <div className="absolute left-0 top-full mt-3 w-[min(320px,calc(100vw-2rem))] z-[110]">
                 <WindowThemeToggle
                   theme={theme}
                   onToggle={() => {
@@ -477,14 +456,10 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               </span>
             </button>
 
-            <AnimatePresence>
+            <>
               {isSettingsOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
-                  className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-parchment-border bg-parchment-raised/95 p-4 shadow-card-float backdrop-blur-xl"
+                <div
+                  className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-card"
                 >
                   <div className="mb-4 flex items-center justify-between gap-3 border-b border-parchment-border pb-3">
                     <div>
@@ -619,9 +594,9 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+            </>
           </div>
 
           {user ? (
