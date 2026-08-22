@@ -48,6 +48,13 @@ export default defineConfig(({mode}) => {
       host: '0.0.0.0',
       port: 3002,
       allowedHosts: true,
+      proxy: {
+        "/api": {
+          target: "https://voltra-essentials.my.id",
+          changeOrigin: true,
+          secure: false,
+        }
+      },
       hmr: process.env.DISABLE_HMR !== 'true',
     },
     build: {
