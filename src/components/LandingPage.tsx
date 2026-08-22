@@ -108,8 +108,8 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           {/* Copy */}
           <div>
             <div className="inline-flex items-center gap-2 bg-terracotta border border-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
-              <Sparkles size={13} className="text-paper" />
-              <span className="text-xs font-bold text-paper uppercase tracking-widest">The Add-on Marketplace</span>
+              <Sparkles size={13} className="text-gray-200" />
+              <span className="text-xs font-bold text-gray-200 uppercase tracking-widest">The Add-on Marketplace</span>
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold text-ink-900 tracking-tight leading-[0.95] mb-6">
               Build. Share.<br />
@@ -286,12 +286,12 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
       <section className="border-b border-parchment-border bg-ink-900 py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-16 h-16 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center mx-auto mb-8 shadow-sm">
-            <Users size={28} className="text-paper" />
+            <Users size={28} className="text-gray-200" />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-paper tracking-tight mb-6">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-200 tracking-tight mb-6">
             Ready to Join the Community?
           </h2>
-          <p className="text-base font-normal text-paper/70 max-w-lg mx-auto mb-10">
+          <p className="text-base font-normal text-gray-200/70 max-w-lg mx-auto mb-10">
             Thousands of creators are already publishing add-ons on Voltra. Your next favorite pack — or your own — is one click away.
           </p>
           <button

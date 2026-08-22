@@ -52,7 +52,7 @@ export default defineConfig(({mode}) => {
     },
     build: {
       sourcemap: false,
-      target: 'es2020',
+      target: 'esnext',
       cssCodeSplit: false,
       cssMinify: true,
       minify: 'terser',
@@ -60,15 +60,24 @@ export default defineConfig(({mode}) => {
         compress: {
           drop_console: true,
           drop_debugger: true,
+          pure_funcs: ['console.info', 'console.debug', 'console.warn'],
+          passes: 2
         },
+        format: {
+          comments: false
+        }
       },
       rollupOptions: {
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false
+        },
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],
             'vendor-motion': ['motion/react'],
             'vendor-icons': ['lucide-react'],
-            'vendor-firebase': ['firebase/app', 'firebase/auth'],
+            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
           },
         },
       },
