@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { motion, AnimatePresence } from 'motion/react';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -92,7 +93,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
               </h2>
               <button
                 onClick={onClose}
- className="p-1.5 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
+                className={getButtonClasses('secondary', 'sm')}
               >
                 <X size={18} />
               </button>
@@ -110,7 +111,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                     <button
                       type="button"
                       onClick={() => setIsReasonOpen(prev => !prev)}
- className="flex w-full items-center justify-between rounded-lg bg-parchment-raised px-5 py-3.5 text-sm font-bold text-ink-900 shadow-card btn-3d focus:outline-none"
+                      className={`w-full flex items-center justify-between ${getButtonClasses('secondary', 'md')}`}
                     >
                       <span>{reason}</span>
                       <ChevronDown size={15} className={`transition-transform duration-200 ${isReasonOpen ? 'rotate-180' : ''}`} />
@@ -155,7 +156,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                       rows={3}
                       value={otherReason}
                       onChange={e => setOtherReason(e.target.value)}
-                      className="block w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-3 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
+                      className={`${getInputClasses()} resize-none`}
                       placeholder="Provide more details..."
                     />
                   </div>
@@ -167,7 +168,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
- className="px-5 py-3 text-sm font-bold text-ink-900 rounded-lg bg-parchment-raised shadow-card uppercase btn-3d"
+                  className={getButtonClasses('secondary', 'md')}
                 >
                   Cancel
                 </button>
@@ -179,7 +180,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
                   <button
                     type="submit"
                     disabled={loading || (reason === 'Other' && !otherReason.trim())}
-                    className="flex items-center gap-2 px-7 py-3 text-sm font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                   >
                     Submit Report
                   </button>

@@ -6,7 +6,8 @@ import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, 
 import { ViewState } from '../App';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { FadeImage } from './FadeImage';
-import { PageSkeletonCards, Skeleton } from './Skeleton';
+import { Skeleton, SkeletonCard } from './Skeleton';
+import { getButtonClasses } from '../lib/designSystem';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 const EXCLUDED_ADMIN_EMAILS = ['unknownfeed76@gmail.com', 'kanzakbarraihanriyanto86@gmail.com'];
@@ -80,7 +81,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
         <h3 className="text-lg font-bold text-ink-900 uppercase">Access Denied. Admin only.</h3>
         <button
           onClick={() => onNavigate('home')}
- className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+          className={`mt-5 ${getButtonClasses('secondary', 'md')}`}
         >
           Return to Marketplace
         </button>
@@ -89,7 +90,13 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   }
 
   if (loading) {
-    return <PageSkeletonCards count={8} />;
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 min-h-[100dvh]">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    );
   }
 
   const pendingAddons = addons.filter(a => a.status === 'pending');
@@ -225,22 +232,22 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     }
   };
 
-  // Reusable editorial action button — tone maps to semantic accent colors
+  // Reusable editorial action button
   const ActionButton = ({
     onClick, disabled, icon, label, tone = 'default',
   }: { onClick: () => void; disabled?: boolean; icon: React.ReactNode; label: string; tone?: 'default' | 'success' | 'danger' | 'warn' | 'info' }) => {
-    const toneClasses: Record<string, string> = {
-      default: 'bg-parchment-raised text-ink-900',
-      success: 'bg-success text-white',
-      danger: 'bg-danger text-white',
-      warn: 'bg-terracotta text-ink-900',
-      info: 'bg-terracotta-text text-white',
+    const toneToVariant: Record<string, 'primary' | 'secondary' | 'danger' | 'ghost'> = {
+      default: 'secondary',
+      success: 'primary',
+      danger: 'danger',
+      warn: 'primary',
+      info: 'secondary',
     };
     return (
       <button
         onClick={onClick}
         disabled={disabled}
- className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed ${toneClasses[tone]}`}
+        className={`flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses(toneToVariant[tone], 'sm')}`}
       >
         {icon}
         {label}

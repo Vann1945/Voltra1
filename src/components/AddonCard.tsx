@@ -9,6 +9,7 @@ import { useToast } from '../hooks/useToast';
 import { ViewState } from '../App';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
+import { getButtonClasses } from '../lib/designSystem';
 
 // Cache kecil di level modul supaya banyak <AddonCard> dari author yang sama
 // tidak masing-masing nembak /api/users sendiri-sendiri (N+1 request tiap
@@ -282,7 +283,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             <button
               onClick={toggleInfo}
               aria-label={showInfo ? 'Hide additional info' : 'Show additional info'}
-              className={`p-1.5 rounded-lg transition-all ${showInfo ? 'bg-terracotta-text text-white shadow-none' : 'bg-parchment-raised text-ink-900 shadow-card btn-3d'}`}
+              className={`p-1.5 rounded-lg transition-all duration-300 ease-out active:scale-[0.97] ${showInfo ? 'bg-terracotta-text text-white shadow-none' : 'bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:border-ink-900/20 hover:shadow-md'}`}
             >
               <Info size={14} />
             </button>
@@ -372,10 +373,10 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             <button
               onClick={handleDownloadClick}
               disabled={isDownloading}
-              className={`relative overflow-hidden flex items-center gap-1.5 border border-parchment-border rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all ${
+              className={`relative overflow-hidden flex items-center gap-1.5 border border-parchment-border rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all duration-300 ease-out active:scale-[0.97] ${
                 downloadSuccess
-                  ? 'bg-parchment-raised text-success shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                  : 'bg-terracotta text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
+                  ? 'bg-parchment-raised text-success shadow-sm'
+                  : 'bg-terracotta text-ink-900 shadow-sm hover:shadow-md hover:border-terracotta/50'
               }`}
             >
               {isDownloading && (

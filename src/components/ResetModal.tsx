@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
 import { RotateCcw } from 'lucide-react';
+import { getButtonClasses } from '../lib/designSystem';
 
 interface ResetModalProps {
   isOpen: boolean;
@@ -102,14 +103,14 @@ export function ResetModal({ isOpen, onConfirm, onCancel }: ResetModalProps) {
             <div className="flex flex-col gap-3 w-full">
               <button
                 onClick={onConfirm}
-                className="w-full py-3.5 bg-ink-900 text-linen-50 text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-ink-700 transition-colors btn-3d"
+                className={`w-full ${getButtonClasses('danger', 'md')}`}
               >
                 Yes, Reset
               </button>
               <button
                 ref={cancelButtonRef}
                 onClick={onCancel}
-                className="w-full py-3.5 bg-transparent text-ink-500 text-xs font-semibold uppercase tracking-wider rounded-full hover:text-ink-900 transition-colors"
+                className={`w-full ${getButtonClasses('ghost', 'md')}`}
               >
                 Cancel
               </button>

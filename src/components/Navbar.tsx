@@ -22,6 +22,8 @@ import { SettingsIcon, LayoutIcon } from './icons';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
+import { motion, AnimatePresence } from 'motion/react';
+import { ANIMATION, HAPTIC_PATTERNS } from '../lib/designSystem';
 
 interface NavbarProps {
   onOpenUpload: () => void;
@@ -221,23 +223,40 @@ function MobileBottomNav({
 
   const themeLabel = theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'OLED mode';
 
-  const closeSheet = () => setIsSheetOpen(false);
+  const closeSheet = () => {
+    setIsSheetOpen(false);
+    HAPTIC_PATTERNS.light();
+  };
+
+  const handleAction = (action: () => void) => {
+    HAPTIC_PATTERNS.medium();
+    action();
+  };
 
   return (
     <>
+        <AnimatePresence>
         {isSheetOpen && (
           <React.Fragment>
-            <div
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={closeSheet}
-              className="fixed inset-0 z-[190] bg-ink-900/40 sm:hidden"
+              className="fixed inset-0 z-[190] bg-ink-900/40 backdrop-blur-sm sm:hidden"
             />
-            <div
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={ANIMATION.springBouncy}
               className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-[200] mx-3 flex flex-col gap-2 sm:hidden"
             >
               {user ? (
                 <button
                   type="button"
-                  onClick={() => { onNavigate(currentView === 'profile' ? 'home' : 'profile'); closeSheet(); }}
+                  onClick={() => handleAction(() => { onNavigate(currentView === 'profile' ? 'home' : 'profile'); closeSheet(); })}
                   className="flex items-center gap-3 rounded-2xl bg-parchment-raised px-4 py-3.5 text-left shadow-card"
                 >
                   <ProfileAvatar
@@ -255,7 +274,7 @@ function MobileBottomNav({
               ) : (
                 <button
                   type="button"
-                  onClick={() => { onOpenAuth(); closeSheet(); }}
+                  onClick={() => handleAction(() => { onOpenAuth(); closeSheet(); })}
                   className="flex items-center justify-center gap-2 rounded-2xl bg-terracotta px-4 py-3.5 text-sm font-bold text-ink-900 shadow-card"
                 >
                   <LogIn size={16} />
@@ -266,7 +285,7 @@ function MobileBottomNav({
               {user && (
                 <button
                   type="button"
-                  onClick={() => { onOpenUpload(); closeSheet(); }}
+                  onClick={() => handleAction(() => { onOpenUpload(); closeSheet(); })}
                   className="flex items-center justify-center gap-2 rounded-2xl bg-parchment-raised px-4 py-3.5 text-sm font-bold text-ink-900 shadow-card"
                 >
                   <Upload size={16} />
@@ -277,7 +296,7 @@ function MobileBottomNav({
               {user?.role === 'admin' && (
                 <button
                   type="button"
-                  onClick={() => { onNavigate('admin'); closeSheet(); }}
+                  onClick={() => handleAction(() => { onNavigate('admin'); closeSheet(); })}
                   className="flex items-center justify-center gap-2 rounded-2xl bg-terracotta px-4 py-3.5 text-sm font-bold text-ink-900 shadow-card"
                 >
                   <Shield size={16} />
@@ -288,7 +307,7 @@ function MobileBottomNav({
               <div className="flex gap-1.5 rounded-2xl bg-parchment-raised p-1.5 shadow-card">
                 <button
                   type="button"
-                  onClick={() => onSetLayoutMode('grid')}
+                  onClick={() => handleAction(() => onSetLayoutMode('grid'))}
                   className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-colors ${
                     layoutMode === 'grid' ? 'bg-terracotta text-ink-900' : 'text-ink-900/60'
                   }`}
@@ -297,7 +316,7 @@ function MobileBottomNav({
                 </button>
                 <button
                   type="button"
-                  onClick={() => onSetLayoutMode('list')}
+                  onClick={() => handleAction(() => onSetLayoutMode('list'))}
                   className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold uppercase transition-colors ${
                     layoutMode === 'list' ? 'bg-terracotta text-ink-900' : 'text-ink-900/60'
                   }`}
@@ -308,7 +327,7 @@ function MobileBottomNav({
 
               <button
                 type="button"
-                onClick={onToggleTheme}
+                onClick={() => handleAction(onToggleTheme)}
                 className="flex items-center justify-center gap-2 rounded-2xl bg-parchment-raised px-4 py-3.5 text-sm font-bold text-ink-900 shadow-card"
               >
                 <SunMedium size={16} />
@@ -318,16 +337,17 @@ function MobileBottomNav({
               {user && (
                 <button
                   type="button"
-                  onClick={() => { onLogout(); closeSheet(); }}
+                  onClick={() => handleAction(() => { onLogout(); closeSheet(); })}
                   className="flex items-center justify-center gap-2 rounded-2xl bg-parchment-raised px-4 py-3.5 text-sm font-bold text-ink-900/70 shadow-card"
                 >
                   <LogOut size={16} />
                   Log out
                 </button>
               )}
-            </div>
+            </motion.div>
           </React.Fragment>
         )}
+        </AnimatePresence>
 
       <nav
         aria-label="Mobile navigation"
@@ -336,7 +356,7 @@ function MobileBottomNav({
       >
         <button
           type="button"
-          onClick={() => { onNavigate('home'); closeSheet(); }}
+          onClick={() => handleAction(() => { onNavigate('home'); closeSheet(); })}
           className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
             currentView === 'home' ? 'text-terracotta-text' : 'text-ink-900/70'
           }`}
@@ -346,7 +366,7 @@ function MobileBottomNav({
         </button>
         <button
           type="button"
-          onClick={() => { onNavigate('streak'); closeSheet(); }}
+          onClick={() => handleAction(() => { onNavigate('streak'); closeSheet(); })}
           className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
             currentView === 'streak' ? 'text-terracotta-text' : 'text-ink-900/70'
           }`}
@@ -356,7 +376,7 @@ function MobileBottomNav({
         </button>
         <button
           type="button"
-          onClick={() => setIsSheetOpen((v) => !v)}
+          onClick={() => handleAction(() => setIsSheetOpen((v) => !v))}
           className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
             isSheetOpen ? 'text-terracotta-text' : 'text-ink-900/70'
           }`}
@@ -433,8 +453,8 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           <button
             type="button"
             onClick={() => onNavigate('streak')}
-            className={`group/streak flex items-center rounded-xl px-3 py-2.5 text-sm font-bold transition-[background-color,color,box-shadow,transform] duration-200 ${
-              currentView === 'streak' ? 'bg-terracotta text-ink-900 shadow-card' : 'bg-parchment-raised text-ink-900 shadow-card btn-3d'
+            className={`group/streak flex items-center rounded-xl px-3 py-2.5 text-sm font-bold transition-all duration-300 ease-out ${
+              currentView === 'streak' ? 'bg-terracotta text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)]' : 'bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:border-terracotta/50 hover:shadow-md active:scale-[0.97]'
             }`}
             title="Open streak"
           >
@@ -448,7 +468,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <button
               type="button"
               onClick={() => setIsSettingsOpen((v) => !v)}
-              className="group/settings flex items-center rounded-xl bg-parchment-raised px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
+              className="group/settings flex items-center rounded-xl bg-parchment-raised px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               title="Open settings"
             >
               <SettingsIcon size={15} className="shrink-0" />
@@ -604,7 +624,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenUpload}
-                className="group/publish flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
+                className="group/publish flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               >
                 <Upload size={15} className="shrink-0" />
                 <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/publish:max-w-[90px] group-hover/publish:opacity-100 group-hover/publish:ml-2">
@@ -615,7 +635,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               {user.role === 'admin' && (
                 <button
                   onClick={() => onNavigate('admin')}
-                  className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
                 >
                   <Shield size={15} className="shrink-0" />
                   <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/admin:max-w-[90px] group-hover/admin:opacity-100 group-hover/admin:ml-2">
@@ -626,7 +646,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="group/profile flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
+                className="group/profile flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               >
                 <ProfileAvatar
                   photoURL={user.photoURL}
@@ -642,7 +662,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               <div className="h-6 w-px bg-ink-900/10 hidden sm:block" />
               <button
                 onClick={logout}
-                className="p-2.5 rounded-xl bg-parchment-raised text-ink-900 shadow-card btn-3d"
+                className="p-2.5 rounded-xl bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-danger/30 hover:text-danger hover:shadow-md active:scale-[0.97]"
                 title="Logout"
               >
                 <LogOut size={18} />
@@ -651,7 +671,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           ) : (
             <button
               onClick={onOpenAuth}
-              className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
+              className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
             >
               <LogIn size={16} className="shrink-0" />
               <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/signin:max-w-[90px] group-hover/signin:opacity-100 group-hover/signin:ml-2">

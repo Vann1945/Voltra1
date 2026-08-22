@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { Addon, Report } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -249,7 +250,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   type="text"
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                  className={getInputClasses()}
                 />
               </div>
               <div>
@@ -259,14 +260,14 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                     type="url"
                     value={editPhotoURL}
                     onChange={e => setEditPhotoURL(e.target.value)}
-                    className="flex-1 bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-bold text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
+                    className={`flex-1 ${getInputClasses()}`}
                     placeholder="https://..."
                   />
                   <button
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
                     disabled={photoUploadProgress !== null}
-                    className="shrink-0 flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-4 py-3 text-sm font-bold shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`shrink-0 disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
                   >
                     {photoUploadProgress !== null ? (
                       <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" />
@@ -308,7 +309,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   value={editBio}
                   onChange={e => setEditBio(e.target.value)}
                   rows={3}
-                  className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm font-medium text-ink-900 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all resize-none"
+                  className={`${getInputClasses()} resize-none`}
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -316,7 +317,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                 >
                   {savingProfile ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : <Check size={16} />}
                   Save Changes
@@ -324,7 +325,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={() => setIsEditing(false)}
                   disabled={savingProfile}
-                  className="flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
                 >
                   <X size={16} />
                   Cancel
@@ -337,7 +338,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <h1 className="text-4xl font-bold text-ink-900 tracking-tight">{user.displayName}</h1>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-2.5 bg-parchment-raised rounded-lg text-ink-900 shadow-card btn-3d"
+                  className={getButtonClasses('secondary', 'md')}
                   title="Edit Profile"
                 >
                   <Edit2 size={18} />
@@ -386,7 +387,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onNavigate={onNavigate} />
                   <button
                     onClick={e => { e.stopPropagation(); setAddonToDelete(addon.id); }}
-                    className="absolute top-2 right-2 p-2 bg-danger rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all shadow-card"
+                    className="absolute top-2 right-2 p-2 bg-danger/90 hover:bg-danger rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all shadow-sm"
                     title="Delete Add-on"
                   >
                     <Trash2 size={16} />
@@ -491,14 +492,14 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <button
                   onClick={() => setAddonToDelete(null)}
                   disabled={deletingAddon}
-                  className="px-4 py-2.5 text-sm font-bold text-ink-900 uppercase rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteAddon}
                   disabled={deletingAddon}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white uppercase bg-danger rounded-lg shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('danger', 'md')}`}
                 >
                   {deletingAddon ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : <Trash2 size={16} />}
                   Delete
@@ -527,7 +528,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                 <h3 className="text-lg font-bold text-ink-900 uppercase">Choose Profile Border</h3>
                 <button
                   onClick={() => setIsBorderModalOpen(false)}
-                  className="p-2 rounded-lg bg-parchment-raised shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className={getButtonClasses('secondary', 'sm')}
                 >
                   <X size={18} />
                 </button>

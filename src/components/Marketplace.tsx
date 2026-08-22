@@ -7,6 +7,7 @@ import { ViewState } from '../App';
 import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonCard } from './Skeleton';
 import { CustomSelect } from './CustomSelect';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
 
 interface MarketplaceProps {
@@ -141,7 +142,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="w-full border border-parchment-border rounded-xl bg-parchment-raised py-3.5 pl-12 pr-4 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition-[border-color,box-shadow] duration-200 h-[56px]"
+                    className={`${getInputClasses()} pl-12 h-[56px]`}
                   />
 
                   <AnimatePresence>
@@ -204,10 +205,10 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     }}
                     aria-expanded={showFilters}
                     aria-controls="filter-panel"
-                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-xl text-sm font-bold uppercase transition-[background-color,color,box-shadow] duration-200 ${
+                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-xl text-sm font-bold uppercase transition-all duration-300 ease-out active:scale-[0.97] ${
                       showFilters || hasActiveFilters
-                        ? 'bg-parchment-raised text-ink-900 shadow-none'
-                        : 'bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
+                        ? 'bg-ink-900/5 text-ink-900 shadow-none'
+                        : 'bg-parchment-raised text-ink-900 shadow-sm hover:border-ink-900/20 hover:shadow-md'
                     }`}
                   >
                     <SlidersHorizontal size={17} aria-hidden="true" />

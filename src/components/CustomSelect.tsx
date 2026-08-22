@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useId } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import { getButtonClasses } from '../lib/designSystem';
 
 export interface CustomSelectOption {
   value: string;
@@ -98,7 +99,7 @@ export function CustomSelect({ value, options, onChange, placeholder, className 
         aria-controls={isOpen ? listboxId : undefined}
         onClick={() => (isOpen ? closeDropdown(false) : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
-        className="flex w-full items-center justify-between rounded-lg bg-parchment-raised px-4 py-2.5 text-sm font-bold text-ink-900 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px focus:outline-none"
+        className={`w-full flex items-center justify-between ${getButtonClasses('secondary', 'md')}`}
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder || 'Select option...'}</span>
         <ChevronDown size={14} className={`shrink-0 ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />

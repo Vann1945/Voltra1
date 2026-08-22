@@ -4,6 +4,7 @@ import {
   Github, Twitter, MessageCircle, Youtube, Download, Users, Sparkles,
 } from 'lucide-react';
 import { ViewState } from '../App';
+import { getButtonClasses } from '../lib/designSystem';
 
 interface LandingPageProps {
   onNavigate: (view: ViewState) => void;
@@ -93,7 +94,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2 bg-terracotta border border-terracotta rounded-xl px-5 py-2.5 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d cursor-pointer"
+            className={getButtonClasses('primary', 'md')}
           >
             Explore Marketplace
             <ArrowRight size={15} />
@@ -120,14 +121,14 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => onNavigate('home')}
-                className="flex items-center gap-2 bg-terracotta border border-terracotta rounded-xl px-7 py-4 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d cursor-pointer"
+                className={getButtonClasses('primary', 'lg')}
               >
                 Explore Add-ons
                 <ArrowRight size={17} />
               </button>
               <a
                 href="#features"
-                className="flex items-center gap-2 bg-parchment-raised border border-parchment-border rounded-lg px-7 py-4 text-sm font-bold text-ink-900 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
+                className={getButtonClasses('secondary', 'lg')}
               >
                 Learn More
               </a>
@@ -270,11 +271,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                 </ul>
                 <button
                   onClick={() => onNavigate('home')}
-                  className={`flex items-center justify-center gap-2 border border-parchment-border rounded-lg px-5 py-3.5 text-sm font-bold uppercase btn-3d cursor-pointer ${
-                    tier.highlight
-                      ? 'bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                      : 'bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                  }`}
+                  className={getButtonClasses(tier.highlight ? 'primary' : 'secondary', 'md')}
                 >
                   {tier.cta}
                   <ArrowRight size={15} />
@@ -299,7 +296,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           </p>
           <button
             onClick={() => onNavigate('home')}
-            className="inline-flex items-center gap-2 bg-terracotta border border-parchment-border rounded-lg px-8 py-4 text-sm font-bold text-ink-900 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
+            className={getButtonClasses('primary', 'lg')}
           >
             Get Started — It's Free
             <ArrowRight size={17} />

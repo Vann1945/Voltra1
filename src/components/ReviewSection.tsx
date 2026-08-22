@@ -4,6 +4,7 @@ import { Review } from '../types';
 import { ProfileAvatar } from './borderEffects';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 
 interface ReviewSectionProps {
   addonId: string;
@@ -122,13 +123,13 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onRequireAu
             maxLength={1000}
             placeholder="Share what you liked or what could be better (optional)"
             rows={3}
-            className="w-full bg-parchment-raised border border-parchment-border rounded-lg px-4 py-3 text-sm text-ink-900 placeholder:text-ink-900/40 focus:outline-none focus:border-terracotta-soft transition-all resize-none"
+            className={`${getInputClasses()} resize-none`}
           />
           <div className="flex justify-end mt-3">
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 bg-terracotta rounded-lg px-5 py-2.5 text-xs font-bold text-ink-900 uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'sm')}`}
             >
               {submitting ? <div className="h-3.5 w-3.5 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" /> : null}
               {submitting ? 'Submitting...' : 'Submit Review'}

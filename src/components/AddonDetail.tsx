@@ -9,6 +9,7 @@ import { ReviewSection } from './ReviewSection';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
 import { RichTextContent } from './RichTextContent';
+import { getButtonClasses } from '../lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
 
 function getYouTubeVideoId(url: string): string | null {
@@ -233,7 +234,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <h2 className="text-2xl font-bold text-ink-900">Add-on not found</h2>
         <button
           onClick={() => onNavigate('home')}
- className="mt-5 inline-flex items-center gap-2 bg-terracotta rounded-xl text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
+          className={`mt-5 ${getButtonClasses('primary', 'md')}`}
         >
           Return to Marketplace
         </button>
@@ -382,7 +383,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsReportModalOpen(true)}
-                className="p-3 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
+                className={getButtonClasses('secondary', 'md')}
                 title="Report"
               >
                 <AlertTriangle size={18} />
@@ -390,7 +391,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               <button
                 onClick={handleDownloadClick}
                 disabled={isDownloading}
-                className="flex items-center gap-2 bg-terracotta rounded-lg px-6 py-3 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'lg')}`}
               >
                 {isDownloading ? (
                   <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />

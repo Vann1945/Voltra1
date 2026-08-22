@@ -6,6 +6,7 @@ import { useToast } from '../hooks/useToast';
 import { motion, AnimatePresence } from 'motion/react';
 import { DescriptionEditor } from './DescriptionEditor';
 import { CustomSelect } from './CustomSelect';
+import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
@@ -65,7 +66,7 @@ const Label = ({ children, hint }: { children: React.ReactNode; hint?: boolean }
 const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
     {...props}
-    className={`w-full border border-parchment-border rounded-lg bg-parchment-raised px-4 py-2.5 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all ${props.className || ''}`}
+    className={`${getInputClasses()} ${props.className || ''}`}
   />
 );
 
@@ -884,7 +885,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2.5 text-xs font-bold text-ink-900/60 hover:text-ink-900 transition-colors uppercase"
+                    className={getButtonClasses('ghost', 'md')}
                   >
                     Cancel
                   </button>
@@ -892,7 +893,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <button
                       type="button"
                       onClick={goPrev}
- className="px-5 py-2.5 text-xs font-bold text-ink-900 rounded-lg bg-parchment-raised shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                      className={getButtonClasses('secondary', 'md')}
                     >
                       Previous
                     </button>
@@ -901,7 +902,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <button
                       type="button"
                       onClick={goNext}
-                      className="px-6 py-2.5 text-xs font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                      className={getButtonClasses('primary', 'md')}
                     >
                       Next
                     </button>
@@ -915,7 +916,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         type="submit"
                         form="upload-form"
                         disabled={loading || !!successMessage}
-                        className="px-6 py-2.5 text-xs font-bold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                       >
                         Publish Add-on
                       </button>
