@@ -12,10 +12,17 @@ import { safeLogError } from './src/lib/safeLog.js';
 import { getEncryptedEnv } from './src/lib/secretsEncryption.js';
 
 const DUMMY_PASSWORD_HASH = '$2a$10$fTy1OLV1a11SPxPYmixkk.cIXbrd2o3qNIvurHqKJCK2dD7aimX5W';
+const authSecret = getEncryptedEnv('AUTH_SECRET_ENC', 'AUTH_SECRET') || process.env.AUTH_SECRET;
+const firebaseTokenCache = new Map<string, { token: string; expiresAt: number }>();
+const FIREBASE_TOKEN_CACHE_TTL_MS = 5 * 60_000;
+
+if (process.env.NODE_ENV === 'production' && !authSecret) {
+  throw new Error('AUTH_SECRET atau AUTH_SECRET_ENC wajib dikonfigurasi di production.');
+}
 
 export const authConfig: AuthConfig = {
   basePath: '/api/auth',
-  secret: getEncryptedEnv('AUTH_SECRET_ENC', 'AUTH_SECRET') || process.env.AUTH_SECRET || 'fallback-secret-for-build-and-dev-only-do-not-use-in-prod',
+  secret: authSecret,
   trustHost: true,
   session: { strategy: 'jwt' },
   providers: [
@@ -107,7 +114,7 @@ export const authConfig: AuthConfig = {
         token.role = (user as any).role;
       }
       const lastRefreshed = typeof token.lastRefreshed === 'number' ? token.lastRefreshed : 0;
-      const needsRefresh = Date.now() - lastRefreshed > 60_000;
+      const needsRefresh = Date.now() - lastRefreshed > 300_000; // Refresh JWT data from DB every 5 minutes instead of 1 minute to reduce load
 
       if (token.uid && (user || needsRefresh)) {
         try {
@@ -137,10 +144,21 @@ export const authConfig: AuthConfig = {
       }
       if (token.uid) {
         try {
-          const adminAuth = getAdminAuth();
-          (session as any).firebaseToken = await adminAuth.createCustomToken(token.uid as string, {
-            role: token.role,
-          });
+          const uid = String(token.uid);
+          const role = typeof token.role === 'string' ? token.role : 'user';
+          const cacheKey = `${uid}:${role}`;
+          const cached = firebaseTokenCache.get(cacheKey);
+          if (cached && cached.expiresAt > Date.now()) {
+            (session as any).firebaseToken = cached.token;
+          } else {
+            const adminAuth = getAdminAuth();
+            const firebaseToken = await adminAuth.createCustomToken(uid, { role });
+            firebaseTokenCache.set(cacheKey, {
+              token: firebaseToken,
+              expiresAt: Date.now() + FIREBASE_TOKEN_CACHE_TTL_MS,
+            });
+            (session as any).firebaseToken = firebaseToken;
+          }
         } catch (err) {
           safeLogError('[AuthJS] failed to create firebaseToken (createCustomToken):', err);
           // Don't throw, allow the session to be returned without firebaseToken

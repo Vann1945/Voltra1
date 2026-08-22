@@ -64,6 +64,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (typeof reason !== 'string' || reason.trim().length < 1 || reason.length > 1000) {
         return res.status(400).json({ error: 'Report reason must be 1-1000 characters.' });
       }
+
+      // Pastikan Add-on yang di-report benar-benar ada
+      const addonExists = await query('SELECT id FROM addons WHERE id = ? LIMIT 1', [addonId]);
+      if (addonExists.length === 0) return res.status(404).json({ error: 'Add-on not found.' });
+
+      // Cegah duplikasi report pending untuk Add-on yang sama oleh user yang sama
+      const pendingReport = await query('SELECT id FROM reports WHERE addon_id = ? AND user_id = ? AND status = ? LIMIT 1', [addonId, user.uid, 'pending']);
+      if (pendingReport.length > 0) return res.status(409).json({ error: 'You already have a pending report for this add-on.' });
+
       const reportId = crypto.randomUUID();
       await query('INSERT INTO reports (id, addon_id, user_id, reason, status) VALUES (?, ?, ?, ?, ?)', [
         reportId, addonId, user.uid, reason, 'pending',

@@ -29,8 +29,9 @@ export async function checkRateLimit(key: string, limit: number, windowMs: numbe
 
     return (result as any).affectedRows > 0;
   } catch (err) {
-    safeLogError('[rateLimitJS] failed to check rate limit, fail-open:', err);
-    return true;
+    // Fail-closed mencegah bypass rate limit ketika storage limiter bermasalah.
+    safeLogError('[rateLimitJS] failed to check rate limit, fail-closed:', err);
+    return false;
   }
 }
 
