@@ -76,13 +76,13 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
   return (
     <div className="min-h-[100dvh] bg-parchment-raised text-ink-900">
       {/* ─── Navbar ─── */}
-      <nav className="sticky top-0 z-[100] w-full bg-parchment-raised border-b border-parchment-border glass">
+      <nav className="sticky top-0 z-[100] w-full bg-parchment-raised/95 border-b border-parchment-border glass">
         <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="flex h-9 w-9 items-center justify-center bg-ink-900 border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
               <Zap size={18} strokeWidth={2.5} className="text-terracotta-text" />
             </div>
-            <span className="text-[20px] font-bold text-ink-900 tracking-tight uppercase">Voltra</span>
+            <span className="text-xl font-bold text-ink-900 tracking-tight uppercase">Voltra</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
@@ -93,7 +93,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2 bg-parchment-raised border border-parchment-border rounded-lg px-5 py-2 text-sm font-bold text-ink-900 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
+            className="flex items-center gap-2 bg-terracotta border border-terracotta rounded-xl px-5 py-2.5 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d cursor-pointer"
           >
             Explore Marketplace
             <ArrowRight size={15} />
@@ -106,7 +106,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Copy */}
           <div>
-            <div className="inline-flex items-center gap-2 bg-terracotta border border-parchment-border rounded-lg px-4 py-1.5 mb-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            <div className="inline-flex items-center gap-2 bg-terracotta border border-terracotta rounded-full px-4 py-2 mb-6 shadow-card">
               <Sparkles size={13} className="text-ink-900" />
               <span className="text-xs font-bold text-ink-900 uppercase tracking-widest">The Add-on Marketplace</span>
             </div>
@@ -120,7 +120,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => onNavigate('home')}
-                className="flex items-center gap-2 bg-parchment-raised border border-parchment-border rounded-lg px-7 py-4 text-sm font-bold text-ink-900 uppercase shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d cursor-pointer"
+                className="flex items-center gap-2 bg-terracotta border border-terracotta rounded-xl px-7 py-4 text-sm font-bold text-ink-900 uppercase shadow-card btn-3d cursor-pointer"
               >
                 Explore Add-ons
                 <ArrowRight size={17} />
@@ -182,7 +182,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             {FEATURES.map((f, i) => (
               <div
                 key={f.title}
-                className={`bg-parchment-raised border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] neumorph p-8 transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default glass ${
+                className={`bg-parchment-raised border border-parchment-border rounded-2xl shadow-card neumorph p-8 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-1 cursor-default ${
                   i === 0 ? 'lg:col-span-5' : i === 1 ? 'lg:col-span-4' : 'lg:col-span-3'
                 }`}
               >
@@ -209,7 +209,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             {TESTIMONIALS.map((t, i) => (
               <div
                 key={t.name}
-                className={`bg-parchment-raised border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] neumorph p-7 flex flex-col transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-default glass ${
+                className={`bg-parchment-raised border border-parchment-border rounded-2xl shadow-card neumorph p-7 flex flex-col transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-1 cursor-default ${
                   i === 0 ? 'lg:col-span-4' : i === 1 ? 'lg:col-span-5' : 'lg:col-span-3'
                 }`}
               >

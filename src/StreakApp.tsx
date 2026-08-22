@@ -299,12 +299,12 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-2xl flex flex-col gap-10 sm:gap-14"
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-2xl flex flex-col gap-8 sm:gap-12"
           >
-            <header className="flex justify-between items-center pb-5 border-b border-[var(--sa-border)]">
+            <header className="flex justify-between items-center pb-6 border-b border-[var(--sa-border)]">
               <div className="flex items-center gap-4">
-                <p className="text-xl sm:text-2xl font-semibold tracking-tight text-[var(--sa-text)]">Voltra</p>
+                <p className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--sa-text)]">Voltra</p>
               </div>
               <div className="flex flex-col items-end gap-0.5">
                 <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--sa-text-muted)]">Daily Focus</span>
@@ -340,18 +340,18 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
               </AnimatePresence>
             </article>
 
-            <div className="w-full flex flex-col gap-5 sm:gap-6 pt-8 sm:pt-10 border-t border-[var(--sa-border)]">
+            <div className="w-full flex flex-col gap-6 pt-8 border-t border-[var(--sa-border)]">
               <Suspense fallback={<Skeleton className="w-full h-64 rounded-3xl" />}>
                 <MonthCalendar activityLog={activityLog} />
               </Suspense>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ActivityLogView activityLog={activityLog} />
                 <MonthlyOverview activityLog={activityLog} journeyStartDate={journeyStartDate} />
               </div>
             </div>
 
-            <div className="w-full flex flex-col gap-6 pt-8 sm:pt-10 border-t border-[var(--sa-border)]">
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="w-full flex flex-col gap-6 pt-8 border-t border-[var(--sa-border)]">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-[var(--sa-card)] border border-[var(--sa-border)] py-4 px-2 transition-colors duration-200 ease-linear shadow-card neumorph glass">
                   <TrendingUp className="w-4 h-4 text-[var(--sa-accent)]" aria-hidden="true" />
                   <span className="text-xl font-semibold text-[var(--sa-text)] tabular-nums">{longestStreak}</span>
@@ -376,7 +376,7 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
                     {unlockedMilestones.length}/{MILESTONES.length} unlocked
                   </span>
                 </div>
-                <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-4 gap-3">
                   {MILESTONES.map((ms) => {
                     const unlocked = longestStreak >= ms.days;
                     const Icon = ms.icon;

@@ -242,7 +242,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-parchment-raised transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px ${compact ? 'rounded-md shadow-card-sm glass' : 'rounded-lg shadow-card neumorph hover:scale-[1.03]'}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-parchment-raised transition-[transform,box-shadow,border-color] duration-200 ease-out hover:shadow-card-hover hover:-translate-y-1 active:translate-y-0 ${compact ? 'rounded-xl shadow-card glass' : 'rounded-2xl shadow-card neumorph'}`}
     >
       <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink-900`}>
         <FadeImage
@@ -256,7 +256,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         />
 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
-          <span className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
+          <span className="inline-flex items-center bg-terracotta rounded-xl px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-900 shadow-card">
             {addon.category}
           </span>
           {addon.status === 'pending' && (
@@ -314,7 +314,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
               <div>
                 <strong className="text-ink-900 text-xs uppercase tracking-wider font-bold">Demo</strong>
                 <p className="mt-1">
-                  <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent-soft font-bold underline hover:no-underline">
+                  <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-terracotta-text font-bold underline decoration-terracotta-text/40 underline-offset-2 hover:decoration-terracotta-text">
                     View Demo <ExternalLink size={12} />
                   </a>
                 </p>
@@ -386,7 +386,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
               )}
               <div className="relative z-10 flex items-center gap-1">
                 {isDownloading ? (
-                  <div className="h-3.5 w-3.5 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
+                  <div className="h-3.5 w-3.5 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" />
                 ) : downloadSuccess ? <Check size={13} /> : <Download size={13} />}
                 <span>{isDownloading ? `${downloadProgress}%` : downloadSuccess ? 'Done!' : 'Get'}</span>
               </div>

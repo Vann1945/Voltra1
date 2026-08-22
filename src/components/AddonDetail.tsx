@@ -233,7 +233,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <h2 className="text-2xl font-bold text-ink-900">Add-on not found</h2>
         <button
           onClick={() => onNavigate('home')}
- className="mt-5 inline-flex items-center gap-2 bg-parchment-raised rounded-lg text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+ className="mt-5 inline-flex items-center gap-2 bg-terracotta rounded-xl text-ink-900 px-5 py-2.5 text-sm font-bold uppercase shadow-card btn-3d"
         >
           Return to Marketplace
         </button>
@@ -304,7 +304,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <ArrowLeft size={16} /> Back to Marketplace
       </button>
 
-    <div className="overflow-hidden rounded-lg bg-parchment-raised shadow-card neumorph glass">
+    <div className="overflow-hidden rounded-2xl bg-parchment-raised shadow-card neumorph glass">
         <div
           className="aspect-[21/9] w-full overflow-hidden bg-ink-900 relative border-b border-parchment-border"
           onMouseEnter={() => setIsPaused(true)}
@@ -325,14 +325,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               <button
                 onClick={goPrev}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-terracotta rounded-xl shadow-card text-ink-900 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={goNext}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-terracotta rounded-xl shadow-card text-ink-900 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
               >
                 <ChevronRight size={18} />
               </button>
@@ -355,10 +355,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
         <div className="p-8">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
             <div>
-              <span className="inline-block bg-terracotta rounded-lg px-3 py-1 text-xs font-bold uppercase text-ink-900 mb-3 shadow-card">
+              <span className="inline-block bg-terracotta rounded-full px-3 py-1.5 text-xs font-bold uppercase text-ink-900 mb-3 shadow-card">
                 {addon.category}
               </span>
-              <h1 className="text-4xl font-bold text-ink-900 tracking-tight">{addon.title}</h1>
+              <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight leading-tight">{addon.title}</h1>
 
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink-900/60">
                 <div onClick={() => onNavigate({ type: 'author', id: addon.authorId })} className="flex items-center gap-2 cursor-pointer hover:text-ink-900 transition-colors">
@@ -442,7 +442,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
                       )}
                     </div>
                   ) : (
-                    <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-accent-soft underline">View Demo Video</a>
+                    <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-terracotta-text underline underline-offset-2">View Demo Video</a>
                   )}
                 </div>
               )}
@@ -459,7 +459,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       </div>
 
       {addon.panoramaUrl && (
-        <div className="mt-8 overflow-hidden rounded-lg bg-parchment-raised shadow-card neumorph glass">
+        <div className="mt-8 overflow-hidden rounded-2xl bg-parchment-raised shadow-card neumorph glass">
           <div className="px-6 pt-6 pb-4 border-b border-parchment-border">
             <h2 className="text-lg font-bold text-ink-900 uppercase">Panorama</h2>
             <p className="text-xs text-ink-900/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>

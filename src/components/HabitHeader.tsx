@@ -44,11 +44,11 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-2 text-ink-700">
           <Target className="w-4 h-4" aria-hidden="true" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider">Current Focus</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em]">Current Focus</span>
         </div>
         <div className="flex items-center gap-3">
           <AnimatePresence mode="wait">
@@ -97,7 +97,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                   className="group/name flex items-center gap-2.5 min-w-0 text-left rounded-lg -mx-1 px-1 transition-colors hover:bg-linen-200/60 focus-visible:bg-linen-200/60"
                   aria-label={`Edit habit name, currently "${habitName}"`}
                 >
-                  <h1 className="text-4xl md:text-5xl font-serif text-ink-900 tracking-tight truncate min-w-0">
+                  <h1 className="text-4xl md:text-5xl font-display font-bold text-ink-900 tracking-tight truncate min-w-0">
                     {habitName}
                   </h1>
                   <PenLine
@@ -111,9 +111,9 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
         </div>
       </div>
 
-      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-3xl border border-terracotta/35 shadow-sm shadow-ink-900/5 max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
+      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-2xl border border-terracotta/35 shadow-card max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
         <div className="flex flex-col min-w-0">
-          <span className="text-[10px] font-bold text-terracotta-text uppercase tracking-[0.14em] mb-1 whitespace-nowrap">
+          <span className="text-[11px] font-bold text-terracotta-text uppercase tracking-[0.12em] mb-1 whitespace-nowrap">
             Today Streak
           </span>
           <div className="flex items-baseline gap-1.5 min-w-0">

@@ -346,8 +346,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               <p className="mt-2 text-sm font-bold text-ink-900/60">{user.email}</p>
               {user.bio && <p className="mt-4 text-sm font-medium text-ink-900/80 max-w-2xl leading-relaxed">{user.bio}</p>}
               <div className="mt-6 flex items-center gap-3 text-sm font-bold text-ink-900">
-                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Package size={14} /> {myUploads.length} Uploads</span>
-                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Heart size={14} /> {myLikes.length} Likes</span>
+                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-xl shadow-card"><Package size={14} /> {myUploads.length} Uploads</span>
+                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-xl shadow-card"><Heart size={14} /> {myLikes.length} Likes</span>
               </div>
             </>
           )}
@@ -358,7 +358,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
         <section>
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
-              <Package className="text-accent-soft" /> My Uploads
+              <Package className="text-terracotta-text" /> My Uploads
             </h2>
             <p className="text-xs font-bold text-ink-900 bg-terracotta px-3 py-1.5 rounded-lg shadow-card">
               Pending add-ons wait for admin review. Contact WA <span className="text-ink-900">082278781685</span>.
@@ -370,7 +370,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-lg bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+            <div className="rounded-2xl bg-parchment-raised py-16 text-center shadow-card neumorph glass">
               <Package size={32} className="mx-auto mb-3 text-ink-900/30" />
               <p className="text-sm font-bold text-ink-900">Nothing published yet</p>
               <p className="mt-1 text-xs font-normal text-ink-900/60">Use the Publish button in the top bar to share your first add-on.</p>
@@ -407,7 +407,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-lg bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+            <div className="rounded-2xl bg-parchment-raised py-16 text-center shadow-card neumorph glass">
               <Heart size={32} className="mx-auto mb-3 text-ink-900/30" />
               <p className="text-sm font-bold text-ink-900">No likes yet</p>
               <p className="mt-1 text-xs font-normal text-ink-900/60">Tap the heart on any add-on in the marketplace to save it here.</p>

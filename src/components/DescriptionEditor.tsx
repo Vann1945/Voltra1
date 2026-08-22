@@ -798,10 +798,10 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
               [&_h5]:text-base [&_h5]:font-bold [&_h5]:my-2 [&_h5]:text-ink-900
               [&_h6]:text-sm [&_h6]:font-bold [&_h6]:my-2 [&_h6]:text-ink-900
               [&_p]:mb-3 [&_p]:leading-relaxed
-              [&_a]:text-accent-soft [&_a]:underline [&_a]:font-medium
+              [&_a]:text-terracotta-text [&_a]:underline [&_a]:font-medium
               [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6
               [&_blockquote]:border-l-2 [&_blockquote]:border-terracotta-soft [&_blockquote]:bg-terracotta/[0.06] [&_blockquote]:pl-4 [&_blockquote]:py-1 [&_blockquote]:italic [&_blockquote]:text-ink-900
-              [&_pre]:bg-ink-900 [&_pre]:text-accent [&_pre]:border [&_pre]:border-ink-900 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap
+              [&_pre]:bg-ink-900 [&_pre]:text-terracotta-soft [&_pre]:border [&_pre]:border-ink-900 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:my-2 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap
               [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_table]:border [&_table]:border-parchment-border [&_table]:rounded-lg
               [&_th]:border [&_th]:border-parchment-border [&_th]:bg-terracotta/[0.12] [&_th]:p-2 [&_th]:text-left [&_th]:font-bold
               [&_td]:border [&_td]:border-parchment-border [&_td]:p-2"
@@ -809,7 +809,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
 
             {linkPopup && (
               <div
-                className="absolute z-[140] rounded-lg bg-parchment-raised shadow-card"
+                className="absolute z-[140] rounded-xl bg-parchment-raised shadow-card"
                 style={{ top: linkPopup.top, left: linkPopup.left }}
               >
                 <button
@@ -842,14 +842,14 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
             onChange={(e) => setMdText(e.target.value)}
             rows={8}
             placeholder={placeholder}
-            className="block w-full resize-y bg-transparent px-4 py-3.5 text-sm text-ink-900 placeholder-ink-900/400/40 focus:outline-none font-mono"
+            className="block w-full resize-y bg-transparent px-4 py-3.5 text-sm text-ink-900 placeholder-ink-900/40 focus:outline-none font-mono"
           />
         </>
       )}
 
       {activeModal === 'customColor' && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-ink-900/70 ">
-          <div className="w-80 rounded-lg bg-parchment-raised p-4 shadow-card">
+          <div className="w-80 rounded-2xl bg-parchment-raised p-4 shadow-card">
             <div className="flex items-center justify-between border-b border-ink-900 pb-2 mb-3">
               <h4 className="text-xs font-semibold text-ink-900 font-bold">{customColorTarget === 'bg' ? 'Background Color' : 'Color Picker'}</h4>
               <button type="button" onClick={closeModal} className="text-ink-900/50 hover:text-ink-900"><X size={16} /></button>
@@ -976,14 +976,14 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                 <button
                   type="button"
                   onClick={() => setImageTab('general')}
-                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'general' ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
+                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'general' ? 'text-terracotta-text border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                 >
                   General
                 </button>
                 <button
                   type="button"
                   onClick={() => setImageTab('upload')}
-                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'upload' ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
+                  className={`block w-full text-left px-4 py-2 text-xs font-medium transition-colors ${imageTab === 'upload' ? 'text-terracotta-text border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                 >
                   Upload
                 </button>
@@ -1085,7 +1085,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
                     key={tab}
                     type="button"
                     onClick={() => setMediaTab(tab)}
-                    className={`block w-full text-left px-4 py-2 text-xs font-medium capitalize transition-colors ${mediaTab === tab ? 'text-accent-soft border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
+                    className={`block w-full text-left px-4 py-2 text-xs font-medium capitalize transition-colors ${mediaTab === tab ? 'text-terracotta-text border-l-2 border-terracotta-soft bg-parchment-raised' : 'text-ink-900/50 hover:text-ink-900'}`}
                   >
                     {tab}
                   </button>

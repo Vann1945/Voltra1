@@ -262,8 +262,6 @@ export function getBorderRingClass(effect: BorderEffect): string {
 export function BorderEffectStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-
       :root {
         /* Hanya dua variable yang benar-benar dipakai (lihat body{} di bawah).
            Variable lain yang sebelumnya ada di sini (--color-accent, --color-gold,
@@ -277,21 +275,18 @@ export function BorderEffectStyles() {
       }
 
       body, .font-display {
-        font-family: Georgia, 'Times New Roman', serif;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       }
-      .font-accent {
-        font-family: Arial, Helvetica, sans-serif;
-      }
-      .font-meta {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      .font-accent, .font-meta {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       }
       body {
-        background-color: var(--color-primary);
-        color: var(--color-ink);
+        background-color: var(--color-parchment);
+        color: var(--color-ink-900);
       }
-      body.dark, .dark body {
-        background-color: #2a2824;
-        color: #f0eee2;
+      body.dark, .dark body, .oled body {
+        background-color: var(--color-parchment);
+        color: var(--color-ink-900);
       }
 
       /* ═══ Dark mode overrides ═══
@@ -310,41 +305,41 @@ export function BorderEffectStyles() {
 
       /* teks ink -> teks terang */
       .dark [class*="text-ink-900"], .dark[class*="text-ink-900"] { color: var(--color-ink-900) !important; }
-      .dark [class*="text-ink-900/30"], .dark[class*="text-ink-900/30"] { color: rgba(240,238,226,0.3) !important; }
-      .dark [class*="text-ink-900/40"], .dark[class*="text-ink-900/40"] { color: rgba(240,238,226,0.4) !important; }
-      .dark [class*="text-ink-900/50"], .dark[class*="text-ink-900/50"] { color: rgba(240,238,226,0.5) !important; }
-      .dark [class*="text-ink-900/60"], .dark[class*="text-ink-900/60"] { color: rgba(240,238,226,0.6) !important; }
-      .dark [class*="text-ink-900/70"], .dark[class*="text-ink-900/70"] { color: rgba(240,238,226,0.7) !important; }
-      .dark [class*="text-ink-900/80"], .dark[class*="text-ink-900/80"] { color: rgba(240,238,226,0.8) !important; }
+      .dark [class*="text-ink-900/30"], .dark[class*="text-ink-900/30"] { color: color-mix(in srgb, var(--color-ink-900) 30%, transparent) !important; }
+      .dark [class*="text-ink-900/40"], .dark[class*="text-ink-900/40"] { color: color-mix(in srgb, var(--color-ink-900) 40%, transparent) !important; }
+      .dark [class*="text-ink-900/50"], .dark[class*="text-ink-900/50"] { color: color-mix(in srgb, var(--color-ink-900) 50%, transparent) !important; }
+      .dark [class*="text-ink-900/60"], .dark[class*="text-ink-900/60"] { color: color-mix(in srgb, var(--color-ink-900) 60%, transparent) !important; }
+      .dark [class*="text-ink-900/70"], .dark[class*="text-ink-900/70"] { color: color-mix(in srgb, var(--color-ink-900) 70%, transparent) !important; }
+      .dark [class*="text-ink-900/80"], .dark[class*="text-ink-900/80"] { color: color-mix(in srgb, var(--color-ink-900) 80%, transparent) !important; }
 
       /* border ink -> border terang tipis (umum dulu, baru varian opacity spesifik) */
-      .dark [class*="border-ink-900"], .dark[class*="border-ink-900"] { border-color: rgba(240,238,226,0.3) !important; }
-      .dark [class*="border-parchment-border"], .dark[class*="border-parchment-border"] { border-color: rgba(240,238,226,0.1) !important; }
-      .dark [class*="border-ink-900/15"], .dark[class*="border-ink-900/15"] { border-color: rgba(240,238,226,0.15) !important; }
-      .dark [class*="border-ink-900/25"], .dark[class*="border-ink-900/25"] { border-color: rgba(240,238,226,0.25) !important; }
-      .dark [class*="border-ink-900/40"], .dark[class*="border-ink-900/40"] { border-color: rgba(240,238,226,0.4) !important; }
+      .dark [class*="border-ink-900"], .dark[class*="border-ink-900"] { border-color: color-mix(in srgb, var(--color-ink-900) 30%, transparent) !important; }
+      .dark [class*="border-parchment-border"], .dark[class*="border-parchment-border"] { border-color: color-mix(in srgb, var(--color-ink-900) 10%, transparent) !important; }
+      .dark [class*="border-ink-900/15"], .dark[class*="border-ink-900/15"] { border-color: color-mix(in srgb, var(--color-ink-900) 15%, transparent) !important; }
+      .dark [class*="border-ink-900/25"], .dark[class*="border-ink-900/25"] { border-color: color-mix(in srgb, var(--color-ink-900) 25%, transparent) !important; }
+      .dark [class*="border-ink-900/40"], .dark[class*="border-ink-900/40"] { border-color: color-mix(in srgb, var(--color-ink-900) 40%, transparent) !important; }
 
       /* fill tipis / skeleton pulse / divider kecil (bukan scrim modal besar) */
-      .dark [class*="bg-ink-900/5"], .dark[class*="bg-ink-900/5"] { background-color: rgba(240,238,226,0.06) !important; }
-      .dark [class*="bg-ink-900/10"], .dark[class*="bg-ink-900/10"] { background-color: rgba(240,238,226,0.1) !important; }
-      .dark [class*="bg-ink-900/20"], .dark[class*="bg-ink-900/20"] { background-color: rgba(240,238,226,0.15) !important; }
+      .dark [class*="bg-ink-900/5"], .dark[class*="bg-ink-900/5"] { background-color: color-mix(in srgb, var(--color-ink-900) 6%, transparent) !important; }
+      .dark [class*="bg-ink-900/10"], .dark[class*="bg-ink-900/10"] { background-color: color-mix(in srgb, var(--color-ink-900) 10%, transparent) !important; }
+      .dark [class*="bg-ink-900/20"], .dark[class*="bg-ink-900/20"] { background-color: color-mix(in srgb, var(--color-ink-900) 15%, transparent) !important; }
 
       /* placeholder & bintang rating */
-      .dark [class*="placeholder-ink-900/40"]::placeholder, .dark[class*="placeholder-ink-900/40"]::placeholder { color: rgba(240,238,226,0.4) !important; }
-      .dark [class*="fill-ink-900"], .dark[class*="fill-ink-900"] { fill: #f0eee2 !important; }
+      .dark [class*="placeholder-ink-900/40"]::placeholder, .dark[class*="placeholder-ink-900/40"]::placeholder { color: color-mix(in srgb, var(--color-ink-900) 40%, transparent) !important; }
+      .dark [class*="fill-ink-900"], .dark[class*="fill-ink-900"] { fill: var(--color-ink-900) !important; }
 
       /* ring-shadow: ganti warna ring dari gelap ke terang biar tetap kelihatan di atas surface gelap */
       .dark [class*="shadow-card"],
       .dark[class*="shadow-card"] {
-        box-shadow: 0 0 0 1px rgba(240,238,226,0.08), 0 2px 12px rgba(0,0,0,0.35) !important;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink-900) 8%, transparent), 0 2px 12px rgba(0,0,0,0.35) !important;
       }
       .dark [class*="shadow-card-hover"],
       .dark[class*="shadow-card-hover"] {
-        box-shadow: 0 0 0 1px rgba(240,238,226,0.1), 0 6px 20px rgba(0,0,0,0.45) !important;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink-900) 10%, transparent), 0 6px 20px rgba(0,0,0,0.45) !important;
       }
       .dark [class*="hover:shadow-card-hover"]:hover,
       .dark[class*="hover:shadow-card-hover"]:hover {
-        box-shadow: 0 0 0 1px rgba(240,238,226,0.1), 0 6px 20px rgba(0,0,0,0.45) !important;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-ink-900) 10%, transparent), 0 6px 20px rgba(0,0,0,0.45) !important;
       }
 
       @keyframes sparkleTwinkle {

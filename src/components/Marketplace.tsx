@@ -112,14 +112,14 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
     <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
       <h1 className="sr-only">Minecraft Marketplace Add-ons</h1>
 
-      <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20 glass">
+      <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-terracotta rounded-lg px-4 py-1.5 mb-6 shadow-card">
+            <div className="inline-flex items-center gap-2 bg-terracotta rounded-full px-4 py-2 mb-6 shadow-card">
               <Sparkles size={13} className="text-ink-900" />
               <span className="text-xs font-bold text-ink-900 uppercase tracking-widest">Minecraft Marketplace</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4 leading-none">
+            <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4 leading-tight">
               Find Your<br />Next Add-on
             </h1>
             <p className="text-base font-normal text-ink-900/60 max-w-md mx-auto">
@@ -128,7 +128,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex justify-center">
-            <div className="relative flex flex-col gap-3 bg-parchment-raised rounded-lg shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
+            <div className="relative flex flex-col gap-4 bg-parchment-raised rounded-2xl shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
               <div className="flex flex-col lg:flex-row items-stretch gap-3">
                 {/* Search input */}
                 <div className="relative w-full flex-1">
@@ -141,7 +141,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="w-full border border-parchment-border rounded-lg bg-parchment-raised py-3.5 pl-12 pr-4 text-sm font-bold text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all h-[56px]"
+                    className="w-full border border-parchment-border rounded-xl bg-parchment-raised py-3.5 pl-12 pr-4 text-sm font-medium text-ink-900 placeholder-ink-900/40 focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition-[border-color,box-shadow] duration-200 h-[56px]"
                   />
 
                   <AnimatePresence>
@@ -204,7 +204,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     }}
                     aria-expanded={showFilters}
                     aria-controls="filter-panel"
-                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-lg text-sm font-bold uppercase transition-all ${
+                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-xl text-sm font-bold uppercase transition-[background-color,color,box-shadow] duration-200 ${
                       showFilters || hasActiveFilters
                         ? 'bg-parchment-raised text-ink-900 shadow-none'
                         : 'bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] btn-3d'
@@ -339,7 +339,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           </div>
         )}
 
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h2 className="text-2xl font-bold text-ink-900 tracking-tight">
             {searchQuery ? `Results for "${searchQuery}"` : 'All Add-ons'}
           </h2>

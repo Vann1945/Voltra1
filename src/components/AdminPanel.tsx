@@ -258,8 +258,8 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       </button>
 
       {/* Header */}
-      <div className="mb-12 flex items-center gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-8 glass">
- <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-parchment-raised rounded-lg text-ink-900 shadow-card">
+      <div className="mb-12 flex items-center gap-6 bg-parchment-raised rounded-2xl shadow-card neumorph p-8 glass">
+ <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-terracotta rounded-2xl text-ink-900 shadow-card">
           <Shield size={28} />
         </div>
         <div>
@@ -270,7 +270,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
-        <div className="sm:col-span-2 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-2 bg-parchment-raised rounded-2xl shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Total Add-ons</p>
             <p className="text-3xl font-bold text-ink-900 font-meta">{addons.length}</p>
@@ -279,7 +279,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <LayoutGrid size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-1 bg-parchment-raised rounded-2xl shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Pending Approval</p>
             <p className="text-3xl font-bold text-ink-900 font-meta">{pendingAddons.length}</p>
@@ -288,7 +288,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             <AlertTriangle size={22} />
           </div>
         </div>
-        <div className="sm:col-span-1 bg-parchment-raised rounded-lg shadow-card neumorph p-6 flex items-center justify-between glass">
+        <div className="sm:col-span-1 bg-parchment-raised rounded-2xl shadow-card neumorph p-6 flex items-center justify-between glass">
           <div>
             <p className="text-xs text-ink-900/50 font-bold uppercase tracking-widest mb-1">Total Users</p>
             <p className="text-3xl font-bold text-ink-900 font-meta">{users.length > 0 ? users.length : '-'}</p>
@@ -364,7 +364,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
             {/* All Add-ons */}
             <section>
               <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
-                <Shield className="text-accent-soft" /> Manage All Add-ons
+                <Shield className="text-terracotta-text" /> Manage All Add-ons
               </h2>
               <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
                 {[...approvedAddons, ...rejectedAddons].map(addon => (
@@ -510,7 +510,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
         {activeTab === 'users' && (
           <section>
             <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
-              <Users className="text-accent-soft" size={22} /> User Management
+              <Users className="text-terracotta-text" size={22} /> User Management
             </h2>
             {loadingUsers ? (
               <div className="space-y-4">
@@ -592,7 +592,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
               className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card neumorph p-7 glass"
             >
               <h3 className="text-xl font-bold text-ink-900 uppercase mb-6 flex items-center gap-2">
-                <Edit2 size={20} className="text-accent-soft" /> Edit Add-on
+                <Edit2 size={20} className="text-terracotta-text" /> Edit Add-on
               </h3>
               <form onSubmit={handleSaveAddonEdit} className="space-y-5">
                 <div>

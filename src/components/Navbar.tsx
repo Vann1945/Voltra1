@@ -89,7 +89,7 @@ export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
       <button
         type="button"
         onClick={onToggle}
-        aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        aria-label={theme === 'light' ? 'Switch to dark mode' : theme === 'dark' ? 'Switch to OLED mode' : 'Switch to light mode'}
         className="wtt-card block w-full text-left rounded-3xl p-4 bg-parchment-raised shadow-card-float"
       >
         <div className="flex items-center justify-between mb-3 px-1">
@@ -180,10 +180,10 @@ export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
                 <MoonStar size={13} className="text-white drop-shadow" strokeWidth={2.5} />
               )}
               <span className="text-xs font-bold text-white drop-shadow">
-                {theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'OLED'}
+                {theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'OLED mode'}
               </span>
             </div>
-            <span className="text-[10px] font-medium text-white/80 drop-shadow">Tap to switch</span>
+            <span className="text-[10px] font-medium text-white/80 drop-shadow">Tap to cycle</span>
           </div>
         </div>
       </button>
@@ -342,7 +342,7 @@ function MobileBottomNav({
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-8px_24px_rgba(43,24,16,0.08)] backdrop-blur-md sm:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <button
@@ -412,7 +412,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
   return (
     <>
-    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised border-b border-parchment-border glass">
+    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/95 border-b border-parchment-border glass">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
           <div className="relative hidden sm:block" ref={themeWrapperRef}>
@@ -441,7 +441,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           </div>
 
           <span
-            className="text-[20px] font-bold text-ink-900 tracking-tight uppercase cursor-pointer"
+            className="text-xl font-bold text-ink-900 tracking-tight uppercase cursor-pointer"
             onClick={() => onNavigate('home')}
           >
             Voltra
@@ -453,13 +453,13 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           <button
             type="button"
             onClick={() => onNavigate('streak')}
-            className={`group/streak flex items-center rounded-lg px-3 py-2 text-sm font-bold transition-all ${
+            className={`group/streak flex items-center rounded-xl px-3 py-2.5 text-sm font-bold transition-[background-color,color,box-shadow,transform] duration-200 ${
               currentView === 'streak' ? 'bg-terracotta text-ink-900 shadow-card' : 'bg-parchment-raised text-ink-900 shadow-card btn-3d'
             }`}
             title="Open streak"
           >
             <Flame size={15} className="shrink-0" />
-            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/streak:max-w-[70px] group-hover/streak:opacity-100 group-hover/streak:ml-2">
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/streak:max-w-[70px] group-hover/streak:opacity-100 group-hover/streak:ml-2">
               Streak
             </span>
           </button>
@@ -468,11 +468,11 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <button
               type="button"
               onClick={() => setIsSettingsOpen((v) => !v)}
-              className="group/settings flex items-center rounded-lg bg-parchment-raised px-3 py-2 text-sm font-bold text-ink-900 shadow-card btn-3d"
+              className="group/settings flex items-center rounded-xl bg-parchment-raised px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
               title="Open settings"
             >
               <Settings2 size={15} className="shrink-0" />
-              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/settings:max-w-[70px] group-hover/settings:opacity-100 group-hover/settings:ml-2">
+              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/settings:max-w-[70px] group-hover/settings:opacity-100 group-hover/settings:ml-2">
                 Settings
               </span>
             </button>
@@ -484,7 +484,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.18, ease: 'easeOut' }}
-                  className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-[28px] border border-parchment-border bg-parchment-raised/95 p-4 shadow-[0_28px_80px_rgba(20,20,19,0.14),0_12px_28px_rgba(20,20,19,0.08),inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-xl"
+                  className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-parchment-border bg-parchment-raised/95 p-4 shadow-card-float backdrop-blur-xl"
                 >
                   <div className="mb-4 flex items-center justify-between gap-3 border-b border-parchment-border pb-3">
                     <div>
@@ -628,10 +628,10 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenUpload}
-                className="group/publish flex items-center bg-parchment-raised rounded-lg px-3 py-2 text-sm font-bold text-ink-900 shadow-card btn-3d"
+                className="group/publish flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
               >
                 <Upload size={15} className="shrink-0" />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/publish:max-w-[90px] group-hover/publish:opacity-100 group-hover/publish:ml-2">
+                <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/publish:max-w-[90px] group-hover/publish:opacity-100 group-hover/publish:ml-2">
                   Publish
                 </span>
               </button>
@@ -639,7 +639,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               {user.role === 'admin' && (
                 <button
                   onClick={() => onNavigate('admin')}
-                  className="group/admin flex items-center bg-terracotta rounded-lg px-3 py-2 text-sm font-bold text-ink-900 shadow-card transition-all hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
+                  className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
                 >
                   <Shield size={15} className="shrink-0" />
                   <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/admin:max-w-[90px] group-hover/admin:opacity-100 group-hover/admin:ml-2">
@@ -650,7 +650,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
               <button
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
-                className="group/profile flex items-center bg-parchment-raised rounded-lg px-3 py-2 text-sm font-bold text-ink-900 shadow-card btn-3d"
+                className="group/profile flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
               >
                 <ProfileAvatar
                   photoURL={user.photoURL}
@@ -659,14 +659,14 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                   sizeClassName="h-6 w-6"
                   textSizeClassName="text-xs"
                 />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/profile:max-w-[90px] group-hover/profile:opacity-100 group-hover/profile:ml-2">
+                <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/profile:max-w-[90px] group-hover/profile:opacity-100 group-hover/profile:ml-2">
                   {currentView === 'home' ? 'Profile' : 'Home'}
                 </span>
               </button>
               <div className="h-6 w-px bg-ink-900/10 hidden sm:block" />
               <button
                 onClick={logout}
-                className="p-2 rounded-lg bg-parchment-raised text-ink-900 shadow-card btn-3d"
+                className="p-2.5 rounded-xl bg-parchment-raised text-ink-900 shadow-card btn-3d"
                 title="Logout"
               >
                 <LogOut size={18} />
@@ -675,10 +675,10 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           ) : (
             <button
               onClick={onOpenAuth}
-              className="group/signin flex items-center bg-parchment-raised rounded-lg px-3 py-2 text-sm font-bold text-ink-900 shadow-card btn-3d"
+              className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-card btn-3d"
             >
               <LogIn size={16} className="shrink-0" />
-              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 ease-in-out group-hover/signin:max-w-[90px] group-hover/signin:opacity-100 group-hover/signin:ml-2">
+              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity,margin] duration-200 ease-out group-hover/signin:max-w-[90px] group-hover/signin:opacity-100 group-hover/signin:ml-2">
                 Sign In
               </span>
             </button>

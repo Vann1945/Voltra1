@@ -220,7 +220,7 @@ function AppShell() {
   const isDarkMode = theme === 'dark' || theme === 'oled';
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-paper-soft text-ink selection:bg-accent selection:text-paper`}>
+    <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-paper-soft text-ink-900 selection:bg-terracotta selection:text-ink-900`}>
       <BorderEffectStyles />
       {currentView !== 'landing' && (
         <Navbar
@@ -238,16 +238,16 @@ function AppShell() {
 
       {verifyBanner && (
         <div className="max-w-3xl mx-auto mt-4 px-4">
-          <div className="p-4 bg-success/[0.06] border border-success/20 rounded-lg flex items-start gap-3">
+          <div className="p-4 bg-success/[0.06] border border-success/20 rounded-2xl flex items-start gap-3 shadow-card">
             <CheckCircle2 className="text-success shrink-0 mt-0.5" size={18} />
-            <p className="text-sm font-medium text-ink flex-1">
+            <p className="text-sm font-medium text-ink-900 flex-1">
               {verifyBanner === 'success'
                 ? 'Email verified! You can now sign in.'
                 : 'This email was already verified.'}
             </p>
             <button
               onClick={() => setVerifyBanner(null)}
-              className="text-ink/50 hover:text-ink transition-colors"
+              className="text-ink-900/50 hover:text-ink-900 transition-colors"
               aria-label="Dismiss"
             >
               <X size={16} />
@@ -263,7 +263,7 @@ function AppShell() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             className="w-full"
           >
             <Suspense fallback={<PageSkeleton />}>
