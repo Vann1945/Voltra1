@@ -64,15 +64,15 @@ export function MainActionControls({ statusToday, onRecordStatus, theme = 'light
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className={`p-6 sm:p-8 rounded-2xl border text-center flex flex-col items-center justify-center gap-4 neumorph glass ${
+            className={`p-6 sm:p-8 rounded-2xl border text-center flex flex-col items-center justify-center gap-4 shadow-sm ${
               statusToday === 'active'
-                ? 'bg-[var(--sa-conquer-bg)] text-[var(--sa-conquer-text)] border-transparent shadow-[0_2px_12px_rgba(20,20,19,0.10)]'
-                : 'bg-parchment-raised text-ink-900 border-parchment-border shadow-sm'
+                ? 'bg-[var(--sa-conquer-bg)] text-[var(--sa-conquer-text)] border-[var(--sa-conquer-bg)]'
+                : 'bg-[var(--sa-card)] text-[var(--sa-text)] border-[var(--sa-border)] neumorph glass'
             }`}
           >
             <div
               className={`text-[10px] font-semibold uppercase tracking-wider ${
-                statusToday === 'active' ? 'text-[var(--sa-conquer-text)]' : 'text-terracotta-text'
+                statusToday === 'active' ? 'text-[var(--sa-conquer-text)]' : 'text-[var(--sa-accent)]'
               }`}
             >
               Today's Status
@@ -80,7 +80,7 @@ export function MainActionControls({ statusToday, onRecordStatus, theme = 'light
             <div className="text-2xl sm:text-3xl font-serif">
               {statusToday === 'active' ? copy.headline : 'Resting and recovering.'}
             </div>
-            <p className={`text-sm font-medium ${statusToday === 'active' ? 'text-[var(--sa-conquer-text-soft)]' : 'text-ink-700'}`}>
+            <p className={`text-sm font-medium ${statusToday === 'active' ? 'text-[var(--sa-conquer-text-soft)]' : 'text-[var(--sa-text-soft)]'}`}>
               {statusToday === 'active' ? copy.detail : 'See you tomorrow for the next step in your journey.'}
             </p>
           </m.div>

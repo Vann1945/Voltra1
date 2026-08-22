@@ -259,8 +259,8 @@ body {
   --sa-accent-soft: color-mix(in srgb, var(--color-terracotta-text) 15%, transparent);
   --sa-accent-border: color-mix(in srgb, var(--color-terracotta-text) 30%, transparent);
   --sa-conquer-bg: #f2a65a;
-  --sa-conquer-text: #35170d;
-  --sa-conquer-text-soft: rgba(53, 23, 13, 0.84);
+  --sa-conquer-text: var(--color-paper);
+  --sa-conquer-text-soft: color-mix(in srgb, var(--color-paper) 85%, transparent);
   --sa-conquer-tint: rgba(53, 23, 13, 0.12);
   --sa-conquer-tint-hover: rgba(53, 23, 13, 0.20);
   --sa-cta-text: var(--color-paper);
@@ -281,8 +281,8 @@ body {
   --sa-accent-soft: rgba(255, 138, 69, 0.16);
   --sa-accent-border: rgba(255, 138, 69, 0.34);
   --sa-conquer-bg: #ff6b35;
-  --sa-conquer-text: #071a12;
-  --sa-conquer-text-soft: rgba(7, 26, 18, 0.78);
+  --sa-conquer-text: var(--color-paper);
+  --sa-conquer-text-soft: color-mix(in srgb, var(--color-paper) 85%, transparent);
   --sa-conquer-tint: rgba(7, 26, 18, 0.12);
   --sa-conquer-tint-hover: rgba(7, 26, 18, 0.20);
   --sa-cta-text: var(--color-paper);

@@ -44,9 +44,9 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+    <div className="flex flex-col gap-6 mb-12">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-2 text-ink-700">
+        <div className="flex items-center gap-2 mb-2 text-[var(--sa-text-muted)]">
           <Target className="w-4 h-4" aria-hidden="true" />
           <span className="text-[11px] font-bold uppercase tracking-[0.14em]">Current Focus</span>
         </div>
@@ -67,7 +67,7 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                   onChange={(e) => setDraftName(e.target.value.slice(0, MAX_NAME_LENGTH))}
                   maxLength={MAX_NAME_LENGTH}
                   aria-label="Habit name"
-                  className="text-4xl md:text-5xl font-serif text-ink-900 bg-transparent border-b-2 border-ink-900 focus:outline-none w-full pb-1 min-w-0"
+                  className="text-4xl md:text-5xl font-serif text-[var(--sa-text)] bg-transparent border-b-2 border-[var(--sa-text)] focus:outline-none w-full pb-1 min-w-0"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') commitEdit();
@@ -97,11 +97,11 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                   className="group/name flex items-center gap-2.5 min-w-0 text-left rounded-lg -mx-1 px-1 transition-colors hover:bg-linen-200/60 focus-visible:bg-linen-200/60"
                   aria-label={`Edit habit name, currently "${habitName}"`}
                 >
-                  <h1 className="text-4xl md:text-5xl font-display font-bold text-ink-900 tracking-tight truncate min-w-0">
+                  <h1 className="text-4xl md:text-5xl font-display font-bold text-[var(--sa-text)] tracking-tight truncate min-w-0">
                     {habitName}
                   </h1>
                   <PenLine
-                    className="w-4 h-4 text-ink-700 shrink-0 opacity-80 group-hover/name:opacity-100 group-hover/name:text-ink-900 transition-all"
+                    className="w-4 h-4 text-[var(--sa-text-muted)] shrink-0 opacity-80 group-hover/name:opacity-100 group-hover/name:text-[var(--sa-text)] transition-all"
                     aria-hidden="true"
                   />
                 </button>
@@ -111,9 +111,9 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
         </div>
       </div>
 
-      <div className="flex items-end gap-4 bg-parchment-raised px-5 sm:px-6 py-4 rounded-2xl border border-terracotta/35 shadow-card max-w-[11rem] sm:max-w-none shrink-0 neumorph glass">
+      <div className="flex items-end gap-4 bg-[var(--sa-card)] px-5 sm:px-6 py-4 rounded-2xl border border-[var(--sa-accent-border)] shadow-card self-start max-w-none shrink-0 neumorph glass">
         <div className="flex flex-col min-w-0">
-          <span className="text-[11px] font-bold text-terracotta-text uppercase tracking-[0.12em] mb-1 whitespace-nowrap">
+          <span className="text-[11px] font-bold text-[var(--sa-accent)] uppercase tracking-[0.12em] mb-1 whitespace-nowrap">
             Today Streak
           </span>
           <div className="flex items-baseline gap-1.5 min-w-0">
@@ -128,13 +128,13 @@ export function HabitHeader({ isEditingName, habitName, setHabitName, setIsEditi
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: '-100%', opacity: 0 }}
                   transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                  className="block font-serif text-ink-900 tabular-nums"
+                  className="block font-serif text-[var(--sa-text)] tabular-nums"
                 >
                   {streak.toLocaleString('en-US')}
                 </m.span>
               </AnimatePresence>
             </span>
-            <span className="text-sm font-medium text-ink-700 shrink-0">{streak === 1 ? 'day' : 'days'}</span>
+            <span className="text-sm font-medium text-[var(--sa-text-soft)] shrink-0">{streak === 1 ? 'day' : 'days'}</span>
           </div>
         </div>
       </div>
