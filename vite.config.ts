@@ -38,7 +38,7 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
     base: process.env.BASE_PATH ?? '/',
-    plugins: [million.vite({ auto: true }), react(), tailwindcss(), inlineCssPlugin()],
+    plugins: [react(), tailwindcss(), inlineCssPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
