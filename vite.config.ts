@@ -50,7 +50,7 @@ export default defineConfig(({mode}) => {
       allowedHosts: true,
       proxy: {
         "/api": {
-          target: "https://voltra-essentials.my.id",
+          target: "https://voltra-marketplace.web.id",
           changeOrigin: true,
           secure: false,
         }
