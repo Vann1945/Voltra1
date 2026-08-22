@@ -54,6 +54,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Comment must be at most 1000 characters.' });
       }
 
+      const safeComment = typeof comment === 'string' ? comment.trim() : null;
+
       // Pastikan addonId benar-benar merujuk ke addon yang sudah disetujui —
       // tanpa ini, siapa pun bisa POST review ke ID sembarangan (termasuk
       // addon yang belum di-approve atau bahkan ID yang tidak ada sama
@@ -70,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           await conn.execute(
             'INSERT INTO reviews (id, addon_id, user_id, user_name, user_photo, rating, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [reviewId, addonId, user.uid, user.name, user.image || null, rating, comment?.trim() || null]
+            [reviewId, addonId, user.uid, user.name, user.image || null, rating, safeComment]
           );
         } catch (err: unknown) {
           if ((err as any)?.code === 'ER_DUP_ENTRY') {

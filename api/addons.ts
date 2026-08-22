@@ -98,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const values: any[] = [];
 
         if (isAdmin && typeof body.status === 'string') { fields.push('status = ?'); values.push(body.status); }
-        if (isAdmin && typeof body.isFeatured === 'boolean') { fields.push('is_featured = ?'); values.push(body.isFeatured); }
+        if (isAdmin && typeof body.isFeatured === 'boolean') { fields.push('is_featured = ?'); values.push(body.isFeatured ? 1 : 0); }
         if (isAdmin && typeof body.category === 'string') { fields.push('category = ?'); values.push(body.category); }
         if (isAdmin && Array.isArray(body.tags)) { fields.push('tags = ?'); values.push(JSON.stringify(body.tags)); }
         if (typeof body.title === 'string') { fields.push('title = ?'); values.push(body.title); }
@@ -106,8 +106,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (typeof body.downloadUrl === 'string') { fields.push('download_url = ?'); values.push(body.downloadUrl); }
         if (typeof body.panoramaUrl === 'string') { fields.push('panorama_url = ?'); values.push(body.panoramaUrl); }
         if (typeof body.demoUrl === 'string') { fields.push('demo_url = ?'); values.push(body.demoUrl); }
-        if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted); }
-        if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments); }
+        if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted ? 1 : 0); }
+        if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments ? 1 : 0); }
 
         if (fields.length === 0) return res.status(400).json({ error: 'No fields were changed.' });
 
@@ -187,7 +187,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), payload.panoramaUrl,
           JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
           JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
-          payload.isFeatured, payload.unlisted, payload.allowComments,
+          payload.isFeatured ? 1 : 0, payload.unlisted ? 1 : 0, payload.allowComments ? 1 : 0,
         ]
       );
       return res.status(201).json({ id: addonId });

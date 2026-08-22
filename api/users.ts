@@ -233,7 +233,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           role: r.role,
           bio: r.bio,
           profileBorder: r.profile_border,
-          emailVerified: !!r.email_verified,
+          emailVerified: r.email_verified === 1 || r.email_verified === true,
           createdAt: new Date(r.created_at).toISOString(),
         })),
       });
