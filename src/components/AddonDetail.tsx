@@ -11,6 +11,7 @@ import { ProfileAvatar } from './borderEffects';
 import { RichTextContent } from './RichTextContent';
 import { getButtonClasses } from '../lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
+import { PanoramaViewer } from './PanoramaViewer';
 
 function getYouTubeVideoId(url: string): string | null {
   try {
@@ -56,7 +57,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [videoActivated, setVideoActivated] = useState(false);
-  const panoramaStripRef = React.useRef<HTMLDivElement>(null);
 
   const addon = addons.find(a => a.id === addonId);
   const isLiked = userLikes.has(addonId);
@@ -152,41 +152,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
-
-  useEffect(() => {
-    const strip = panoramaStripRef.current;
-    if (!strip) return;
-    let isDown = false;
-    let startX = 0;
-    let startScroll = 0;
-
-    const start = (x: number) => { isDown = true; startX = x; startScroll = strip.scrollLeft; strip.style.cursor = 'grabbing'; };
-    const move = (x: number) => { if (!isDown) return; strip.scrollLeft = startScroll - (x - startX); };
-    const end = () => { isDown = false; strip.style.cursor = 'grab'; };
-
-    const onMouseDown = (e: MouseEvent) => { start(e.pageX); e.preventDefault(); };
-    const onMouseMove = (e: MouseEvent) => move(e.pageX);
-    const onMouseUp = () => end();
-    const onTouchStart = (e: TouchEvent) => start(e.touches[0].pageX);
-    const onTouchMove = (e: TouchEvent) => move(e.touches[0].pageX);
-    const onTouchEnd = () => end();
-
-    strip.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-    strip.addEventListener('touchstart', onTouchStart, { passive: true });
-    strip.addEventListener('touchmove', onTouchMove, { passive: true });
-    strip.addEventListener('touchend', onTouchEnd);
-
-    return () => {
-      strip.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      strip.removeEventListener('touchstart', onTouchStart);
-      strip.removeEventListener('touchmove', onTouchMove);
-      strip.removeEventListener('touchend', onTouchEnd);
-    };
-  }, [addon?.panoramaUrl]);
 
   useEffect(() => {
     if (!addonId) return;
@@ -459,24 +424,9 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       </article>
 
       {addon.panoramaUrl && (
-        <section className="mt-8 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card">
-          <div className="border-b border-parchment-border px-6 py-5">
-            <h2 className="text-lg font-bold text-ink-900">Panorama <span className="text-sm font-medium text-ink-900/45">(optional)</span></h2>
-            <p className="mt-1 text-xs font-medium text-ink-900/50">Drag to explore the full image.</p>
-          </div>
-          <div
-            ref={panoramaStripRef}
-            className="flex overflow-x-auto select-none bg-ink-900 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-parchment-raised/20"
-            style={{ cursor: 'grab', scrollbarWidth: 'thin' }}
-          >
-            <img
-              src={addon.panoramaUrl}
-              alt={`${addon.title} panorama`}
-              draggable={false}
-              className="h-[240px] sm:h-[320px] w-auto max-w-none pointer-events-none"
-            />
-          </div>
-        </section>
+        <div className="mt-8">
+          <PanoramaViewer src={addon.panoramaUrl} alt={`${addon.title} panorama`} />
+        </div>
       )}
 
       <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} addonId={addon.id} />

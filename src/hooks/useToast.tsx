@@ -1,17 +1,13 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 export type ToastType = 'success' | 'error';
 
 export interface ToastState {
+  id: number;
   message: string;
   type: ToastType;
 }
 
-// Satu-satunya sumber kebenaran untuk berapa lama toast tampil. Sebelumnya
-// nilai ini di-hardcode ulang secara terpisah di Toast.tsx (untuk animasi
-// progress bar) dengan angka yang beda (4000/5000 vs 3000/4000 di sini) —
-// progress bar jadi tidak sinkron dengan waktu unmount toast yang
-// sebenarnya. Diekspor supaya Toast.tsx bisa pakai angka yang sama persis.
 export const TOAST_DURATION_MS: Record<ToastType, number> = { success: 3000, error: 4000 };
 
 interface ToastContextValue {
@@ -25,17 +21,31 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextIdRef = useRef(0);
+
+  const clearToastTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const hideToast = useCallback(() => {
+    clearToastTimer();
     setToast(null);
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
+  }, [clearToastTimer]);
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setToast({ message, type });
-    timerRef.current = setTimeout(() => setToast(null), TOAST_DURATION_MS[type]);
-  }, []);
+    clearToastTimer();
+    const id = ++nextIdRef.current;
+    setToast({ id, message, type });
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      setToast(current => current?.id === id ? null : current);
+    }, TOAST_DURATION_MS[type]);
+  }, [clearToastTimer]);
+
+  useEffect(() => clearToastTimer, [clearToastTimer]);
 
   return (
     <ToastContext.Provider value={{ toast, showToast, hideToast }}>
