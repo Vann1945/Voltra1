@@ -22,6 +22,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = typeof req.query.id === 'string' ? req.query.id : undefined;
   const scope = typeof req.query.scope === 'string' ? req.query.scope : undefined;
 
+  if (scope === 'search') {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    try {
+      const user = await requireUser(req);
+      const rawQuery = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      if (rawQuery.length < 2) return res.status(200).json({ users: [] });
+      const search = `%${rawQuery.slice(0, 60)}%`;
+      const rows = await query<any>(
+        `SELECT id, display_name, photo_url, profile_border
+         FROM users
+         WHERE id <> ? AND display_name IS NOT NULL AND display_name LIKE ?
+         ORDER BY display_name ASC
+         LIMIT 8`,
+        [user.uid, search]
+      );
+      return res.status(200).json({ users: rows.map(row => ({
+        uid: row.id,
+        displayName: row.display_name || 'Anonymous',
+        photoURL: row.photo_url || null,
+        profileBorder: row.profile_border || 'none',
+      })) });
+    } catch (err: any) {
+      safeLogError('[api/users search] error:', err);
+      const status = err?.statusCode || 500;
+      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to search users.' });
+    }
+  }
+
   if (scope === 'habit') {
     try {
       const user = await requireUser(req);

@@ -30,6 +30,17 @@ export function ensureFeatureTables(): Promise<void> {
         KEY bookmarks_addon_id (addon_id)
       )
     `);
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS addon_collaborators (
+        id VARCHAR(100) NOT NULL PRIMARY KEY,
+        addon_id VARCHAR(100) NOT NULL,
+        user_id VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY addon_collaborators_addon_user (addon_id, user_id),
+        KEY addon_collaborators_addon_id (addon_id),
+        KEY addon_collaborators_user_id (user_id)
+      )
+    `);
   })().catch(error => {
     schemaPromise = null;
     throw error;

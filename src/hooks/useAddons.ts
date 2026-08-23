@@ -114,15 +114,24 @@ export function useAddons() {
     const handleProfileUpdated = (event: Event) => {
       const detail = (event as CustomEvent<ProfileUpdate>).detail;
       if (!detail?.uid) return;
-      setAddons(current => current.map(addon => addon.authorId === detail.uid
-        ? {
-            ...addon,
-            authorName: detail.displayName,
-            authorPhoto: detail.photoURL || null,
-            authorBorder: detail.profileBorder || 'none',
-          }
-        : addon
-      ));
+      setAddons(current => current.map(addon => {
+        const updatedAddon = addon.authorId === detail.uid
+          ? {
+              ...addon,
+              authorName: detail.displayName,
+              authorPhoto: detail.photoURL || null,
+              authorBorder: detail.profileBorder || 'none',
+            }
+          : addon;
+        if (!updatedAddon.collaborators?.some(collaborator => collaborator.uid === detail.uid)) return updatedAddon;
+        return {
+          ...updatedAddon,
+          collaborators: updatedAddon.collaborators.map(collaborator => collaborator.uid === detail.uid
+            ? { ...collaborator, displayName: detail.displayName, photoURL: detail.photoURL || null, profileBorder: detail.profileBorder || 'none' }
+            : collaborator
+          ),
+        };
+      }));
     };
 
     window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);

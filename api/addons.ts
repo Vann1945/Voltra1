@@ -84,9 +84,92 @@ function rowToAddon(r: any, truncateDescription: boolean) {
   };
 }
 
+async function getCollaboratorsByAddonIds(addonIds: string[]) {
+  const result = new Map<string, any[]>();
+  if (addonIds.length === 0) return result;
+  const placeholders = addonIds.map(() => '?').join(', ');
+  const rows = await query<any>(
+    `SELECT ac.addon_id, u.id AS uid,
+            COALESCE(u.display_name, 'Anonymous') AS display_name,
+            u.photo_url, u.profile_border
+     FROM addon_collaborators ac
+     INNER JOIN users u ON u.id = ac.user_id
+     WHERE ac.addon_id IN (${placeholders})
+     ORDER BY ac.created_at ASC`,
+    addonIds
+  );
+  for (const row of rows) {
+    const collaborators = result.get(row.addon_id) || [];
+    collaborators.push({
+      uid: row.uid,
+      displayName: row.display_name || 'Anonymous',
+      photoURL: row.photo_url || null,
+      profileBorder: row.profile_border || 'none',
+    });
+    result.set(row.addon_id, collaborators);
+  }
+  return result;
+}
+
+async function attachCollaborators(addons: any[]) {
+  const collaboratorsByAddon = await getCollaboratorsByAddonIds(addons.map(addon => addon.id));
+  return addons.map(addon => ({ ...addon, collaborators: collaboratorsByAddon.get(addon.id) || [] }));
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = typeof req.query.id === 'string' ? req.query.id : undefined;
   const action = typeof req.query.action === 'string' ? req.query.action : undefined;
+
+  if (action === 'collaborators') {
+    try {
+      await ensureFeatureTables();
+      const user = await requireUser(req);
+      const addonId = typeof req.query.addonId === 'string' ? req.query.addonId : typeof req.body?.addonId === 'string' ? req.body.addonId : '';
+      if (!addonId) return res.status(400).json({ error: 'addonId is required.' });
+      const addon = await queryOne<{ author_id: string }>('SELECT author_id FROM addons WHERE id = ?', [addonId]);
+      if (!addon) return res.status(404).json({ error: 'Add-on not found.' });
+      if (addon.author_id !== user.uid && user.role !== 'admin') return res.status(403).json({ error: 'Only the project owner can manage collaborators.' });
+
+      if (req.method === 'GET') {
+        const collaboratorsByAddon = await getCollaboratorsByAddonIds([addonId]);
+        return res.status(200).json({ collaborators: collaboratorsByAddon.get(addonId) || [] });
+      }
+
+      const collaboratorId = typeof req.body?.collaboratorId === 'string' ? req.body.collaboratorId.trim() : '';
+      if (!collaboratorId) return res.status(400).json({ error: 'collaboratorId is required.' });
+      if (collaboratorId === addon.author_id) return res.status(400).json({ error: 'The project owner is already listed as creator.' });
+
+      const collaborator = await queryOne<{ id: string; display_name: string | null; photo_url: string | null; profile_border: string | null }>(
+        'SELECT id, display_name, photo_url, profile_border FROM users WHERE id = ? LIMIT 1',
+        [collaboratorId]
+      );
+      if (!collaborator) return res.status(404).json({ error: 'User not found.' });
+
+      if (req.method === 'POST') {
+        await query(
+          'INSERT IGNORE INTO addon_collaborators (id, addon_id, user_id) VALUES (?, ?, ?)',
+          [crypto.randomUUID(), addonId, collaboratorId]
+        );
+        return res.status(201).json({ collaborator: {
+          uid: collaborator.id,
+          displayName: collaborator.display_name || 'Anonymous',
+          photoURL: collaborator.photo_url || null,
+          profileBorder: collaborator.profile_border || 'none',
+        } });
+      }
+
+      if (req.method === 'DELETE') {
+        await query('DELETE FROM addon_collaborators WHERE addon_id = ? AND user_id = ?', [addonId, collaboratorId]);
+        return res.status(200).json({ ok: true });
+      }
+
+      return res.status(405).json({ error: 'Method not allowed' });
+    } catch (err: any) {
+      safeLogError('[api/addons collaborators] error:', err);
+      const status = err?.statusCode || 500;
+      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process collaborators.' });
+    }
+  }
 
   if (action === 'bookmarks') {
     try {
@@ -216,6 +299,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           [id]
         );
         const detail = rowToAddon(addon, false) as any;
+        const collaboratorsByAddon = await getCollaboratorsByAddonIds([id]);
+        detail.collaborators = collaboratorsByAddon.get(id) || [];
         detail.versions = versionRows.map(version => ({
           id: version.id,
           addonId: version.addon_id,
@@ -329,7 +414,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
            ORDER BY a.created_at DESC`
         );
       }
-      return res.status(200).json({ addons: rows.map(r => rowToAddon(r, true)) });
+      const addonPayloads = rows.map(r => rowToAddon(r, true));
+      return res.status(200).json({ addons: await attachCollaborators(addonPayloads) });
     } catch (err) {
       safeLogError('[api/addons GET] error:', err);
       return res.status(500).json({ error: 'Failed to load add-ons.' });

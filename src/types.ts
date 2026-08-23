@@ -14,6 +14,13 @@ export interface AddonSocial {
   url: string;
 }
 
+export interface AddonCollaborator {
+  uid: string;
+  displayName: string;
+  photoURL?: string | null;
+  profileBorder?: string;
+}
+
 export interface AddonVersion {
   id: string;
   addonId: string;
@@ -57,6 +64,7 @@ export interface Addon {
   unlisted?: boolean;
   allowComments?: boolean;
   socials?: AddonSocial[];
+  collaborators?: AddonCollaborator[];
 }
 
 export interface Like {

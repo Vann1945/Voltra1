@@ -25,6 +25,7 @@ interface AuthorProfileProps {
 export function AuthorProfile({ authorId, addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate }: AuthorProfileProps) {
   const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
   const [authorBorder, setAuthorBorder] = useState<string>('none');
+  const [authorDisplayName, setAuthorDisplayName] = useState<string>('');
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -36,6 +37,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, userBookma
           const data = await res.json();
           setAuthorPhoto(data.photoURL || null);
           setAuthorBorder(data.profileBorder || 'none');
+          setAuthorDisplayName(data.displayName || '');
         }
       } catch (error) {
         showToast('Failed to load author profile.', 'error');
@@ -45,10 +47,10 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, userBookma
   }, [authorId]);
 
   const authorAddons = useMemo(() => {
-    return addons.filter(a => a.authorId === authorId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return addons.filter(a => a.authorId === authorId || a.collaborators?.some(collaborator => collaborator.uid === authorId)).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [addons, authorId]);
 
-  const authorName = authorAddons.length > 0 ? authorAddons[0].authorName : 'Unknown Author';
+  const authorName = authorDisplayName || (authorAddons.find(addon => addon.authorId === authorId)?.authorName) || authorAddons.find(addon => addon.collaborators?.some(collaborator => collaborator.uid === authorId))?.collaborators?.find(collaborator => collaborator.uid === authorId)?.displayName || 'Unknown Author';
 
   const totalLikes = useMemo(() => authorAddons.reduce((sum, addon) => sum + (addon.likesCount || 0), 0), [authorAddons]);
 
@@ -99,7 +101,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, userBookma
         <div className="flex-1 w-full">
           <h1 className="text-3xl font-bold text-ink-900 tracking-tight">{authorName}</h1>
           <div className="mt-4 flex items-center gap-3 text-sm font-bold text-ink-900">
-            <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Package size={15} /> {authorAddons.length} Uploads</span>
+            <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Package size={15} /> {authorAddons.length} Projects</span>
             <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-lg shadow-card"><Heart size={15} /> {totalLikes} Total Likes</span>
           </div>
         </div>
@@ -107,8 +109,9 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, userBookma
 
       <div className="space-y-16">
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
-            <Package size={20} className="text-terracotta-soft" /> Uploads by {authorName}
+                      <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+            <Package size={20} className="text-terracotta-soft" /> Projects by {authorName}
+
           </h2>
 
           <motion.div

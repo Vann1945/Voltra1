@@ -8,6 +8,7 @@ import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
+import { AddonPeople } from './AddonPeople';
 import { RichTextContent } from './RichTextContent';
 import { getButtonClasses } from '../lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
@@ -72,6 +73,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
   const [authorBorder, setAuthorBorder] = useState<string>('none');
+  const [collaborators, setCollaborators] = useState<NonNullable<Addon['collaborators']>>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -88,6 +90,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const activeVersion = versions.find(version => version.id === selectedVersionId) || versions[0];
   const activeDownloadUrl = activeVersion?.downloadUrl || addon?.downloadUrl || '';
   const [fullDescription, setFullDescription] = useState<string | null>(null);
+  useEffect(() => {
+    setCollaborators(addon?.collaborators ?? []);
+  }, [addon?.collaborators]);
+
   const images = useMemo(
     () => (addon?.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls : [addon?.imageUrl || '']),
     [addon]
@@ -102,6 +108,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
       .then(data => {
         if (!cancelled && data?.addon?.description !== undefined) {
           setFullDescription(data.addon.description);
+          setCollaborators(Array.isArray(data.addon.collaborators) ? data.addon.collaborators : []);
           const loadedVersions = Array.isArray(data.addon.versions) ? data.addon.versions as AddonVersion[] : [];
           const resolvedVersions = loadedVersions.length > 0 ? loadedVersions : data.addon.downloadUrl ? [{ id: `legacy-${data.addon.id}`, addonId: data.addon.id, version: 'Current', downloadUrl: data.addon.downloadUrl, changelog: data.addon.changelog || '', compatibilityNotes: data.addon.compatibilityNotes || '', createdAt: data.addon.createdAt }] : [];
           setVersions(resolvedVersions);
@@ -388,10 +395,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
               <h1 className="text-3xl font-bold leading-tight tracking-[-0.04em] text-ink-900 sm:text-5xl">{addon.title}</h1>
 
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink-900/60">
-                <div onClick={() => onNavigate({ type: 'author', id: addon.authorId })} className="flex items-center gap-2 cursor-pointer hover:text-ink-900 transition-colors">
-                  <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName="h-8 w-8" />
-                  <span>{addon.authorName}</span>
-                </div>
                 <div className="flex items-center gap-1.5">
                   <ArrowDownToLine size={16} />
                   <span className="font-meta">{addon.downloadsCount || 0}</span> Downloads
@@ -404,6 +407,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
                   </div>
                 )}
               </div>
+              <AddonPeople addonId={addon.id} authorId={addon.authorId} authorName={addon.authorName} authorPhoto={authorPhoto} authorBorder={authorBorder} collaborators={collaborators} onNavigate={onNavigate} canManage={Boolean(user && (user.uid === addon.authorId || user.role === 'admin'))} onCollaboratorsChange={setCollaborators} />
             </div>
 
           </div>
