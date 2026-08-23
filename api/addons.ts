@@ -6,9 +6,23 @@ import { buildAddonPayload, AddonUploadInput, validateAddonPatch } from '../src/
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
 
+function parseJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 function rowToAddon(r: any, truncateDescription: boolean) {
   const DESCRIPTION_PREVIEW_LENGTH = 600;
   const rawDescription: string = r.description || '';
+  const imageUrls = parseJsonArray(r.image_urls);
   return {
     id: r.id,
     title: r.title,
@@ -19,16 +33,18 @@ function rowToAddon(r: any, truncateDescription: boolean) {
     additionalCategory: r.additional_category,
     projectClass: r.project_class,
     imageUrl: r.image_url,
-    imageUrls: r.image_urls || [],
+    imageUrls: imageUrls.length > 0 ? imageUrls : (typeof r.image_url === 'string' && r.image_url ? [r.image_url] : []),
     panoramaUrl: r.panorama_url,
-    tags: r.tags || [],
+    tags: parseJsonArray(r.tags),
     downloadUrl: r.download_url,
     demoUrl: r.demo_url,
     license: r.license,
     distributionPref: r.distribution_pref,
-    socials: r.socials || [],
+    socials: parseJsonArray(r.socials),
     authorId: r.author_id,
-    authorName: r.author_name,
+    authorName: r.resolved_author_name || r.author_name,
+    authorPhoto: r.author_photo || null,
+    authorBorder: r.author_border || 'none',
     status: r.status,
     isFeatured: !!r.is_featured,
     unlisted: !!r.unlisted,
@@ -62,7 +78,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (id) {
     if (req.method === 'GET') {
       try {
-        const addon = await queryOne<any>('SELECT * FROM addons WHERE id = ?', [id]);
+        const addon = await queryOne<any>(
+          `SELECT a.*, u.photo_url AS author_photo, u.profile_border AS author_border,
+                  COALESCE(u.display_name, a.author_name) AS resolved_author_name
+           FROM addons a
+           LEFT JOIN users u ON u.id = a.author_id
+           WHERE a.id = ?`,
+          [id]
+        );
         if (!addon) return res.status(404).json({ error: 'Add-on not found.' });
 
         if (addon.status !== 'approved') {
@@ -141,18 +164,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
+    // Marketplace publik tetap render empty state saat environment DB belum
+    // tersedia (misalnya preview lokal), bukan mengembalikan blank/error page.
+    if (!process.env.TIDB_HOST) return res.status(200).json({ addons: [] });
+
     try {
       const user = await getSessionUser(req);
       let rows: any[];
       if (user?.role === 'admin') {
-        rows = await query('SELECT * FROM addons ORDER BY created_at DESC');
+        rows = await query(
+          `SELECT a.*, u.photo_url AS author_photo, u.profile_border AS author_border,
+                  COALESCE(u.display_name, a.author_name) AS resolved_author_name
+           FROM addons a
+           LEFT JOIN users u ON u.id = a.author_id
+           ORDER BY a.created_at DESC`
+        );
       } else if (user) {
         rows = await query(
-          `SELECT * FROM addons WHERE status = 'approved' OR author_id = ? ORDER BY created_at DESC`,
+          `SELECT a.*, u.photo_url AS author_photo, u.profile_border AS author_border,
+                  COALESCE(u.display_name, a.author_name) AS resolved_author_name
+           FROM addons a
+           LEFT JOIN users u ON u.id = a.author_id
+           WHERE a.status = 'approved' OR a.author_id = ?
+           ORDER BY a.created_at DESC`,
           [user.uid]
         );
       } else {
-        rows = await query(`SELECT * FROM addons WHERE status = 'approved' ORDER BY created_at DESC`);
+        rows = await query(
+          `SELECT a.*, u.photo_url AS author_photo, u.profile_border AS author_border,
+                  COALESCE(u.display_name, a.author_name) AS resolved_author_name
+           FROM addons a
+           LEFT JOIN users u ON u.id = a.author_id
+           WHERE a.status = 'approved'
+           ORDER BY a.created_at DESC`
+        );
       }
       return res.status(200).json({ addons: rows.map(r => rowToAddon(r, true)) });
     } catch (err) {

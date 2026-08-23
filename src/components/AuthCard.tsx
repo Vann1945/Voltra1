@@ -273,7 +273,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               exit={{ opacity: 0, y: -8, height: 0 }}
               className="mb-5 overflow-hidden"
             >
-              <div className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
+              <div role="alert" aria-live="assertive" className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
                 <AlertCircle className="text-danger shrink-0 mt-0.5" size={16} />
                 <p className="text-sm text-ink-900 font-medium">{error}</p>
               </div>
@@ -287,7 +287,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               exit={{ opacity: 0, y: -8, height: 0 }}
               className="mb-5 overflow-hidden"
             >
-              <div className="p-4 bg-success/[0.08] border border-success/20 rounded-lg flex items-start gap-3">
+              <div role="status" aria-live="polite" className="p-4 bg-success/[0.08] border border-success/20 rounded-lg flex items-start gap-3">
                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={16} />
                 <p className="text-sm text-ink-900 font-medium">{successMsg}</p>
               </div>
@@ -327,43 +327,50 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-1 overflow-hidden"
                 >
-                  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+                  <label htmlFor="auth-name" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                     Full Name
                   </label>
                   <div className="relative">
                     <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                     <input
+                      id="auth-name"
                       type="text"
                       value={name}
                       onChange={handleNameChange}
                       onBlur={() => setNameError(validateName(name))}
                       disabled={loading}
                       className={inputClass(!!nameError)}
+                      aria-invalid={!!nameError}
+                      aria-describedby={nameError ? 'auth-name-error' : undefined}
                       placeholder="Your name"
                     />
                   </div>
-                  {nameError && <p className="text-xs font-bold text-danger">{nameError}</p>}
+                  {nameError && <p id="auth-name-error" className="text-xs font-bold text-danger">{nameError}</p>}
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
-                Email
+<label htmlFor="auth-email" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+                    Email
               </label>
               <div className="relative">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
-                <input
-                  type="email"
-                  value={email}
+                    <input
+                      id="auth-email"
+                      type="email"
+                      value={email}
                   onChange={handleEmailChange}
                   onBlur={() => setEmailError(validateEmail(email))}
                   disabled={loading}
                   className={inputClass(!!emailError)}
+                  aria-invalid={!!emailError}
+                  aria-describedby={emailError ? 'auth-email-error' : undefined}
+                  autoComplete="email"
                   placeholder="you@example.com"
                 />
               </div>
-              {emailError && <p className="text-xs font-bold text-danger">{emailError}</p>}
+              {emailError && <p id="auth-email-error" className="text-xs font-bold text-danger">{emailError}</p>}
             </div>
 
             <AnimatePresence mode="wait">
@@ -376,7 +383,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   className="space-y-1 overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+                    <label htmlFor="auth-password" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
                       Password
                     </label>
                     {view === 'login' && (
@@ -392,16 +399,20 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   <div className="relative">
                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                     <input
+                      id="auth-password"
                       type="password"
                       value={password}
                       onChange={handlePasswordChange}
                       onBlur={() => setPasswordError(validatePassword(password))}
                       disabled={loading}
                       className={inputClass(!!passwordError)}
+                      aria-invalid={!!passwordError}
+                      aria-describedby={passwordError ? 'auth-password-error' : undefined}
+                      autoComplete={view === 'register' ? 'new-password' : 'current-password'}
                       placeholder="••••••••"
                     />
                   </div>
-                  {passwordError && <p className="text-xs font-bold text-danger">{passwordError}</p>}
+                  {passwordError && <p id="auth-password-error" className="text-xs font-bold text-danger">{passwordError}</p>}
                 </motion.div>
               )}
             </AnimatePresence>

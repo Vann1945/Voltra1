@@ -1,12 +1,24 @@
-import { Auth } from '@auth/core';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Auth } from '@auth/core';
 import { authConfig } from '../auth.config.js';
 import { safeLogError } from '../src/lib/safeLog.js';
+
+function getFormBody(body: unknown): URLSearchParams | null {
+  if (typeof body === 'string') return new URLSearchParams(body);
+  if (body && typeof body === 'object') {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+      if (value !== undefined && value !== null) params.set(key, String(value));
+    }
+    return params;
+  }
+  return null;
+}
 
 function toWebRequest(req: VercelRequest): Request {
   const protocol = (req.headers['x-forwarded-proto'] as string) || 'https';
   const host = req.headers.host;
-  const url = `${protocol}://${host}${req.url}`;
+  const url = `${protocol}://${host}${req.url || ''}`;
 
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
@@ -15,19 +27,16 @@ function toWebRequest(req: VercelRequest): Request {
   }
 
   let body: string | undefined;
-
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     const contentType = (req.headers['content-type'] as string) || '';
-
     if (contentType.includes('application/x-www-form-urlencoded')) {
-      const params = req.body as Record<string, string>;
-      body = new URLSearchParams(params).toString();
-
-      if (params?.json === 'true') {
-        headers.set('X-Auth-Return-Redirect', '1');
+      const params = getFormBody(req.body);
+      if (params) {
+        body = params.toString();
+        if (params.get('json') === 'true') headers.set('X-Auth-Return-Redirect', '1');
       }
     } else if (contentType.includes('application/json')) {
-      body = JSON.stringify(req.body);
+      body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body ?? {});
     } else if (typeof req.body === 'string') {
       body = req.body;
     } else if (req.body !== undefined && req.body !== null) {
@@ -45,18 +54,17 @@ function toWebRequest(req: VercelRequest): Request {
 async function sendWebResponse(webRes: Response, res: VercelResponse) {
   res.status(webRes.status);
   webRes.headers.forEach((value, key) => {
-    if (key.toLowerCase() !== 'set-cookie') {
-      res.setHeader(key, value);
-    }
+    if (key.toLowerCase() !== 'set-cookie') res.setHeader(key, value);
   });
-  const cookies = typeof (webRes.headers as any).getSetCookie === 'function'
-    ? (webRes.headers as any).getSetCookie()
+
+  const headers = webRes.headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = typeof headers.getSetCookie === 'function'
+    ? headers.getSetCookie()
     : webRes.headers.get('set-cookie')
       ? [webRes.headers.get('set-cookie') as string]
       : [];
-  if (cookies.length > 0) {
-    res.setHeader('set-cookie', cookies);
-  }
+  if (cookies.length > 0) res.setHeader('set-cookie', cookies);
+
   const text = await webRes.text();
   res.send(text);
 }

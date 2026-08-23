@@ -29,11 +29,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Sign in to Voltra"
             className="relative"
           >
             <button
+              type="button"
               onClick={onClose}
-              className="absolute -top-12 right-0 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 btn-3d"
+              aria-label="Close sign-in dialog"
+              className="absolute -top-12 right-0 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 btn-3d focus-visible:ring-2 focus-visible:ring-white"
             >
               <X size={20} />
             </button>

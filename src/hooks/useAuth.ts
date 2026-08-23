@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { User } from '../types';
@@ -8,37 +8,78 @@ type AuthJsSession = {
   firebaseToken?: string;
 } | null;
 
+type AuthRedirectResponse = { url?: string; error?: string };
+
+async function readJsonResponse<T>(res: Response): Promise<T | null> {
+  if (!res.ok) return null;
+  const contentType = res.headers.get('content-type') || '';
+  const text = await res.text();
+  if (!text.trim() || !contentType.includes('application/json')) return null;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchSession(): Promise<AuthJsSession> {
   try {
-    const res = await fetch('/api/auth/session');
-    if (!res.ok) return null;
-    const text = await res.text();
-    try {
-      const data = JSON.parse(text);
-      return data?.user ? data : null;
-    } catch (e) {
-      console.error('Failed to parse session JSON:', text.substring(0, 50));
-      return null;
-    }
-  } catch (err) {
+    const res = await fetch('/api/auth/session', {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    });
+    const data = await readJsonResponse<AuthJsSession>(res);
+    return data?.user ? data : null;
+  } catch {
     return null;
   }
 }
 
 async function getCsrfToken(): Promise<string> {
   try {
-    const res = await fetch('/api/auth/csrf');
-    const text = await res.text();
-    try {
-      const data = JSON.parse(text);
-      return data.csrfToken || '';
-    } catch (e) {
-      console.error('Failed to parse CSRF JSON:', text.substring(0, 50));
-      return '';
-    }
-  } catch (err) {
+    const res = await fetch('/api/auth/csrf', {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    });
+    const data = await readJsonResponse<{ csrfToken?: string }>(res);
+    return data?.csrfToken || '';
+  } catch {
     return '';
   }
+}
+
+function navigateToOAuthProvider(provider: 'google' | 'github') {
+  const callbackUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+  const params = new URLSearchParams({ callbackUrl });
+  window.location.assign(`/api/auth/signin/${provider}?${params.toString()}`);
+}
+
+async function startOAuthLogin(provider: 'google' | 'github') {
+  const csrfToken = await getCsrfToken();
+  const res = await fetch(`/api/auth/signin/${provider}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    credentials: 'same-origin',
+    body: new URLSearchParams({
+      csrfToken,
+      callbackUrl: window.location.href,
+      json: 'true',
+    }),
+  });
+
+  const data = await readJsonResponse<AuthRedirectResponse>(res);
+  if (data?.url) {
+    window.location.assign(data.url);
+    return;
+  }
+
+  // Auth.js dapat mengembalikan redirect/HTML bila proxy atau cookie belum siap.
+  // Navigasi langsung tetap berada dalam alur provider yang benar dan tidak
+  // mencoba JSON.parse terhadap halaman HTML.
+  navigateToOAuthProvider(provider);
 }
 
 export function useAuth() {
@@ -69,35 +110,19 @@ export function useAuth() {
 
   const loginWithGoogle = useCallback(async () => {
     try {
-      const csrfToken = await getCsrfToken();
-      const res = await fetch('/api/auth/signin/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ csrfToken, callbackUrl: window.location.href, json: 'true' }),
-      });
-      const text = await res.text();
-      const data = JSON.parse(text);
-      if (data.url) window.location.href = data.url;
+      await startOAuthLogin('google');
     } catch (err) {
       console.error('Google login failed:', err);
-      window.location.href = '/api/auth/signin/google'; // fallback to standard navigation
+      navigateToOAuthProvider('google');
     }
   }, []);
 
   const loginWithGithub = useCallback(async () => {
     try {
-      const csrfToken = await getCsrfToken();
-      const res = await fetch('/api/auth/signin/github', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ csrfToken, callbackUrl: window.location.href, json: 'true' }),
-      });
-      const text = await res.text();
-      const data = JSON.parse(text);
-      if (data.url) window.location.href = data.url;
+      await startOAuthLogin('github');
     } catch (err) {
-      console.error('Github login failed:', err);
-      window.location.href = '/api/auth/signin/github'; // fallback to standard navigation
+      console.error('GitHub login failed:', err);
+      navigateToOAuthProvider('github');
     }
   }, []);
 
@@ -107,11 +132,15 @@ export function useAuth() {
         const csrfToken = await getCsrfToken();
         const res = await fetch('/api/auth/callback/credentials', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          credentials: 'same-origin',
           body: new URLSearchParams({ csrfToken, email, password, recaptchaToken, json: 'true' }),
         });
-        const text = await res.text();
-        const data = JSON.parse(text);
+        const data = await readJsonResponse<AuthRedirectResponse>(res);
+        if (!data?.url) throw new Error('AUTH_RESPONSE_INVALID');
         const url = new URL(data.url, window.location.origin);
         const error = url.searchParams.get('error');
         if (error) {
@@ -139,6 +168,7 @@ export function useAuth() {
       await fetch('/api/auth/signout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
         body: new URLSearchParams({ csrfToken, json: 'true' }),
       });
       if (auth) await firebaseSignOut(auth);

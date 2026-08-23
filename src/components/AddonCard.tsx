@@ -43,6 +43,22 @@ function fetchAuthorInfo(authorId: string): Promise<AuthorInfo> {
   return promise;
 }
 
+function getFirstImage(value: unknown, fallback?: string): string | undefined {
+  if (Array.isArray(value)) {
+    const first = value.find((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    return first || fallback;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return getFirstImage(parsed, fallback);
+    } catch {
+      return value.trim();
+    }
+  }
+  return typeof fallback === 'string' && fallback.trim() ? fallback.trim() : undefined;
+}
+
 function stripHtml(html: string): string {
   if (!html) return '';
   return html
@@ -84,7 +100,7 @@ interface AddonCardProps {
   compact?: boolean;
 }
 
-export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate, priority = false, compact = false }: AddonCardProps) {
+export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavigate, priority = false, compact = false }: AddonCardProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
@@ -94,7 +110,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   const [authorBorder, setAuthorBorder] = useState<string>(addon.authorBorder ?? 'none');
   const [showInfo, setShowInfo] = useState(false);
 
-  const coverImage = addon.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls[0] : addon.imageUrl;
+  const coverImage = getFirstImage(addon.imageUrls, addon.imageUrl);
 
   React.useEffect(() => {
     if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) return;
@@ -117,6 +133,14 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
 
   const handleCardClick = () => {
     if (onNavigate) onNavigate({ type: 'addon', id: addon.id });
+  };
+
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.currentTarget !== e.target) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick();
+    }
   };
 
   const handleAuthorClick = (e: React.MouseEvent) => {
@@ -172,7 +196,11 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
     return (
       <div
         onClick={handleCardClick}
-        className="group flex w-full cursor-pointer items-center gap-3 bg-parchment-raised px-3 py-2.5 transition-colors hover:bg-ink-900/[0.03] active:bg-ink-900/[0.05]"
+        onKeyDown={handleCardKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open ${addon.title}`}
+        className="group flex w-full cursor-pointer items-center gap-3 rounded-xl bg-parchment-raised px-3 py-2.5 transition-[background-color,box-shadow] hover:bg-ink-900/[0.03] active:bg-ink-900/[0.05] focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2"
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-900">
           <FadeImage
@@ -183,6 +211,7 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
             referrerPolicy="no-referrer"
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
+            sizes={compact ? '56px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px'}
           />
         </div>
 
@@ -220,14 +249,16 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         <div className="flex shrink-0 flex-col items-end gap-1">
           <div className="flex items-center gap-2.5 text-xs font-bold text-ink-900/75">
             <span className="flex items-center gap-1" title="Downloads">
-              <ArrowDownToLine size={12} />
+              <ArrowDownToLine aria-hidden="true" size={12} />
               {formatCount(addon.downloadsCount || 0)}
             </span>
             <button
+              type="button"
               onClick={handleLikeClick}
+              aria-label={`${isLiked ? 'Unlike' : 'Like'} ${addon.title}`}
               className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-terracotta-text' : 'hover:text-terracotta-text'}`}
             >
-              <Heart size={12} className={isLiked ? 'fill-current' : ''} />
+              <Heart aria-hidden="true" size={12} className={isLiked ? 'fill-current' : ''} />
               {formatCount(addon.likesCount)}
             </button>
           </div>
@@ -243,14 +274,18 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-parchment-raised transition-[transform,box-shadow,border-color] duration-200 ease-out hover:shadow-card-hover hover:-translate-y-1 active:translate-y-0 ${compact ? 'rounded-xl shadow-card glass' : 'rounded-2xl shadow-card neumorph'}`}
+      onKeyDown={handleCardKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${addon.title}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden bg-parchment-raised transition-[transform,box-shadow,border-color] duration-200 ease-out hover:shadow-card-hover hover:-translate-y-1 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 ${compact ? 'rounded-xl shadow-card glass' : 'rounded-2xl shadow-card neumorph'}`}
     >
       <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink-900`}>
         <FadeImage
           src={coverImage}
           alt={addon.title}
           containerClassName="h-full w-full"
-          className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           referrerPolicy="no-referrer"
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
@@ -350,29 +385,35 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
         )}
 
         <div className={`flex items-center justify-between border-t border-parchment-border ${compact ? 'mt-3 pt-3' : 'mt-5 pt-4'}`}>
-          <div
+              <button
+            type="button"
+            aria-label={`Open profile of ${addon.authorName}`}
             className="flex items-center gap-2 text-xs font-bold text-ink-900 cursor-pointer hover:text-terracotta-text transition-colors"
             onClick={handleAuthorClick}
           >
             <ProfileAvatar photoURL={authorPhoto} displayName={addon.authorName} borderValue={authorBorder} sizeClassName={compact ? 'h-6 w-6' : 'h-7 w-7'} textSizeClassName={compact ? 'text-[10px]' : 'text-xs'} />
             <span className="truncate max-w-[100px]">{addon.authorName}</span>
-          </div>
+          </button>
 
           <div className={`flex items-center gap-3 ${compact ? 'gap-2' : ''}`}>
             <button
+              type="button"
               onClick={handleLikeClick}
+              aria-label={`${isLiked ? 'Unlike' : 'Like'} ${addon.title}`}
               className={`flex items-center gap-1 text-xs font-bold transition-colors ${isLiked ? 'text-terracotta-text' : 'text-ink-900 hover:text-terracotta-text'}`}
             >
-              <Heart size={15} className={isLiked ? 'fill-current' : ''} />
+              <Heart aria-hidden="true" size={15} className={isLiked ? 'fill-current' : ''} />
               <span>{addon.likesCount}</span>
             </button>
             <div className="flex items-center gap-1 text-xs font-bold text-ink-900">
-              <ArrowDownToLine size={15} />
+              <ArrowDownToLine aria-hidden="true" size={15} />
               <span>{addon.downloadsCount || 0}</span>
             </div>
             <button
+              type="button"
               onClick={handleDownloadClick}
               disabled={isDownloading}
+              aria-label={`${downloadSuccess ? 'Downloaded' : 'Download'} ${addon.title}`}
               className={`relative overflow-hidden flex items-center gap-1.5 border border-parchment-border rounded-lg px-3 py-1.5 text-xs font-bold uppercase transition-all duration-300 ease-out active:scale-[0.97] ${
                 downloadSuccess
                   ? 'bg-parchment-raised text-success shadow-sm'
@@ -397,4 +438,4 @@ export function AddonCard({ addon, isLiked, onToggleLike, onRequireAuth, onNavig
       </div>
     </div>
   );
-}
+});
