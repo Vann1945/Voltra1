@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Addon, AddonVersion, Review } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronLeft, ChevronRight, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
 import { ViewState } from '../App';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
@@ -12,6 +12,23 @@ import { RichTextContent } from './RichTextContent';
 import { getButtonClasses } from '../lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { PanoramaViewer } from './PanoramaViewer';
+
+function VersionDropdown({ versions, selectedVersionId, onChange }: { versions: AddonVersion[]; selectedVersionId: string | null; onChange: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const selected = versions.find(version => version.id === selectedVersionId) || versions[0];
+
+  return <div className="relative min-w-[160px]">
+    <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(value => !value)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-parchment-border bg-parchment px-3 text-left text-sm font-bold text-ink-900 shadow-sm transition-colors hover:border-terracotta focus-visible:ring-2 focus-visible:ring-terracotta">
+      <span><span className="block text-[10px] font-bold uppercase tracking-widest text-ink-900/45">Version</span><span>{selected?.version || 'Current'}</span></span><ChevronDown size={16} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+    </button>
+    {open && <>
+      <button type="button" aria-label="Close version menu" className="fixed inset-0 z-30 cursor-default" onClick={() => setOpen(false)} />
+      <div role="listbox" aria-label="Available versions" className="absolute bottom-[calc(100%+8px)] right-0 z-40 max-h-56 w-full min-w-[190px] overflow-auto rounded-xl border border-parchment-border bg-parchment-raised p-1.5 shadow-card-hover">
+        {versions.map(version => <button key={version.id} type="button" role="option" aria-selected={selected?.id === version.id} onClick={() => { onChange(version.id); setOpen(false); }} className={`flex w-full items-start justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-terracotta/10 ${selected?.id === version.id ? 'bg-terracotta/10 text-terracotta-text' : 'text-ink-900'}`}><span><span className="block font-bold">{version.version}</span><span className="block text-xs text-ink-900/50">{version.compatibilityNotes || 'Default release'}</span></span>{selected?.id === version.id && <Check size={15} className="mt-0.5 shrink-0" />}</button>)}
+      </div>
+    </>}
+  </div>;
+}
 
 function getYouTubeVideoId(url: string): string | null {
   try {
@@ -389,11 +406,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
               </div>
             </div>
 
-            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-              <button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'md')} gap-2`} title="Report"><AlertTriangle size={17} /><span className="hidden sm:inline">Report</span></button>
-              <button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'md')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`} aria-pressed={isLiked}><Heart size={17} className={isLiked ? 'fill-current' : ''} /><span className="hidden sm:inline">{isLiked ? 'Liked' : 'Like'}</span></button>
-              <button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'md')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`} aria-pressed={isBookmarked}><Bookmark size={17} className={isBookmarked ? 'fill-current' : ''} /><span className="hidden sm:inline">{isBookmarked ? 'Saved' : 'Bookmark'}</span></button>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-8 border-t border-parchment-border pt-8 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -459,7 +471,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
 
       <section className="mt-6 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-label="Project actions">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-parchment-border pb-4"><p className="text-sm font-bold text-ink-900">Want to keep this project?</p><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'sm')} gap-2`}><AlertTriangle size={15} />Report</button><button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Heart size={15} className={isLiked ? 'fill-current' : ''} />{isLiked ? 'Liked' : 'Like'}</button><button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} />{isBookmarked ? 'Saved' : 'Bookmark'}</button></div></div>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Download release</p><p className="mt-1 text-sm font-bold text-ink-900">{activeVersion?.version || 'Current version'}</p><p className="mt-1 text-xs text-ink-900/50">{activeVersion?.compatibilityNotes || 'Choose a version above if this project has multiple releases.'}</p></div>{versions.length > 0 && <label className="text-xs font-bold text-ink-900/55">Version<select value={activeVersion?.id || ''} onChange={event => setSelectedVersionId(event.target.value)} className="ml-2 rounded-lg border border-parchment-border bg-parchment px-2 py-2 text-xs font-bold text-ink-900"><option value="">Default</option>{versions.map(version => <option key={version.id} value={version.id}>{version.version}</option>)}</select></label>}</div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Download release</p><p className="mt-1 text-sm font-bold text-ink-900">{activeVersion?.version || 'Current version'}</p><p className="mt-1 text-xs text-ink-900/50">{activeVersion?.compatibilityNotes || 'Choose a version above if this project has multiple releases.'}</p></div>{versions.length > 0 && <VersionDropdown versions={versions} selectedVersionId={selectedVersionId} onChange={setSelectedVersionId} />}</div>
         <button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 text-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />Downloading {downloadProgress}%</> : downloadSuccess ? <><Check size={18} />Downloaded!</> : <><Download size={18} />Download {activeVersion?.version || 'project'}</>}</button>
       </section>
 
