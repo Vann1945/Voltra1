@@ -520,23 +520,24 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   };
 
-  const NeuCheckbox = ({ checked, onChange, label, sublabel }: { checked: boolean; onChange: (v: boolean) => void; label: string; sublabel?: string }) => (
-    <label className="group flex cursor-pointer items-start gap-3">
+  const NeuCheckbox = ({ id, checked, onChange, label, sublabel }: { id: string; checked: boolean; onChange: (v: boolean) => void; label: string; sublabel?: string }) => (
+    <label htmlFor={id} className="group relative flex min-w-0 cursor-pointer items-start gap-3">
       <input
+        id={id}
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="sr-only peer"
+        className="peer absolute left-0 top-0.5 h-5 w-5 cursor-pointer opacity-0"
       />
       <span
         aria-hidden="true"
-        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border border-parchment-border transition-[background-color,border-color,box-shadow] duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-terracotta peer-focus-visible:ring-offset-2 ${checked ? 'bg-terracotta' : 'bg-parchment-raised group-hover:bg-terracotta/30'}`}
+        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border border-parchment-border transition-[background-color,border-color,box-shadow,transform] duration-200 group-active:scale-[0.96] peer-focus-visible:ring-2 peer-focus-visible:ring-terracotta peer-focus-visible:ring-offset-2 ${checked ? 'bg-terracotta' : 'bg-parchment-raised group-hover:bg-terracotta/30'}`}
       >
-        {checked && <Check size={12} strokeWidth={3} className="text-ink-900" />}
+        {checked && <Check size={12} strokeWidth={3} className="text-ink-900" aria-hidden="true" />}
       </span>
-      <span>
-        <span className="text-sm font-bold text-ink-900">{label}</span>
-        {sublabel && <span className="mt-0.5 block text-xs font-medium text-ink-900/50">{sublabel}</span>}
+      <span className="min-w-0">
+        <span className="block text-sm font-bold text-ink-900">{label}</span>
+        {sublabel && <span className="mt-0.5 block text-xs font-medium leading-5 text-ink-900/50">{sublabel}</span>}
       </span>
     </label>
   );
@@ -554,9 +555,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={reduceMotion ? undefined : { y: '100%', opacity: 0 }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
-            className="relative flex h-full w-full max-w-2xl flex-col overflow-hidden bg-parchment-raised neumorph glass sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:shadow-card"
+            className="relative flex h-[100dvh] max-h-[100dvh] w-full min-h-0 max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-parchment-raised neumorph glass sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:shadow-card"
           >
-            <div className="flex items-center justify-between border-b border-parchment-border px-6 py-4 bg-parchment-raised">
+            <div className="flex shrink-0 items-center justify-between border-b border-parchment-border bg-parchment-raised px-6 py-4">
               <h2 id="upload-modal-title" className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
               <button
                 type="button"
@@ -568,7 +569,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               </button>
             </div>
 
-            <div className="flex border-b border-parchment-border bg-parchment-raised">
+            <div className="flex shrink-0 border-b border-parchment-border bg-parchment-raised">
               {STEPS.map((s, idx) => (
                 <button
                   key={s}
@@ -584,7 +585,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               ))}
             </div>
 
-            <div className="overflow-y-auto p-6 flex-1 space-y-5">
+            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6 pb-8 [scrollbar-width:thin]">
               {successMessage ? (
                 <div className="text-center py-12 space-y-4">
                   <div className="w-14 h-14 bg-terracotta rounded-lg flex items-center justify-center mx-auto shadow-sm">
@@ -813,11 +814,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="space-y-4 pt-4 border-t border-parchment-border">
                         <NeuCheckbox
+                          id="upload-allow-comments"
                           checked={formData.allowComments}
                           onChange={v => setFormData({ ...formData, allowComments: v })}
                           label="Allow Comments"
                         />
                         <NeuCheckbox
+                          id="upload-unlisted"
                           checked={formData.unlisted}
                           onChange={v => setFormData({ ...formData, unlisted: v })}
                           label="Unlisted Project"
@@ -935,7 +938,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
             </div>
 
             {!successMessage && (
-              <div className="flex items-center justify-between border-t border-parchment-border p-5 bg-parchment-raised">
+              <div className="flex shrink-0 items-center justify-between border-t border-parchment-border bg-parchment-raised p-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
                 <div>
                   {stepError && (
                     <p className="text-xs font-bold text-danger">{stepError}</p>
