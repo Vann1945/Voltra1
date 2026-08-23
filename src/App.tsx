@@ -7,7 +7,7 @@ import { Toast } from './components/Toast';
 import { Skeleton, SkeletonCard } from './components/Skeleton';
 import { useAddons } from './hooks/useAddons';
 import { ToastProvider, useToast } from './hooks/useToast';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+
 
 const UserProfile = lazy(() => import('./components/UserProfile').then(m => ({ default: m.UserProfile })));
 const UploadModal = lazy(() => import('./components/UploadModal').then(m => ({ default: m.UploadModal })));
@@ -107,7 +107,6 @@ export default function App() {
 
 function AppShell() {
   const { toast, hideToast } = useToast();
-  const reduceMotion = useReducedMotion();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentView, setCurrentView] = useState<ViewState>(() =>
@@ -275,15 +274,7 @@ function AppShell() {
       )}
 
       <main id="main-content" tabIndex={-1} className="relative outline-none">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={getViewKey(currentView)}
-            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -16 }}
-            transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full"
-          >
+                  <div key={getViewKey(currentView)} className="w-full route-content-enter">
             <Suspense fallback={<PageSkeleton />}>
               {currentView === 'landing' ? (
                 <LandingPage onNavigate={handleNavigate} />
@@ -343,8 +334,7 @@ function AppShell() {
                 />
               ) : null}
             </Suspense>
-          </motion.div>
-        </AnimatePresence>
+        </div>
       </main>
 
       <Suspense fallback={null}>

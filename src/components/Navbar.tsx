@@ -22,8 +22,7 @@ import { SettingsIcon, LayoutIcon } from './icons';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
-import { motion, AnimatePresence } from 'motion/react';
-import { ANIMATION, HAPTIC_PATTERNS } from '../lib/designSystem';
+import { HAPTIC_PATTERNS } from '../lib/designSystem';
 
 interface NavbarProps {
   onOpenUpload: () => void;
@@ -237,22 +236,13 @@ function MobileBottomNav({
 
   return (
     <>
-        <AnimatePresence>
         {isSheetOpen && (
           <React.Fragment>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+            <div
               onClick={closeSheet}
               className="fixed inset-0 z-[190] bg-ink-900/40 backdrop-blur-sm sm:hidden"
             />
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={ANIMATION.springBouncy}
+            <div
               id="mobile-action-sheet"
               role="dialog"
               aria-label="Mobile actions"
@@ -349,10 +339,9 @@ function MobileBottomNav({
                   Log out
                 </button>
               )}
-            </motion.div>
+            </div>
           </React.Fragment>
         )}
-        </AnimatePresence>
 
       <nav
         aria-label="Mobile navigation"

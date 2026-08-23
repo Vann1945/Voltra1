@@ -21,8 +21,23 @@ export function useAddons() {
     lastFetchedAtRef.current = Date.now();
     if (!isBackground) setLoading(true);
     try {
-      const res = await fetch('/api/addons', { credentials: 'include', signal: controller.signal });
-      if (!res.ok) throw new Error('Failed to retrieve addons');
+      const res = await fetch('/api/addons', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+      const contentType = res.headers.get('content-type') || '';
+      if (!res.ok) {
+        if (res.status === 404) {
+          if (!controller.signal.aborted) setAddons([]);
+          return;
+        }
+        throw new Error(`Failed to retrieve addons (${res.status})`);
+      }
+      if (!contentType.includes('application/json')) {
+        if (!controller.signal.aborted) setAddons([]);
+        return;
+      }
       const data = await res.json();
       if (!controller.signal.aborted && Array.isArray(data.addons)) setAddons(data.addons);
     } catch (err) {

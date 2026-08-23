@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, XCircle, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { TOAST_DURATION_MS } from '../hooks/useToast';
 
 export interface ToastState {
@@ -33,15 +32,13 @@ export function Toast({ toast, onClose }: ToastProps) {
   const isSuccess = toast?.type === 'success';
 
   return (
-    <AnimatePresence>
+    <>
       {toast && (
-        <motion.div
+        <div
           key={toast.message + toast.type}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="fixed bottom-6 left-1/2 z-[500] -translate-x-1/2 w-[calc(100%-2rem)] max-w-[360px]"
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 left-1/2 z-[500] w-[calc(100%-2rem)] max-w-[360px] -translate-x-1/2 toast-enter"
         >
           <div className="relative overflow-hidden border border-parchment-border rounded-lg bg-parchment-raised shadow-[0_6px_20px_rgba(0,0,0,0.1)]">
             <div
@@ -76,23 +73,24 @@ export function Toast({ toast, onClose }: ToastProps) {
               </div>
 
               <button
+                type="button"
+                aria-label="Close notification"
                 onClick={onClose}
-                className="shrink-0 mt-0.5 p-1.5 rounded-lg text-ink-900/50 transition-colors hover:text-ink-900"
+                className="shrink-0 mt-0.5 rounded-lg p-1.5 text-ink-900/50 transition-colors hover:text-ink-900 focus-visible:ring-2 focus-visible:ring-terracotta"
               >
                 <X size={14} strokeWidth={2} />
               </button>
             </div>
 
             <div className="h-0.5 w-full bg-ink-900/[0.06]">
-              <motion.div
-                className={`h-full ${isSuccess ? 'bg-success' : 'bg-danger'}`}
+              <div
+                className={`h-full transition-[width] duration-100 ${isSuccess ? 'bg-success' : 'bg-danger'}`}
                 style={{ width: `${progress}%` }}
-                transition={{ ease: 'linear' }}
               />
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

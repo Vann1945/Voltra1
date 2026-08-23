@@ -4,7 +4,6 @@ import { Addon } from '../types';
 import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { ViewState } from '../App';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { CustomSelect } from './CustomSelect';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
@@ -31,9 +30,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
   const [tagFilter, setTagFilter] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [filterPanelExpanded, setFilterPanelExpanded] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const reduceMotion = useReducedMotion();
 
   const [visibleCount, setVisibleCount] = useState(12);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -113,8 +110,8 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
     <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
       <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-                  <motion.div initial={reduceMotion ? false : { opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={reduceMotion ? { duration: 0 } : { duration: 0.24 }} className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
+                  <div className="mb-10">
+            <div className="inline-flex items-center gap-2 bg-terracotta-ink rounded-full px-4 py-2 mb-6 shadow-sm">
               <Sparkles size={13} className="text-paper" />
               <span className="text-xs font-bold text-paper uppercase tracking-widest">Minecraft Marketplace</span>
             </div>
@@ -124,9 +121,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             <p className="text-base font-normal text-ink-900/60 max-w-md mx-auto">
               Browse, download, and share Minecraft add-ons built by the community.
             </p>
-          </motion.div>
+          </div>
 
-                  <motion.div initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={reduceMotion ? { duration: 0 } : { delay: 0.06, duration: 0.24 }} className="flex justify-center">
+                  <div className="flex justify-center">
             <div className="relative flex flex-col gap-4 bg-parchment-raised rounded-2xl shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
               <div className="flex flex-col lg:flex-row items-stretch gap-3">
                 {/* Search input */}
@@ -135,7 +132,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                   <input
                     type="text"
                     id="marketplace-search"
+                    role="combobox"
                     aria-label="Search add-ons, tags, authors"
+                    aria-autocomplete="list"
                     aria-controls="search-suggestions"
                     aria-expanded={showSuggestions && searchSuggestions.length > 0}
                     autoComplete="off"
@@ -147,15 +146,11 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     className={`${getInputClasses()} pl-12 h-[56px]`}
                   />
 
-                  <AnimatePresence>
                     {showSuggestions && searchSuggestions.length > 0 && (
-                      <motion.div
+                      <div
                         id="search-suggestions"
                         role="listbox"
-                        initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                        transition={reduceMotion ? { duration: 0 } : { duration: 0.15 }}
+                        aria-label="Search suggestions"
                         className="absolute left-0 z-50 w-full rounded-lg bg-parchment-raised shadow-card neumorph overflow-hidden mt-2 glass"
                       >
                         {searchSuggestions.map(addon => (
@@ -176,9 +171,8 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                             </div>
                           </button>
                         ))}
-                      </motion.div>
+                      </div>
                     )}
-                  </AnimatePresence>
                 </div>
 
                 <div className="flex w-full lg:w-auto items-stretch gap-3">
@@ -204,7 +198,6 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                   <button
                     onClick={() => {
                       setShowFilters(prev => {
-                        if (prev) setFilterPanelExpanded(false);
                         return !prev;
                       });
                     }}
@@ -227,17 +220,11 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 </div>
               </div>
 
-              <AnimatePresence>
-                {showFilters && (
-                  <motion.div
+              {showFilters && (
+                  <div
                     id="filter-panel"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                        transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
-                    onAnimationComplete={() => { if (showFilters) setFilterPanelExpanded(true); }}
                     className="w-full"
-                    style={{ overflow: filterPanelExpanded ? 'visible' : 'hidden' }}
+                    style={{ overflow: 'visible' }}
                   >
                     <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 pt-4 border-t border-parchment-border mt-1">
                       <div className="flex flex-col gap-1.5">
@@ -305,6 +292,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     {hasActiveFilters && (
                       <div className="mt-4 flex justify-end">
                         <button
+                          type="button"
                           onClick={() => { setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
                           className="text-xs font-bold text-ink-900 underline hover:text-terracotta-text transition-colors uppercase"
                         >
@@ -312,11 +300,10 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         </button>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -405,19 +392,11 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             </button>
           </div>
         ) : (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: reduceMotion ? 0 : 0.04 } } }}
-            className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-parchment-raised shadow-card'}
+          <div className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-parchment-raised shadow-card'}
           >
-            <AnimatePresence mode="popLayout">
               {filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => (
-                <motion.div
+                <div
                   key={addon.id}
-                  variants={{ hidden: { opacity: 0, scale: 0.98, y: 8 }, visible: { opacity: 1, scale: 1, y: 0 } }}
-                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.98, transition: { duration: 0.12 } }}
-                  transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
                   className={layoutMode === 'list' ? 'w-full' : ''}
                 >
                   <AddonCard
@@ -432,10 +411,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       !(!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All')
                     }
                   />
-                </motion.div>
+                </div>
               ))}
-            </AnimatePresence>
-          </motion.div>
+          </div>
         )}
 
         {/* Infinite scroll sentinel */}

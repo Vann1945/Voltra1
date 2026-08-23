@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { getFirebaseAuth } from '../firebase';
 import { User } from '../types';
 
 type AuthJsSession = {
@@ -95,9 +94,13 @@ export function useAuth() {
     }
     setUser(session.user as unknown as User);
     setLoading(false);
-    if (session.firebaseToken && auth) {
+    if (session.firebaseToken) {
       try {
-        await signInWithCustomToken(auth, session.firebaseToken);
+        const firebaseAuth = await getFirebaseAuth();
+        if (firebaseAuth) {
+          const { signInWithCustomToken } = await import('firebase/auth');
+          await signInWithCustomToken(firebaseAuth, session.firebaseToken);
+        }
       } catch (err) {
         console.error('Failed to sign in to Firebase with custom token:', err);
       }
@@ -171,7 +174,11 @@ export function useAuth() {
         credentials: 'same-origin',
         body: new URLSearchParams({ csrfToken, json: 'true' }),
       });
-      if (auth) await firebaseSignOut(auth);
+      const firebaseAuth = await getFirebaseAuth();
+      if (firebaseAuth) {
+        const { signOut } = await import('firebase/auth');
+        await signOut(firebaseAuth);
+      }
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);

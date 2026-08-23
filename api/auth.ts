@@ -51,6 +51,11 @@ function toWebRequest(req: VercelRequest): Request {
   });
 }
 
+function isSessionRequest(req: VercelRequest): boolean {
+  const pathname = (req.url || '').split('?')[0].replace(/\/+$/, '');
+  return req.method === 'GET' && pathname.endsWith('/session');
+}
+
 async function sendWebResponse(webRes: Response, res: VercelResponse) {
   res.status(webRes.status);
   webRes.headers.forEach((value, key) => {
@@ -70,12 +75,27 @@ async function sendWebResponse(webRes: Response, res: VercelResponse) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (!authConfig.secret) {
+    // A public session probe must be safe on first boot/preview deployments.
+    // Auth actions still report a useful configuration error instead of a
+    // generic Auth.js 500 response.
+    if (isSessionRequest(req)) {
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      return res.status(200).json(null);
+    }
+    return res.status(503).json({ error: 'Authentication is not configured.' });
+  }
+
   try {
     const webRequest = toWebRequest(req);
     const webResponse = await Auth(webRequest, authConfig);
     await sendWebResponse(webResponse, res);
   } catch (err) {
     safeLogError('[AuthJS] handler error:', err);
-    res.status(500).json({ error: 'Internal authentication error.' });
+    if (isSessionRequest(req)) {
+      res.status(200).json(null);
+    } else {
+      res.status(500).json({ error: 'Internal authentication error.' });
+    }
   }
 }

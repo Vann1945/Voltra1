@@ -1,5 +1,5 @@
-import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
+import type { FirebaseApp } from 'firebase/app';
+import type { Auth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,10 +12,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Firebase hanya dipakai untuk menjembatani sesi Auth.js ke Firebase Auth.
-// Konfigurasi VITE_* tidak selalu tersedia pada preview/deployment baru. Jangan
-// memanggil initializeApp/getAuth dengan konfigurasi kosong karena Firebase akan
-// melempar auth/invalid-api-key sebelum React sempat merender halaman.
 const hasFirebaseConfig = Boolean(
   firebaseConfig.apiKey &&
     firebaseConfig.authDomain &&
@@ -26,12 +22,28 @@ const hasFirebaseConfig = Boolean(
 export const firebaseConfigured = hasFirebaseConfig;
 
 let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
+let authPromise: Promise<Auth | null> | null = null;
 
-if (hasFirebaseConfig) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  auth = getAuth(app);
+/**
+ * Firebase is only a session bridge. Keep it out of the initial marketplace
+ * payload and load it when an authenticated session actually contains a token.
+ */
+export function getFirebaseAuth(): Promise<Auth | null> {
+  if (!hasFirebaseConfig) return Promise.resolve(null);
+  if (authPromise) return authPromise;
+
+  authPromise = Promise.all([import('firebase/app'), import('firebase/auth')])
+    .then(([firebaseApp, firebaseAuth]) => {
+      app = firebaseApp.getApps().length ? firebaseApp.getApp() : firebaseApp.initializeApp(firebaseConfig);
+      return firebaseAuth.getAuth(app);
+    })
+    .catch((error) => {
+      console.error('Failed to initialize Firebase Auth:', error);
+      authPromise = null;
+      return null;
+    });
+
+  return authPromise;
 }
 
-export { auth };
 export default app;
