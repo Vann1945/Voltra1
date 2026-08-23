@@ -104,5 +104,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
+  if (req.method === 'DELETE') {
+    try {
+      const user = await requireUser(req);
+      const reviewId = typeof req.query.id === 'string' ? req.query.id.trim() : '';
+      if (!reviewId) return res.status(400).json({ error: 'Review id is required.' });
+
+      const review = await queryOne<{ user_id: string; addon_id: string }>(
+        'SELECT user_id, addon_id FROM reviews WHERE id = ? LIMIT 1',
+        [reviewId]
+      );
+      if (!review) return res.status(404).json({ error: 'Review not found.' });
+      if (review.user_id !== user.uid && user.role !== 'admin') {
+        return res.status(403).json({ error: 'You can only delete your own reviews.' });
+      }
+
+      const conn = await getPool().getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.execute('DELETE FROM reviews WHERE id = ?', [reviewId]);
+        const [aggregateRows] = await conn.execute(
+          'SELECT COUNT(*) AS rating_count, COALESCE(AVG(rating), 0) AS average_rating FROM reviews WHERE addon_id = ?',
+          [review.addon_id]
+        );
+        const aggregate = (aggregateRows as Array<{ rating_count: number; average_rating: number }>)[0];
+        await conn.execute(
+          'UPDATE addons SET rating_count = ?, average_rating = ? WHERE id = ?',
+          [aggregate?.rating_count || 0, aggregate?.average_rating || 0, review.addon_id]
+        );
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback();
+        throw err;
+      } finally {
+        conn.release();
+      }
+
+      return res.status(200).json({ ok: true, id: reviewId });
+    } catch (err: any) {
+      safeLogError('[api/reviews DELETE] error:', err);
+      const status = err?.statusCode || 500;
+      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to delete review.' });
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed' });
 }

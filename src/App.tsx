@@ -112,7 +112,7 @@ function AppShell() {
   const [currentView, setCurrentView] = useState<ViewState>(() =>
     typeof window === 'undefined' ? 'home' : getInitialView(window.location.pathname, window.location.search)
   );
-  const { addons, loading, userLikes, toggleLike, refetchAddons } = useAddons();
+  const { addons, loading, userLikes, toggleLike, removeAddon, refetchAddons } = useAddons();
   const [verifyBanner, setVerifyBanner] = useState<'success' | 'already' | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark' | 'oled'>(() => {
     if (typeof window === 'undefined') return 'light';
@@ -297,6 +297,7 @@ function AppShell() {
                   userLikes={userLikes}
                   onToggleLike={toggleLike}
                   onNavigate={handleNavigate}
+                  onAddonDeleted={removeAddon}
                 />
               ) : currentView === 'admin' ? (
                 <AdminPanel

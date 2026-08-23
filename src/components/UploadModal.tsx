@@ -44,7 +44,7 @@ function getAddonPayloadError(data: Record<string, unknown>): string {
   if (typeof data.category !== 'string' || !ADDON_CATEGORIES.includes(data.category)) return 'Main Category is not a valid option — please reselect it.';
   if (!isUrl(data.imageUrl)) return 'Cover image URL is missing or invalid.';
   if (data.imageUrls && !(Array.isArray(data.imageUrls) && data.imageUrls.length <= 30)) return 'Too many cover images (max 30).';
-  if (!isUrl(data.panoramaUrl)) return 'Panorama image URL is missing or invalid.';
+  if (data.panoramaUrl && !isUrl(data.panoramaUrl)) return 'Panorama image URL is invalid.';
   if (!isUrl(data.downloadUrl)) return 'Download URL is missing or invalid.';
   if (!isStr(data.authorName, 1, 100)) return 'Your account is missing a display name — please set one in your profile before publishing.';
   if (!Array.isArray(data.tags) || data.tags.length > 20) return 'Tags are invalid (max 20).';
@@ -106,6 +106,37 @@ function convertToWebp(file: File, maxDimension = 1600, quality = 0.82): Promise
     img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
     img.src = objectUrl;
   });
+}
+
+function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('The selected file is not a readable image.'));
+    };
+    img.src = objectUrl;
+  });
+}
+
+async function validatePanoramaFile(file: File): Promise<string> {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxBytes = 20 * 1024 * 1024;
+  if (!allowedTypes.includes(file.type)) return 'Panorama must be a JPG, PNG, or WebP image.';
+  if (file.size > maxBytes) return 'Panorama must be smaller than 20 MB.';
+  try {
+    const { width, height } = await readImageDimensions(file);
+    if (width < 1200) return 'Panorama must be at least 1,200 px wide.';
+    if (width / height < 1.6) return 'Choose a wide panorama with an aspect ratio of at least 16:10.';
+  } catch (error) {
+    return error instanceof Error ? error.message : 'The selected file is not a readable image.';
+  }
+  return '';
 }
 
 function fileToBase64(file: File): Promise<string> {
@@ -293,6 +324,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     e.target.value = '';
     if (!file) return;
 
+    const validationError = await validatePanoramaFile(file);
+    if (validationError) {
+      showToast(validationError, 'error');
+      return;
+    }
+
     setPanoramaUploadProgress(0);
     try {
       const webpFile = await convertToWebp(file, 2400, 0.85);
@@ -352,7 +389,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       if (!formData.downloadUrl.trim()) return 'Download URL is required.';
       if (!isValidHttpUrl(formData.downloadUrl)) return 'Download URL must start with http:// or https://.';
       if (!formData.imageUrl && formData.imageUrls.length === 0) return 'At least 1 cover image must be filled in.';
-      if (!formData.panoramaUrl.trim()) return 'Panorama image is required.';
+      if (formData.panoramaUrl.trim() && !isValidHttpUrl(formData.panoramaUrl)) return 'Panorama URL must start with http:// or https://.';
     }
     if (s === 'description') {
       if (!formData.description.trim()) return 'Description is mandatory.';
@@ -652,7 +689,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                                 <button
                                   type="button"
                                   onClick={() => removeImage(url)}
-                                  className="absolute bottom-0.5 right-0.5 bg-terracotta text-paper border border-ink-900 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label="Remove cover image"
+                                  className="absolute bottom-1 right-1 rounded-lg bg-terracotta p-1.5 text-paper shadow-sm transition-opacity focus-visible:ring-2 focus-visible:ring-terracotta sm:opacity-0 sm:group-hover:opacity-100"
                                 >
                                   <Trash2 size={11} className="text-paper" />
                                 </button>
@@ -788,9 +826,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mt-5 pt-5 border-t border-parchment-border">
-                        <Label htmlFor="upload-panorama" >Panorama Image *</Label>
+                        <Label htmlFor="upload-panorama">Panorama Image <span className="font-medium normal-case tracking-normal text-ink-900/45">(optional)</span></Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Wide screenshot used as the header banner on your add-on page. Required.
+                          Add a wide screenshot for the header banner. JPG, PNG, or WebP; at least 1,200 px wide.
                         </p>
 
                         {formData.panoramaUrl ? (
@@ -799,7 +837,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                             <button
                               type="button"
                               onClick={removePanorama}
-                              className="absolute bottom-2 right-2 bg-terracotta text-paper border border-ink-900 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              aria-label="Remove panorama image"
+                              className="absolute bottom-2 right-2 rounded-lg bg-terracotta p-2 text-paper shadow-sm transition-opacity focus-visible:ring-2 focus-visible:ring-terracotta sm:opacity-0 sm:group-hover:opacity-100"
                             >
                               <Trash2 size={13} className="text-paper" />
                             </button>

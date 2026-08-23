@@ -4,7 +4,7 @@ import {
   Info, Check, ExternalLink, Clock
 } from 'lucide-react';
 import { Addon } from '../types';
-import { useAuth } from '../hooks/useAuth';
+import { PROFILE_UPDATED_EVENT, ProfileUpdate, useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { ViewState } from '../App';
 import { FadeImage } from './FadeImage';
@@ -113,7 +113,11 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
   const coverImage = getFirstImage(addon.imageUrls, addon.imageUrl);
 
   React.useEffect(() => {
-    if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) return;
+    if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) {
+      setAuthorPhoto(addon.authorPhoto ?? null);
+      setAuthorBorder(addon.authorBorder ?? 'none');
+      return;
+    }
     let cancelled = false;
     fetchAuthorInfo(addon.authorId).then((info) => {
       if (!cancelled) {
@@ -123,6 +127,19 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
     });
     return () => { cancelled = true; };
   }, [addon.authorId, addon.authorPhoto, addon.authorBorder]);
+
+  React.useEffect(() => {
+    const handleProfileUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<ProfileUpdate>).detail;
+      if (!detail?.uid || detail.uid !== addon.authorId) return;
+      authorInfoCache.delete(addon.authorId);
+      setAuthorPhoto(detail.photoURL || null);
+      setAuthorBorder(detail.profileBorder || 'none');
+    };
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+  }, [addon.authorId]);
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault();

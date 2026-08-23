@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Addon } from '../types';
-import { useAuth } from './useAuth';
+import { PROFILE_UPDATED_EVENT, ProfileUpdate, useAuth } from './useAuth';
 import { AddonUploadInput } from '../lib/utils';
 
 const BACKGROUND_POLL_INTERVAL_MS = 90000;
@@ -93,6 +93,25 @@ export function useAddons() {
     fetchLikes();
   }, [fetchLikes]);
 
+  useEffect(() => {
+    const handleProfileUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<ProfileUpdate>).detail;
+      if (!detail?.uid) return;
+      setAddons(current => current.map(addon => addon.authorId === detail.uid
+        ? {
+            ...addon,
+            authorName: detail.displayName,
+            authorPhoto: detail.photoURL || null,
+            authorBorder: detail.profileBorder || 'none',
+          }
+        : addon
+      ));
+    };
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+  }, []);
+
   const toggleLike = async (addonId: string, isLiked: boolean) => {
     if (!user) return;
     setUserLikes((prev) => {
@@ -119,6 +138,16 @@ export function useAddons() {
     }
   };
 
+  const removeAddon = useCallback((addonId: string) => {
+    setAddons(current => current.filter(addon => addon.id !== addonId));
+    setUserLikes(current => {
+      if (!current.has(addonId)) return current;
+      const next = new Set(current);
+      next.delete(addonId);
+      return next;
+    });
+  }, []);
+
   const createAddon = useCallback(async (input: AddonUploadInput): Promise<string> => {
     if (!user) throw new Error('You need to sign in to publish an add-on.');
 
@@ -137,5 +166,5 @@ export function useAddons() {
     return data.id as string;
   }, [user, fetchAddons]);
 
-  return { addons, loading, userLikes, toggleLike, createAddon, refetchAddons: fetchAddons };
+  return { addons, loading, userLikes, toggleLike, createAddon, removeAddon, refetchAddons: fetchAddons };
 }

@@ -454,6 +454,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             addonId={addon.id}
             reviews={reviews}
             onReviewSubmitted={review => setReviews(prev => [review, ...prev])}
+            onReviewDeleted={reviewId => setReviews(prev => prev.filter(review => review.id !== reviewId))}
             onRequireAuth={onRequireAuth}
           />
         </div>

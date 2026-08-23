@@ -7,6 +7,9 @@ type AuthJsSession = {
   firebaseToken?: string;
 } | null;
 
+export const PROFILE_UPDATED_EVENT = 'voltra:profile-updated';
+export type ProfileUpdate = Pick<User, 'uid' | 'displayName' | 'photoURL' | 'bio' | 'profileBorder'>;
+
 type AuthRedirectResponse = { url?: string; error?: string };
 
 async function readJsonResponse<T>(res: Response): Promise<T | null> {
@@ -110,6 +113,20 @@ export function useAuth() {
   useEffect(() => {
     refreshSession();
   }, [refreshSession]);
+
+  useEffect(() => {
+    const handleProfileUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<ProfileUpdate>).detail;
+      if (!detail?.uid) return;
+      setUser(current => {
+        if (!current || current.uid !== detail.uid) return current;
+        return { ...current, ...detail };
+      });
+    };
+
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdated);
+  }, []);
 
   const loginWithGoogle = useCallback(async () => {
     try {

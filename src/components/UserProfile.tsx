@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { Addon, Report } from '../types';
-import { useAuth } from '../hooks/useAuth';
+import { PROFILE_UPDATED_EVENT, useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { Package, Heart, Edit2, Check, X, AlertTriangle, Trash2, Settings, Upload } from 'lucide-react';
 import { ViewState } from '../App';
@@ -65,9 +65,10 @@ interface UserProfileProps {
   userLikes: Set<string>;
   onToggleLike: (addonId: string, isLiked: boolean) => void;
   onNavigate: (view: ViewState) => void;
+  onAddonDeleted: (addonId: string) => void;
 }
 
-export function UserProfile({ addons, loading, userLikes, onToggleLike, onNavigate }: UserProfileProps) {
+export function UserProfile({ addons, loading, userLikes, onToggleLike, onNavigate, onAddonDeleted }: UserProfileProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -188,11 +189,22 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           displayName: editName, photoURL: editPhotoURL, bio: editBio, profileBorder: editProfileBorder,
         }),
       });
-      if (!res.ok) throw new Error('failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || 'Failed to update profile.');
+      }
+      const updatedProfile = {
+        uid: user.uid,
+        displayName: editName.trim(),
+        photoURL: editPhotoURL.trim() || undefined,
+        bio: editBio.trim() || undefined,
+        profileBorder: editProfileBorder || 'none',
+      };
+      window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT, { detail: updatedProfile }));
       showToast('Profile updated successfully.', 'success');
       setIsEditing(false);
     } catch (error) {
-      showToast('Failed to update profile. Please try again.', 'error');
+      showToast(error instanceof Error ? error.message : 'Failed to update profile. Please try again.', 'error');
     } finally {
       setSavingProfile(false);
     }
@@ -203,11 +215,15 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
     setDeletingAddon(true);
     try {
       const res = await fetch(`/api/addons?id=${addonToDelete}`, { method: 'DELETE', credentials: 'include' });
-      if (!res.ok) throw new Error('failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || 'Failed to delete add-on.');
+      }
+      onAddonDeleted(addonToDelete);
       showToast('Add-on deleted.', 'success');
       setAddonToDelete(null);
     } catch (error) {
-      showToast('Failed to delete add-on. Please try again.', 'error');
+      showToast(error instanceof Error ? error.message : 'Failed to delete add-on. Please try again.', 'error');
     } finally {
       setDeletingAddon(false);
     }
@@ -223,7 +239,8 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 min-h-[100dvh]">
-      <div className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative bg-parchment-raised p-8 sm:p-10 rounded-lg shadow-card neumorph glass">
+      <section aria-labelledby="profile-card-title" className="mb-12 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card neumorph glass">
+        <div className="flex flex-col items-start gap-8 p-6 sm:p-8 md:flex-row md:items-center">
         <div className="relative h-32 w-32 shrink-0">
           {renderBorderDecoration(getBorderEffect(isEditing ? editProfileBorder : (user?.profileBorder || 'none')))}
           <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised border border-parchment-border flex items-center justify-center transition-all duration-300 ${getBorderRingClass(getBorderEffect(isEditing ? editProfileBorder : (user.profileBorder || 'none')))}`}>
@@ -335,25 +352,31 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
           ) : (
             <>
               <div className="flex items-center justify-between w-full">
-                <h1 className="text-4xl font-bold text-ink-900 tracking-tight">{user.displayName}</h1>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Your profile</p>
+                  <h1 id="profile-card-title" className="mt-2 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">{user.displayName}</h1>
+                </div>
                 <button
+                  type="button"
                   onClick={() => setIsEditing(true)}
                   className={getButtonClasses('secondary', 'md')}
-                  title="Edit Profile"
+                  title="Edit profile"
                 >
-                  <Edit2 size={18} />
+                  <Edit2 size={17} />
+                  <span className="hidden sm:inline">Edit profile</span>
                 </button>
               </div>
               <p className="mt-2 text-sm font-bold text-ink-900/60">{user.email}</p>
               {user.bio && <p className="mt-4 text-sm font-medium text-ink-900/80 max-w-2xl leading-relaxed">{user.bio}</p>}
               <div className="mt-6 flex items-center gap-3 text-sm font-bold text-ink-900">
-                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-xl shadow-card"><Package size={14} /> {myUploads.length} Uploads</span>
-                <span className="flex items-center gap-2 bg-parchment-raised px-3 py-1.5 rounded-xl shadow-card"><Heart size={14} /> {myLikes.length} Likes</span>
+                <span className="flex items-center gap-2 rounded-xl border border-parchment-border bg-parchment-raised px-4 py-2 shadow-card"><Package size={14} className="text-terracotta-text" /> {myUploads.length} Uploads</span>
+                <span className="flex items-center gap-2 rounded-xl border border-parchment-border bg-parchment-raised px-4 py-2 shadow-card"><Heart size={14} className="text-terracotta-text" /> {myLikes.length} Likes</span>
               </div>
             </>
           )}
         </div>
-      </div>
+        </div>
+      </section>
 
       <div className="space-y-16">
         <section>
@@ -387,8 +410,9 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
                   <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onNavigate={onNavigate} />
                   <button
                     onClick={e => { e.stopPropagation(); setAddonToDelete(addon.id); }}
-                    className="absolute top-2 right-2 p-2 bg-danger/90 hover:bg-danger rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all shadow-sm"
-                    title="Delete Add-on"
+                    aria-label={`Delete ${addon.title}`}
+                    className="absolute right-2 top-2 rounded-lg border border-danger/30 bg-parchment-raised p-2 text-danger shadow-sm transition-colors hover:bg-danger hover:text-white focus-visible:ring-2 focus-visible:ring-danger sm:opacity-0 sm:group-hover:opacity-100"
+                    title="Delete add-on"
                   >
                     <Trash2 size={16} />
                   </button>
