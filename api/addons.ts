@@ -1,11 +1,34 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
-import { query, queryOne } from '../src/lib/db.js';
+import { getPool, query, queryOne } from '../src/lib/db.js';
 import { getSessionUser, requireUser } from '../src/lib/apiAuth.js';
 import { buildAddonPayload, AddonUploadInput, validateAddonPatch } from '../src/lib/utils.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
 import { ensureFeatureTables } from '../src/lib/featureSchema.js';
+
+function isSafeVersionUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || value.trim().length < 1 || value.length > 2000) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+function formatVersion(row: any) {
+  return {
+    id: row.id,
+    addonId: row.addon_id,
+    version: row.version,
+    downloadUrl: row.download_url,
+    changelog: row.changelog || '',
+    compatibilityNotes: row.compatibility_notes || '',
+    createdAt: new Date(row.created_at).toISOString(),
+  };
+}
+
 
 function parseJsonArray(value: unknown): string[] {
   const clean = (items: unknown[]) => items
@@ -64,6 +87,94 @@ function rowToAddon(r: any, truncateDescription: boolean) {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = typeof req.query.id === 'string' ? req.query.id : undefined;
   const action = typeof req.query.action === 'string' ? req.query.action : undefined;
+
+  if (action === 'bookmarks') {
+    try {
+      const user = await requireUser(req);
+      await ensureFeatureTables();
+      if (req.method === 'GET') {
+        const rows = await query<any>(
+          `SELECT b.addon_id, b.created_at FROM bookmarks b
+           INNER JOIN addons a ON a.id = b.addon_id
+           WHERE b.user_id = ? AND (a.status = 'approved' OR a.author_id = ?)
+           ORDER BY b.created_at DESC`,
+          [user.uid, user.uid]
+        );
+        return res.status(200).json({ addonIds: rows.map(row => row.addon_id) });
+      }
+      if (req.method === 'POST') {
+        const allowed = await checkRateLimit(`toggle-bookmark:${user.uid}`, 60, 60_000);
+        if (!allowed) return res.status(429).json({ error: 'Too many requests. Please slow down.' });
+        const { addonId, isBookmarked } = req.body || {};
+        if (typeof addonId !== 'string' || !addonId) return res.status(400).json({ error: 'addonId is required.' });
+        const addon = await queryOne<{ id: string; status: string; author_id: string }>('SELECT id, status, author_id FROM addons WHERE id = ?', [addonId]);
+        if (!addon || (addon.status !== 'approved' && addon.author_id !== user.uid && user.role !== 'admin')) return res.status(404).json({ error: 'Add-on not found.' });
+        const bookmarkId = `${user.uid}_${addonId}`;
+        if (isBookmarked) await query('DELETE FROM bookmarks WHERE id = ?', [bookmarkId]);
+        else await getPool().execute('INSERT IGNORE INTO bookmarks (id, user_id, addon_id) VALUES (?, ?, ?)', [bookmarkId, user.uid, addonId]);
+        return res.status(200).json({ ok: true, bookmarked: !isBookmarked });
+      }
+      return res.status(405).json({ error: 'Method not allowed' });
+    } catch (err: any) {
+      safeLogError('[api/addons bookmarks] error:', err);
+      const status = err?.statusCode || 500;
+      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process bookmark.' });
+    }
+  }
+
+  if (action === 'versions') {
+    try {
+      const addonId = typeof req.query.addonId === 'string' ? req.query.addonId : typeof req.body?.addonId === 'string' ? req.body.addonId : '';
+      const versionId = typeof req.query.versionId === 'string' ? req.query.versionId : typeof req.body?.id === 'string' ? req.body.id : '';
+      if (!addonId) return res.status(400).json({ error: 'addonId is required.' });
+      await ensureFeatureTables();
+      const addon = await queryOne<{ status: string; author_id: string }>('SELECT status, author_id FROM addons WHERE id = ?', [addonId]);
+      if (!addon) return res.status(404).json({ error: 'Add-on not found.' });
+      const sessionUser = await getSessionUser(req);
+      const canView = addon.status === 'approved' || sessionUser?.uid === addon.author_id || sessionUser?.role === 'admin';
+      if (!canView) return res.status(404).json({ error: 'Add-on not found.' });
+      if (req.method === 'GET') {
+        const rows = await query<any>('SELECT id, addon_id, version, download_url, changelog, compatibility_notes, created_at FROM addon_versions WHERE addon_id = ? ORDER BY created_at DESC', [addonId]);
+        return res.status(200).json({ versions: rows.map(formatVersion) });
+      }
+      const user = await requireUser(req);
+      if (addon.author_id !== user.uid && user.role !== 'admin') return res.status(403).json({ error: 'Only the project owner can manage versions.' });
+      const body = req.body || {};
+      const version = typeof body.version === 'string' ? body.version.trim() : '';
+      const downloadUrl = typeof body.downloadUrl === 'string' ? body.downloadUrl.trim() : '';
+      const changelog = typeof body.changelog === 'string' ? body.changelog.trim() : '';
+      const compatibilityNotes = typeof body.compatibilityNotes === 'string' ? body.compatibilityNotes.trim() : '';
+      if (!version || version.length > 80) return res.status(400).json({ error: 'Version is required and must be at most 80 characters.' });
+      if (!isSafeVersionUrl(downloadUrl)) return res.status(400).json({ error: 'A valid download URL is required.' });
+      if (changelog.length > 10000) return res.status(400).json({ error: 'Changelog must be at most 10,000 characters.' });
+      if (compatibilityNotes.length > 1000) return res.status(400).json({ error: 'Compatibility notes must be at most 1,000 characters.' });
+      if (req.method === 'POST') {
+        const countRow = await queryOne<{ count: number }>('SELECT COUNT(*) AS count FROM addon_versions WHERE addon_id = ?', [addonId]);
+        if (Number(countRow?.count || 0) >= 2) return res.status(400).json({ error: 'An add-on can have at most two versions.' });
+        const duplicate = await queryOne('SELECT id FROM addon_versions WHERE addon_id = ? AND version = ?', [addonId, version]);
+        if (duplicate) return res.status(409).json({ error: 'That version already exists for this add-on.' });
+        const newId = crypto.randomUUID();
+        await query('INSERT INTO addon_versions (id, addon_id, version, download_url, changelog, compatibility_notes) VALUES (?, ?, ?, ?, ?, ?)', [newId, addonId, version, downloadUrl, changelog, compatibilityNotes]);
+        await query('UPDATE addons SET download_url = ? WHERE id = ?', [downloadUrl, addonId]);
+        return res.status(201).json({ id: newId, addonId, version, downloadUrl, changelog, compatibilityNotes, createdAt: new Date().toISOString() });
+      }
+      if (req.method === 'PATCH') {
+        if (!versionId) return res.status(400).json({ error: 'Version id is required.' });
+        const existing = await queryOne<{ id: string; addon_id: string }>('SELECT id, addon_id FROM addon_versions WHERE id = ?', [versionId]);
+        if (!existing || existing.addon_id !== addonId) return res.status(404).json({ error: 'Version not found.' });
+        const duplicate = await queryOne('SELECT id FROM addon_versions WHERE addon_id = ? AND version = ? AND id <> ?', [addonId, version, versionId]);
+        if (duplicate) return res.status(409).json({ error: 'That version already exists for this add-on.' });
+        await query('UPDATE addon_versions SET version = ?, download_url = ?, changelog = ?, compatibility_notes = ? WHERE id = ?', [version, downloadUrl, changelog, compatibilityNotes, versionId]);
+        await query('UPDATE addons SET download_url = ? WHERE id = ?', [downloadUrl, addonId]);
+        return res.status(200).json({ ok: true });
+      }
+      return res.status(405).json({ error: 'Method not allowed' });
+    } catch (err: any) {
+      safeLogError('[api/addons versions] error:', err);
+      const status = err?.statusCode || 500;
+      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process add-on version.' });
+    }
+  }
 
   if (id && action === 'download') {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

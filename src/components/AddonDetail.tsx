@@ -288,7 +288,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     if (!user || (user.uid !== addon.authorId && user.role !== 'admin')) return;
     setIsVersionSaving(true);
     try {
-      const res = await fetch('/api/versions', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addonId: addon.id, ...versionDraft }) });
+      const res = await fetch('/api/addons?action=versions', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addonId: addon.id, ...versionDraft }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'Failed to add version.');
       const created: AddonVersion = { id: data.id, addonId: addon.id, version: data.version, downloadUrl: data.downloadUrl, changelog: data.changelog || '', compatibilityNotes: data.compatibilityNotes || '', createdAt: data.createdAt || new Date().toISOString() };

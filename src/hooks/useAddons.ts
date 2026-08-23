@@ -57,7 +57,7 @@ export function useAddons() {
       return;
     }
     try {
-      const res = await fetch('/api/bookmarks', { credentials: 'include' });
+      const res = await fetch('/api/addons?action=bookmarks', { credentials: 'include' });
       if (!res.ok) return;
       const data = await res.json();
       setUserBookmarks(new Set<string>(Array.isArray(data.addonIds) ? data.addonIds : []));
@@ -163,7 +163,7 @@ export function useAddons() {
       return next;
     });
     try {
-      const res = await fetch('/api/bookmarks', {
+      const res = await fetch('/api/addons?action=bookmarks', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
