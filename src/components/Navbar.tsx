@@ -1,12 +1,34 @@
-import React, { useState } from 'react';
-import { Bookmark, Flame, LayoutGrid, List, LogIn, LogOut, Menu, MoonStar, Settings2, Shield, SunMedium, Upload, X, Zap } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown, Flame, Heart, LayoutGrid, Library, List, LogIn, LogOut, Menu, MoonStar, Shield, SunMedium, Upload, UserRound, X, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
 import { getButtonClasses, HAPTIC_PATTERNS } from '../lib/designSystem';
 
-interface NavbarProps { onOpenUpload: () => void; onOpenAuth: () => void; onNavigate: (view: ViewState) => void; currentView: ViewState; theme: 'light' | 'dark' | 'oled'; onToggleTheme: () => void; onSetTheme: (theme: 'light' | 'dark' | 'oled') => void; layoutMode: 'grid' | 'list'; onSetLayoutMode: (mode: 'grid' | 'list') => void; }
-interface MobileBottomNavProps { user: { displayName?: string; photoURL?: string | null; profileBorder?: string; role?: string } | null; currentView: ViewState; layoutMode: 'grid' | 'list'; theme: 'light' | 'dark' | 'oled'; onNavigate: (view: ViewState) => void; onOpenAuth: () => void; onOpenUpload: () => void; onSetLayoutMode: (mode: 'grid' | 'list') => void; onToggleTheme: () => void; onLogout: () => void; }
+interface NavbarProps {
+  onOpenUpload: () => void;
+  onOpenAuth: () => void;
+  onNavigate: (view: ViewState) => void;
+  currentView: ViewState;
+  theme: 'light' | 'dark' | 'oled';
+  onToggleTheme: () => void;
+  onSetTheme: (theme: 'light' | 'dark' | 'oled') => void;
+  layoutMode: 'grid' | 'list';
+  onSetLayoutMode: (mode: 'grid' | 'list') => void;
+}
+
+interface MobileBottomNavProps {
+  user: { displayName?: string; photoURL?: string | null; profileBorder?: string; role?: string } | null;
+  currentView: ViewState;
+  layoutMode: 'grid' | 'list';
+  theme: 'light' | 'dark' | 'oled';
+  onNavigate: (view: ViewState) => void;
+  onOpenAuth: () => void;
+  onOpenUpload: () => void;
+  onSetLayoutMode: (mode: 'grid' | 'list') => void;
+  onToggleTheme: () => void;
+  onLogout: () => void;
+}
 
 export function ThemeToggle({ theme, onToggle }: { theme: 'light' | 'dark' | 'oled'; onToggle?: () => void }) {
   const Icon = theme === 'light' ? SunMedium : MoonStar;
@@ -21,15 +43,94 @@ export function WindowThemeToggle({ theme, onToggle }: { theme: 'light' | 'dark'
 function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onOpenAuth, onOpenUpload, onSetLayoutMode, onToggleTheme, onLogout }: MobileBottomNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const act = (callback: () => void) => { HAPTIC_PATTERNS.light(); callback(); };
-  const active = (view: string) => currentView === view;
-  return <><div className={`${isOpen ? 'block' : 'hidden'} fixed inset-0 z-[190] bg-ink-900/35 sm:hidden`} onClick={() => setIsOpen(false)} /><div className={`${isOpen ? 'flex' : 'hidden'} fixed inset-x-4 bottom-[calc(72px+env(safe-area-inset-bottom))] z-[210] flex-col gap-2 rounded-2xl border border-parchment-border bg-parchment-raised p-3 shadow-card-float sm:hidden`} role="dialog" aria-label="More navigation actions"><div className="flex items-center justify-between border-b border-parchment-border px-1 pb-3"><span className="text-sm font-bold">Quick actions</span><button type="button" onClick={() => setIsOpen(false)} aria-label="Close menu" className="rounded-lg p-2 text-ink-900/55 hover:bg-ink-900/[0.05]"><X size={16} /></button></div>{user ? <button type="button" onClick={() => act(() => { onNavigate('profile'); setIsOpen(false); })} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-ink-900/[0.04]"><ProfileAvatar photoURL={user.photoURL ?? null} displayName={user.displayName || 'User'} borderValue={user.profileBorder ?? 'none'} sizeClassName="h-9 w-9" textSizeClassName="text-sm" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{user.displayName}</span><span className="block text-xs text-ink-900/55">Open profile</span></span></button> : <button type="button" onClick={() => act(() => { onOpenAuth(); setIsOpen(false); })} className={`${getButtonClasses('primary', 'md')} w-full`}> <LogIn size={16} /> Sign in </button>}{user && <button type="button" onClick={() => act(() => { onOpenUpload(); setIsOpen(false); })} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish a project</button>}{user && <><button type="button" onClick={() => act(() => { onNavigate('bookmarks'); setIsOpen(false); })} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Bookmark size={16} /> Bookmarks</button><button type="button" onClick={() => act(() => { onNavigate('streak'); setIsOpen(false); })} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button></>}{user?.role === 'admin' && <button type="button" onClick={() => act(() => { onNavigate('admin'); setIsOpen(false); })} className={`${getButtonClasses('secondary', 'md')} w-full`}><Shield size={16} /> Admin</button>}<div className="grid grid-cols-2 gap-2 border-t border-parchment-border pt-3"><button type="button" onClick={() => onSetLayoutMode('grid')} aria-pressed={layoutMode === 'grid'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'grid' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><LayoutGrid size={14} />Grid</button><button type="button" onClick={() => onSetLayoutMode('list')} aria-pressed={layoutMode === 'list'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'list' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><List size={14} />List</button></div><button type="button" onClick={() => act(onToggleTheme)} className="flex items-center justify-center gap-2 rounded-xl bg-ink-900/[0.04] px-3 py-2.5 text-xs font-bold text-ink-900/70"><SunMedium size={14} />Change theme</button>{user && <button type="button" onClick={() => act(() => { onLogout(); setIsOpen(false); })} className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={14} />Log out</button>}</div><nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-4px_16px_rgba(23,35,41,0.06)] sm:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}><button type="button" onClick={() => act(() => onNavigate('home'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('home') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Zap size={18} />Explore</button><button type="button" onClick={() => act(() => onNavigate('bookmarks'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('bookmarks') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Bookmark size={18} />Bookmarks</button><button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/60'}`}>{isOpen ? <X size={18} /> : <Menu size={18} />}Menu</button></nav></>;
+  const active = (view: string) => view === 'library' ? currentView === 'library' || currentView === 'bookmarks' : currentView === view;
+  const closeAnd = (callback: () => void) => act(() => { callback(); setIsOpen(false); });
+
+  return <>
+    <div className={`${isOpen ? 'block' : 'hidden'} fixed inset-0 z-[190] bg-ink-900/35 sm:hidden`} onClick={() => setIsOpen(false)} />
+    <div className={`${isOpen ? 'flex' : 'hidden'} fixed inset-x-4 bottom-[calc(72px+env(safe-area-inset-bottom))] z-[210] flex-col gap-2 rounded-2xl border border-parchment-border bg-parchment-raised p-3 shadow-card-float sm:hidden`} role="dialog" aria-label="More navigation actions">
+      <div className="flex items-center justify-between border-b border-parchment-border px-1 pb-3">
+        <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-terracotta-text">Your space</p><span className="text-sm font-bold">Quick actions</span></div>
+        <button type="button" onClick={() => setIsOpen(false)} aria-label="Close menu" className="rounded-lg p-2 text-ink-900/55 hover:bg-ink-900/[0.05]"><X size={16} /></button>
+      </div>
+      {user ? <button type="button" onClick={() => closeAnd(() => onNavigate('profile'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-ink-900/[0.04]">
+        <ProfileAvatar photoURL={user.photoURL ?? null} displayName={user.displayName || 'User'} borderValue={user.profileBorder ?? 'none'} sizeClassName="h-10 w-10" textSizeClassName="text-sm" />
+        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{user.displayName}</span><span className="block text-xs text-ink-900/55">Open profile</span></span><ChevronDown size={15} className="-rotate-90 text-ink-900/40" />
+      </button> : <button type="button" onClick={() => closeAnd(onOpenAuth)} className={`${getButtonClasses('primary', 'md')} w-full`}><LogIn size={16} /> Sign in</button>}
+      {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish a project</button>}
+      {user && <>
+        <button type="button" onClick={() => closeAnd(() => onNavigate('library'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Library size={16} /> Library</button>
+        <button type="button" onClick={() => closeAnd(() => onNavigate('streak'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button>
+      </>}
+      {user?.role === 'admin' && <button type="button" onClick={() => closeAnd(() => onNavigate('admin'))} className={`${getButtonClasses('secondary', 'md')} w-full`}><Shield size={16} /> Admin</button>}
+      <div className="grid grid-cols-2 gap-2 border-t border-parchment-border pt-3">
+        <button type="button" onClick={() => onSetLayoutMode('grid')} aria-pressed={layoutMode === 'grid'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'grid' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><LayoutGrid size={14} />Grid</button>
+        <button type="button" onClick={() => onSetLayoutMode('list')} aria-pressed={layoutMode === 'list'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'list' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><List size={14} />List</button>
+      </div>
+      <button type="button" onClick={() => act(onToggleTheme)} className="flex items-center justify-center gap-2 rounded-xl bg-ink-900/[0.04] px-3 py-2.5 text-xs font-bold text-ink-900/70"><SunMedium size={14} />Change theme</button>
+      {user && <button type="button" onClick={() => closeAnd(onLogout)} className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={14} />Log out</button>}
+    </div>
+    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-4px_16px_rgba(23,35,41,0.06)] backdrop-blur sm:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <button type="button" onClick={() => act(() => onNavigate('home'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('home') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Zap size={18} />Explore</button>
+      <button type="button" onClick={() => act(() => onNavigate('library'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Library size={18} />Library</button>
+      <button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/60'}`}>{isOpen ? <X size={18} /> : <Menu size={18} />}Menu</button>
+    </nav>
+  </>;
 }
 
 export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, theme, onToggleTheme, onSetTheme, layoutMode, onSetLayoutMode }: NavbarProps) {
   const { user, logout } = useAuth();
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const isHome = currentView === 'home';
   const isStreak = currentView === 'streak';
-  const isBookmarks = currentView === 'bookmarks';
-  return <><nav aria-label="Primary navigation" className="sticky top-0 z-[100] border-b border-parchment-border bg-parchment-raised/95 backdrop-blur-sm"><div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"><button type="button" onClick={() => onNavigate('home')} className="flex items-center gap-3 text-left"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900 text-terracotta"><Zap size={18} /></span><span className="text-lg font-bold tracking-tight">Voltra</span></button><div className="hidden items-center gap-2 sm:flex"><button type="button" onClick={() => onNavigate('home')} className={`rounded-xl px-4 py-2.5 text-sm font-bold ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.04]'}`}>Explore</button><button type="button" onClick={() => onNavigate('bookmarks')} className={`rounded-xl px-4 py-2.5 text-sm font-bold ${isBookmarks ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.04]'}`}><span className="inline-flex items-center gap-2"><Bookmark size={15} />Bookmarks</span></button><button type="button" onClick={() => onNavigate('streak')} className={`rounded-xl px-4 py-2.5 text-sm font-bold ${isStreak ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.04]'}`}><span className="inline-flex items-center gap-2"><Flame size={15} />Streak</span></button></div><div className="hidden items-center gap-2 sm:flex">{user ? <><button type="button" onClick={onOpenUpload} className={`${getButtonClasses('primary', 'sm')}`}><Upload size={15} />Publish</button>{user.role === 'admin' && <button type="button" onClick={() => onNavigate('admin')} className={`${getButtonClasses('secondary', 'sm')}`}><Shield size={15} />Admin</button>}<button type="button" onClick={() => onNavigate(currentView === 'profile' ? 'home' : 'profile')} className="flex min-h-9 items-center gap-2 rounded-xl border border-parchment-border bg-parchment-raised px-3 text-sm font-bold hover:border-terracotta"><ProfileAvatar photoURL={user.photoURL} displayName={user.displayName} borderValue={user.profileBorder} sizeClassName="h-6 w-6" textSizeClassName="text-[10px]" /><span className="max-w-24 truncate">{currentView === 'profile' ? 'Explore' : user.displayName}</span></button><button type="button" onClick={logout} aria-label="Log out" title="Log out" className="rounded-xl p-2.5 text-ink-900/55 hover:bg-danger/[0.07] hover:text-danger"><LogOut size={17} /></button></> : <button type="button" onClick={onOpenAuth} className={getButtonClasses('primary', 'sm')}><LogIn size={15} />Sign in</button>}<div className="relative"><button type="button" onClick={() => setSettingsOpen(value => !value)} aria-expanded={settingsOpen} aria-controls="desktop-settings" className="rounded-xl border border-parchment-border p-2.5 text-ink-900/65 hover:border-terracotta hover:text-ink-900"><Settings2 size={17} /></button>{settingsOpen && <div id="desktop-settings" className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-card-float"><p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-900/45">Settings</p><p className="mt-1 text-sm font-bold">Appearance and layout</p><div className="mt-4 grid grid-cols-3 gap-2">{(['light', 'dark', 'oled'] as const).map(option => <button key={option} type="button" onClick={() => { onSetTheme(option); setSettingsOpen(false); }} className={`rounded-lg border px-2 py-2 text-xs font-bold capitalize ${theme === option ? 'border-terracotta bg-terracotta/15 text-ink-900' : 'border-parchment-border text-ink-900/60 hover:border-terracotta'}`}>{option}</button>)}</div><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={() => onSetLayoutMode('grid')} className={`rounded-lg px-2 py-2 text-xs font-bold ${layoutMode === 'grid' ? 'bg-ink-900 text-paper' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><LayoutGrid size={13} className="mx-auto mb-1" />Grid</button><button type="button" onClick={() => onSetLayoutMode('list')} className={`rounded-lg px-2 py-2 text-xs font-bold ${layoutMode === 'list' ? 'bg-ink-900 text-paper' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><List size={13} className="mx-auto mb-1" />List</button></div><button type="button" onClick={() => onToggleTheme()} className="mt-3 w-full rounded-lg bg-ink-900/[0.04] px-3 py-2 text-xs font-bold text-ink-900/70">Cycle theme</button></div>}</div></div></div></nav><MobileBottomNav user={user} currentView={currentView} layoutMode={layoutMode} theme={theme} onNavigate={onNavigate} onOpenAuth={onOpenAuth} onOpenUpload={onOpenUpload} onSetLayoutMode={onSetLayoutMode} onToggleTheme={onToggleTheme} onLogout={logout} /></>;
+  const isLibrary = currentView === 'library' || currentView === 'bookmarks';
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+    const closeOnOutside = (event: MouseEvent) => { if (!profileMenuRef.current?.contains(event.target as Node)) setProfileMenuOpen(false); };
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setProfileMenuOpen(false); };
+    document.addEventListener('mousedown', closeOnOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => { document.removeEventListener('mousedown', closeOnOutside); document.removeEventListener('keydown', closeOnEscape); };
+  }, [profileMenuOpen]);
+
+  const goFromProfile = (view: ViewState) => { HAPTIC_PATTERNS.light(); onNavigate(view); setProfileMenuOpen(false); };
+
+  return <>
+    <nav aria-label="Primary navigation" className="sticky top-0 z-[100] border-b border-parchment-border bg-parchment-raised/90 shadow-[0_1px_0_rgba(23,35,41,0.02)] backdrop-blur-xl">
+      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <button type="button" onClick={() => onNavigate('home')} className="group flex items-center gap-3 text-left"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-900 text-terracotta shadow-sm transition-transform duration-200 group-hover:-rotate-3 group-active:scale-95"><Zap size={18} /></span><span className="text-lg font-bold tracking-tight">Voltra</span></button>
+        <div className="hidden items-center gap-1 rounded-2xl border border-parchment-border bg-parchment px-1.5 py-1.5 sm:flex">
+          <button type="button" onClick={() => onNavigate('home')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}>Explore</button>
+          <button type="button" onClick={() => onNavigate('library')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Library size={15} />Library</span></button>
+          <button type="button" onClick={() => onNavigate('streak')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isStreak ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Flame size={15} />Streak</span></button>
+        </div>
+        <div className="hidden items-center gap-2 sm:flex">
+          {user ? <>
+            <button type="button" onClick={onOpenUpload} className={getButtonClasses('primary', 'sm')}><Upload size={15} />Publish</button>
+            {user.role === 'admin' && <button type="button" onClick={() => onNavigate('admin')} className={getButtonClasses('secondary', 'sm')}><Shield size={15} />Admin</button>}
+            <div className="relative" ref={profileMenuRef}>
+              <button type="button" onClick={() => setProfileMenuOpen(value => !value)} aria-haspopup="menu" aria-expanded={profileMenuOpen} aria-controls="profile-menu" className={`flex min-h-10 items-center gap-2 rounded-xl border px-2.5 text-sm font-bold transition-[border-color,background-color,box-shadow] ${profileMenuOpen ? 'border-terracotta bg-terracotta/10 shadow-sm' : 'border-parchment-border bg-parchment-raised hover:border-terracotta/70'}`}>
+                <ProfileAvatar photoURL={user.photoURL} displayName={user.displayName} borderValue={user.profileBorder} sizeClassName="h-7 w-7" textSizeClassName="text-[10px]" /><span className="max-w-28 truncate">{user.displayName}</span><ChevronDown size={15} className={`text-ink-900/45 transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {profileMenuOpen && <div id="profile-menu" role="menu" className="absolute right-0 top-full mt-3 w-[min(320px,calc(100vw-32px))] overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised p-2 shadow-card-float">
+                <div className="flex items-center gap-3 rounded-xl bg-parchment px-3 py-3"><ProfileAvatar photoURL={user.photoURL} displayName={user.displayName} borderValue={user.profileBorder} sizeClassName="h-11 w-11" textSizeClassName="text-sm" /><div className="min-w-0"><p className="truncate text-sm font-bold text-ink-900">{user.displayName}</p><p className="mt-0.5 truncate text-xs text-ink-900/55">Your Voltra profile</p></div></div>
+                <div className="mt-2 grid gap-1">
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('profile')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><UserRound size={16} />View profile</button>
+                  <button type="button" role="menuitem" onClick={() => { HAPTIC_PATTERNS.light(); onOpenUpload(); setProfileMenuOpen(false); }} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Upload size={16} />Publish a project</button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Library size={16} />Library <span className="ml-auto text-xs font-medium text-ink-900/45">Saved + liked</span></button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('streak')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Flame size={16} />Streak</button>
+                </div>
+                {user.role === 'admin' && <button type="button" role="menuitem" onClick={() => goFromProfile('admin')} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Shield size={16} />Admin</button>}
+                <div className="mt-2 border-t border-parchment-border pt-2"><div className="grid grid-cols-3 gap-1.5">{(['light', 'dark', 'oled'] as const).map(option => <button key={option} type="button" onClick={() => { onSetTheme(option); setProfileMenuOpen(false); }} className={`rounded-lg border px-2 py-2 text-[11px] font-bold capitalize transition-colors ${theme === option ? 'border-terracotta bg-terracotta/15 text-ink-900' : 'border-parchment-border text-ink-900/60 hover:border-terracotta/60'}`}>{option}</button>)}</div><button type="button" onClick={onToggleTheme} className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-ink-900/[0.04] px-3 py-2.5 text-xs font-bold text-ink-900/70"><SunMedium size={14} />Cycle theme</button></div>
+                <button type="button" role="menuitem" onClick={() => { logout(); setProfileMenuOpen(false); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={16} />Log out</button>
+              </div>}
+            </div>
+          </> : <button type="button" onClick={onOpenAuth} className={getButtonClasses('primary', 'sm')}><LogIn size={15} />Sign in</button>}
+        </div>
+      </div>
+    </nav>
+    <MobileBottomNav user={user} currentView={currentView} layoutMode={layoutMode} theme={theme} onNavigate={onNavigate} onOpenAuth={onOpenAuth} onOpenUpload={onOpenUpload} onSetLayoutMode={onSetLayoutMode} onToggleTheme={onToggleTheme} onLogout={logout} />
+  </>;
 }

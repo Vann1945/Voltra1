@@ -26,6 +26,7 @@ export type ViewState =
   | 'home'
   | 'profile'
   | 'bookmarks'
+  | 'library'
   | 'admin'
   | { type: 'addon', id: string }
   | { type: 'author', id: string }
@@ -48,7 +49,7 @@ export const categoryToSlug = (category?: string): string => {
 };
 
 const RESERVED_TOP_SEGMENTS = new Set([
-  'home', 'landing', 'streak', 'profile', 'bookmarks', 'admin', 'reset-password', 'author',
+  'home', 'landing', 'streak', 'profile', 'bookmarks', 'library', 'admin', 'reset-password', 'author',
 ]);
 
 function normalizeAppPath(pathname: string): string {
@@ -64,7 +65,7 @@ function getInitialView(pathname: string, search: string): ViewState {
   if (path === '/landing') return 'landing';
   if (path === '/streak') return 'streak';
   if (path === '/profile') return 'profile';
-  if (path === '/bookmarks') return 'bookmarks';
+  if (path === '/bookmarks' || path === '/library') return 'library';
   if (path === '/admin') return 'admin';
   if (path === '/reset-password') {
     const params = new URLSearchParams(search);
@@ -217,7 +218,7 @@ function AppShell() {
     else if (view === 'landing') path = '/landing';
     else if (view === 'streak') path = '/streak';
     else if (view === 'profile') path = '/profile';
-    else if (view === 'bookmarks') path = '/bookmarks';
+    else if (view === 'bookmarks' || view === 'library') path = '/library';
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
       const addon = addons.find(a => a.id === view.id);
@@ -308,7 +309,7 @@ function AppShell() {
                   onNavigate={handleNavigate}
                   onAddonDeleted={removeAddon}
                 />
-              ) : currentView === 'bookmarks' ? (
+              ) : currentView === 'library' || currentView === 'bookmarks' ? (
                 <BookmarksPage
                   addons={addons}
                   userLikes={userLikes}
