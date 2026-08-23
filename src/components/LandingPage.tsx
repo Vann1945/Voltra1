@@ -1,7 +1,13 @@
-import React from 'react';
 import {
-  Zap, ArrowRight, Blocks, ShieldCheck, Rocket, Star, Check,
-  Github, Twitter, MessageCircle, Youtube, Download, Users, Sparkles,
+  ArrowRight,
+  Blocks,
+  CheckCircle2,
+  Download,
+  Search,
+  ShieldCheck,
+  Upload,
+  Users,
+  Zap,
 } from 'lucide-react';
 import { ViewState } from '../App';
 import { getButtonClasses } from '../lib/designSystem';
@@ -10,367 +16,112 @@ interface LandingPageProps {
   onNavigate: (view: ViewState) => void;
 }
 
-const FEATURES = [
+const BENEFITS = [
   {
-    icon: Blocks,
-    title: 'Every Add-on Type',
-    desc: 'Resource packs, mods, shaders, data packs, worlds and skins — all in one organized marketplace built for Minecraft creators.',
+    icon: Search,
+    title: 'Find faster',
+    description: 'Search one organized library by category, tag, or creator and get to the right add-on quickly.',
   },
   {
     icon: ShieldCheck,
-    title: 'Reviewed & Safe',
-    desc: 'Every upload is checked by our admin team before it goes live, so what you download is exactly what it says on the label.',
+    title: 'Know what to expect',
+    description: 'Every published project is reviewed before it appears in the marketplace.',
   },
   {
-    icon: Rocket,
-    title: 'Instant Publishing',
-    desc: 'Upload your creation in three quick steps — cover images, description, license — and share it with the community today.',
+    icon: Upload,
+    title: 'Share your work',
+    description: 'Publish covers, a clear description, and a download link in one calm, guided flow.',
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: 'Jaxon R.',
-    role: 'Resource Pack Creator',
-    quote: 'I moved three of my packs here in one afternoon. The upload flow is the fastest I have used out of any marketplace.',
-  },
-  {
-    name: 'Mira Studios',
-    role: 'Mod Developer Team',
-    quote: 'Review turnaround is quick and the download stats actually help us understand what our players want next.',
-  },
-  {
-    name: 'BlockyBuilds',
-    role: 'World Builder',
-    quote: 'Clean, no clutter, no fake download counts. Just a straightforward place to put my worlds in front of real players.',
-  },
-];
-
-const PRICING = [
-  {
-    name: 'Explorer',
-    price: 'Free',
-    period: 'forever',
-    features: ['Browse & download unlimited add-ons', 'Like and follow creators', 'Basic profile customization', 'Community support'],
-    cta: 'Start Exploring',
-    highlight: false,
-  },
-  {
-    name: 'Creator',
-    price: '$6',
-    period: '/ month',
-    features: ['Everything in Explorer', 'Unlimited uploads', 'Priority review queue', 'Animated profile borders', 'Download analytics dashboard'],
-    cta: 'Become a Creator',
-    highlight: true,
-  },
-  {
-    name: 'Studio',
-    price: '$19',
-    period: '/ month',
-    features: ['Everything in Creator', 'Team accounts (up to 5)', 'Featured placement credits', 'Direct support channel', 'Early access to new tools'],
-    cta: 'Go Studio',
-    highlight: false,
-  },
+const STEPS = [
+  ['01', 'Choose a project', 'Browse by category or use search to find your next build.'],
+  ['02', 'Open the details', 'Review screenshots, creator information, ratings, and download links.'],
+  ['03', 'Make it yours', 'Download a project or sign in to publish your own creation.'],
 ];
 
 export function LandingPage({ onNavigate }: LandingPageProps) {
   return (
-    <div className="min-h-[100dvh] bg-parchment-raised text-ink-900">
-      {/* ─── Navbar ─── */}
-      <nav className="sticky top-0 z-[100] w-full bg-parchment-raised/95 border-b border-parchment-border glass">
-        <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="flex h-9 w-9 items-center justify-center bg-ink-900 border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-              <Zap size={18} strokeWidth={2.5} className="text-terracotta-text" />
-            </div>
-            <span className="text-xl font-bold text-ink-900 tracking-tight uppercase">Voltra</span>
+    <div className="min-h-[100dvh] bg-parchment text-ink-900">
+      <nav className="sticky top-0 z-[100] border-b border-parchment-border bg-parchment/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3 text-left">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900 text-terracotta shadow-sm">
+              <Zap size={18} strokeWidth={2.5} />
+            </span>
+            <span className="text-lg font-bold tracking-tight">Voltra</span>
+          </button>
+          <div className="hidden items-center gap-8 text-sm font-semibold text-ink-900/65 md:flex">
+            <a href="#why-voltra" className="transition-colors hover:text-ink-900">Why Voltra</a>
+            <a href="#how-it-works" className="transition-colors hover:text-ink-900">How it works</a>
           </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-bold text-ink-900 uppercase tracking-wide hover:text-terracotta-text transition-colors">Features</a>
-            <a href="#testimonials" className="text-sm font-bold text-ink-900 uppercase tracking-wide hover:text-terracotta-text transition-colors">Testimonials</a>
-            <a href="#pricing" className="text-sm font-bold text-ink-900 uppercase tracking-wide hover:text-terracotta-text transition-colors">Pricing</a>
-          </div>
-
-          <button
-            onClick={() => onNavigate('home')}
-            className={getButtonClasses('primary', 'md')}
-          >
-            Explore Marketplace
-            <ArrowRight size={15} />
+          <button type="button" onClick={() => onNavigate('home')} className={getButtonClasses('primary', 'sm')}>
+            Explore marketplace <ArrowRight size={15} />
           </button>
         </div>
       </nav>
 
-      {/* ─── Hero ─── */}
-      <section className="relative border-b border-parchment-border bg-parchment-raised overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Copy */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-terracotta border border-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
-              <Sparkles size={13} className="text-gray-200" />
-              <span className="text-xs font-bold text-gray-200 uppercase tracking-widest">The Add-on Marketplace</span>
-            </div>
-            <h1 className="text-5xl sm:text-6xl font-bold text-ink-900 tracking-tight leading-[0.95] mb-6">
-              Build. Share.<br />
-              <span className="text-terracotta-text italic">Play More.</span>
-            </h1>
-            <p className="text-base sm:text-lg font-normal text-ink-900/60 max-w-md mb-10 leading-relaxed">
-              Voltra is where Minecraft creators publish add-ons and players find their next favorite pack — reviewed, organized, and free of clutter.
-            </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => onNavigate('home')}
-                className={getButtonClasses('primary', 'lg')}
-              >
-                Explore Add-ons
-                <ArrowRight size={17} />
-              </button>
-              <a
-                href="#features"
-                className={getButtonClasses('secondary', 'lg')}
-              >
-                Learn More
-              </a>
-            </div>
-
-            <div className="mt-12 flex items-center gap-8">
-              <div>
-                <p className="text-3xl font-bold text-ink-900">12K+</p>
-                <p className="text-xs font-medium text-ink-900/50 uppercase tracking-widest">Add-ons</p>
-              </div>
-              <div className="w-px h-10 bg-ink-900/10" />
-              <div>
-                <p className="text-3xl font-bold text-ink-900">480K+</p>
-                <p className="text-xs font-medium text-ink-900/50 uppercase tracking-widest">Downloads</p>
-              </div>
-              <div className="w-px h-10 bg-ink-900/10" />
-              <div>
-                <p className="text-3xl font-bold text-ink-900">6K+</p>
-                <p className="text-xs font-medium text-ink-900/50 uppercase tracking-widest">Creators</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Abstract 3D-ish visual via pure CSS — stacked blocky cards */}
-          <div className="relative h-[420px] hidden lg:block" aria-hidden="true">
-            <div className="absolute top-6 left-4 w-52 h-64 bg-parchment-raised border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] rotate-[-8deg]" />
-            <div className="absolute top-24 left-40 w-52 h-64 bg-terracotta border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] rotate-[4deg]" />
-            <div className="absolute top-4 left-64 w-52 h-64 bg-ink-900 border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)] rotate-[-2deg] flex items-center justify-center">
-              <Blocks size={72} strokeWidth={1.5} className="text-white" />
-            </div>
-            <div className="absolute bottom-6 left-24 flex items-center gap-2 bg-parchment-raised border border-parchment-border rounded-lg px-4 py-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)] rotate-[-2deg]">
-              <Download size={16} className="text-ink-900" />
-              <span className="text-xs font-bold uppercase">New Download!</span>
-            </div>
-            <div className="absolute top-2 right-6 flex items-center gap-2 bg-ink-900 border border-parchment-border rounded-lg px-4 py-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)] rotate-[2deg]">
-              <Star size={16} className="text-terracotta-text fill-terracotta-text" />
-              <span className="text-xs font-bold uppercase text-terracotta-text">Top Rated</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Features ─── */}
-      <section id="features" className="border-b border-parchment-border bg-parchment-raised py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4">Why Creators Pick Voltra</h2>
-            <p className="text-base font-normal text-ink-900/60 max-w-xl mx-auto">Everything you need to publish, discover, and manage Minecraft add-ons — nothing you don't.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8">
-            {FEATURES.map((f, i) => (
-              <div
-                key={f.title}
-                className={`bg-parchment-raised border border-parchment-border rounded-2xl shadow-card neumorph p-8 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-1 cursor-default ${
-                  i === 0 ? 'lg:col-span-5' : i === 1 ? 'lg:col-span-4' : 'lg:col-span-3'
-                }`}
-              >
-                <div className="w-14 h-14 bg-ink-900 border border-parchment-border rounded-lg flex items-center justify-center mb-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-                  <f.icon size={26} className="text-terracotta-text" strokeWidth={2} />
-                </div>
-                <h3 className="text-xl font-bold text-ink-900 mb-3">{f.title}</h3>
-                <p className="text-sm font-medium text-ink-900/60 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Testimonials ─── */}
-      <section id="testimonials" className="border-b border-parchment-border bg-parchment-raised py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4">Loved By Creators</h2>
-            <p className="text-base font-normal text-ink-900/60 max-w-xl mx-auto">Real feedback from people publishing their work on Voltra every week.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <div
-                key={t.name}
-                className={`bg-parchment-raised border border-parchment-border rounded-2xl shadow-card neumorph p-7 flex flex-col transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-1 cursor-default ${
-                  i === 0 ? 'lg:col-span-4' : i === 1 ? 'lg:col-span-5' : 'lg:col-span-3'
-                }`}
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-terracotta-text text-ink-900" strokeWidth={1.5} />)}
-                </div>
-                <p className="text-sm italic font-normal text-ink-900/80 leading-relaxed mb-6 flex-1">"{t.quote}"</p>
-                <div className="flex items-center gap-3 border-t border-parchment-border pt-4">
-                  <div className="w-10 h-10 bg-terracotta-text border border-parchment-border rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {t.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-ink-900">{t.name}</p>
-                    <p className="text-xs font-medium text-ink-900/50">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Pricing ─── */}
-      <section id="pricing" className="border-b border-parchment-border bg-terracotta py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4">Simple Pricing</h2>
-            <p className="text-base font-normal text-ink-900/70 max-w-xl mx-auto">Start free. Upgrade only when you're ready to publish at scale.</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {PRICING.map((tier, i) => (
-              <div
-                key={tier.name}
-                className={`relative border p-8 flex flex-col bg-parchment-raised neumorph glass ${
-                  i === 0 ? 'lg:col-span-3' : i === 1 ? 'lg:col-span-5' : 'lg:col-span-4'
-                } ${
-                  tier.highlight ? 'border-terracotta-text shadow-[0_6px_24px_rgba(0,0,0,0.1)] lg:-translate-y-4' : 'border-parchment-border shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-                }`}
-              >
-                {tier.highlight && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-terracotta border border-parchment-border rounded-lg px-4 py-1 text-xs font-bold uppercase tracking-wide text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-xl font-bold text-ink-900 mb-2">{tier.name}</h3>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-4xl font-bold text-ink-900">{tier.price}</span>
-                  <span className="text-sm font-normal text-ink-900/50">{tier.period}</span>
-                </div>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {tier.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-sm font-normal text-ink-900/80">
-                      <Check size={16} className="text-ink-900 shrink-0 mt-0.5" strokeWidth={3} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => onNavigate('home')}
-                  className={getButtonClasses(tier.highlight ? 'primary' : 'secondary', 'md')}
-                >
-                  {tier.cta}
-                  <ArrowRight size={15} />
+      <main>
+        <section className="border-b border-parchment-border bg-ink-900 text-paper">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.05fr_.95fr] lg:px-8">
+            <div className="max-w-2xl">
+              <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-paper/20 bg-paper/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-paper/80">
+                <Blocks size={14} /> Minecraft add-ons, without the noise
+              </p>
+              <h1 className="max-w-xl text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-6xl">
+                Build your next world with better add-ons.
+              </h1>
+              <p className="mt-6 max-w-lg text-base leading-7 text-paper/70 sm:text-lg">
+                Voltra makes it simple to discover community projects, understand what you are downloading, and share the work you are proud of.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button type="button" onClick={() => onNavigate('home')} className={getButtonClasses('primary', 'lg')}>
+                  Start exploring <ArrowRight size={17} />
+                </button>
+                <button type="button" onClick={() => onNavigate('home')} className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-paper/20 px-5 text-sm font-bold text-paper transition-colors hover:bg-paper/10">
+                  See the marketplace
                 </button>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-paper/15 pt-6">
+                <div><p className="text-xl font-bold">Open</p><p className="mt-1 text-xs text-paper/55">community library</p></div>
+                <div><p className="text-xl font-bold">Reviewed</p><p className="mt-1 text-xs text-paper/55">before publishing</p></div>
+                <div><p className="text-xl font-bold">Creator-led</p><p className="mt-1 text-xs text-paper/55">built to share</p></div>
+              </div>
+            </div>
 
-      {/* ─── Final CTA ─── */}
-      <section className="border-b border-parchment-border bg-ink-900 py-24">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-16 h-16 bg-terracotta border border-parchment-border rounded-lg flex items-center justify-center mx-auto mb-8 shadow-sm">
-            <Users size={28} className="text-gray-200" />
-          </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-200 tracking-tight mb-6">
-            Ready to Join the Community?
-          </h2>
-          <p className="text-base font-normal text-gray-200/70 max-w-lg mx-auto mb-10">
-            Thousands of creators are already publishing add-ons on Voltra. Your next favorite pack — or your own — is one click away.
-          </p>
-          <button
-            onClick={() => onNavigate('home')}
-            className={getButtonClasses('primary', 'lg')}
-          >
-            Get Started — It's Free
-            <ArrowRight size={17} />
-          </button>
-        </div>
-      </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="bg-parchment-raised pt-16 pb-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-8 mb-12">
-            <div className="col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-9 w-9 items-center justify-center bg-ink-900 border border-parchment-border rounded-lg shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-                  <Zap size={18} strokeWidth={2.5} className="text-terracotta-text" />
+            <div className="hidden lg:block" aria-hidden="true">
+              <div className="mx-auto max-w-md rounded-3xl border border-paper/15 bg-paper/[0.06] p-5 shadow-card-float">
+                <div className="flex items-center justify-between border-b border-paper/10 pb-4">
+                  <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-paper/50">Featured project</p><p className="mt-1 text-lg font-bold">A new way to explore</p></div>
+                  <span className="rounded-lg bg-terracotta px-2.5 py-1 text-xs font-bold text-ink-900">Ready</span>
                 </div>
-                <span className="text-lg font-bold text-ink-900 uppercase tracking-tight">Voltra</span>
-              </div>
-              <p className="text-sm font-medium text-ink-900/50 max-w-xs leading-relaxed">
-                The reviewed, organized marketplace for Minecraft add-ons — built by creators, for creators.
-              </p>
-              <div className="flex items-center gap-2 mt-6">
-                <a href="#" aria-label="GitHub" className="p-2.5 border border-parchment-border rounded-lg bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer">
-                  <Github size={16} />
-                </a>
-                <a href="#" aria-label="Twitter" className="p-2.5 border border-parchment-border rounded-lg bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer">
-                  <Twitter size={16} />
-                </a>
-                <a href="#" aria-label="Discord" className="p-2.5 border border-parchment-border rounded-lg bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer">
-                  <MessageCircle size={16} />
-                </a>
-                <a href="#" aria-label="YouTube" className="p-2.5 border border-parchment-border rounded-lg bg-parchment-raised text-ink-900 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 cursor-pointer">
-                  <Youtube size={16} />
-                </a>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="h-36 rounded-2xl bg-paper/10" />
+                  <div className="space-y-3"><div className="h-7 w-3/4 rounded-lg bg-paper/15" /><div className="h-4 w-full rounded bg-paper/10" /><div className="h-4 w-5/6 rounded bg-paper/10" /><div className="mt-5 h-10 rounded-xl bg-terracotta/80" /></div>
+                </div>
+                <div className="mt-5 flex items-center justify-between border-t border-paper/10 pt-4 text-xs font-semibold text-paper/55"><span className="flex items-center gap-1.5"><Download size={13} /> Clear details</span><span className="flex items-center gap-1.5"><CheckCircle2 size={13} /> Reviewed</span></div>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div>
-              <h4 className="text-xs font-bold text-ink-900 uppercase tracking-widest mb-4">Product</h4>
-              <ul className="space-y-2.5 text-sm font-normal text-ink-900/60">
-                <li><a href="#features" className="hover:text-ink-900 transition-colors cursor-pointer">Features</a></li>
-                <li><a href="#pricing" className="hover:text-ink-900 transition-colors cursor-pointer">Pricing</a></li>
-                <li><a href="#" onClick={e => { e.preventDefault(); onNavigate('home'); }} className="hover:text-ink-900 transition-colors cursor-pointer">Marketplace</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Changelog</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold text-ink-900 uppercase tracking-widest mb-4">Company</h4>
-              <ul className="space-y-2.5 text-sm font-normal text-ink-900/60">
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">About</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Blog</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Contact</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Careers</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-bold text-ink-900 uppercase tracking-widest mb-4">Legal</h4>
-              <ul className="space-y-2.5 text-sm font-normal text-ink-900/60">
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Terms of Use</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">DMCA</a></li>
-                <li><a href="#" className="hover:text-ink-900 transition-colors cursor-pointer">Cookie Policy</a></li>
-              </ul>
+        <section id="why-voltra" className="border-b border-parchment-border bg-parchment-raised py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl"><p className="text-sm font-bold uppercase tracking-[0.16em] text-terracotta-text">A calmer marketplace</p><h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">Everything you need to choose with confidence.</h2><p className="mt-4 text-base leading-7 text-ink-900/60">Less decoration. Better information. A more useful path from discovery to download.</p></div>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {BENEFITS.map(({ icon: Icon, title, description }) => <article key={title} className="rounded-2xl border border-parchment-border bg-parchment p-6 shadow-card"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-900 text-terracotta"><Icon size={20} /></div><h3 className="mt-6 text-lg font-bold">{title}</h3><p className="mt-3 text-sm leading-6 text-ink-900/60">{description}</p></article>)}
             </div>
           </div>
+        </section>
 
-          <div className="border-t border-parchment-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs font-normal text-ink-900/50">© 2026 Voltra. All rights reserved.</p>
-            <p className="text-xs font-normal text-ink-900/50">Not affiliated with Mojang or Microsoft.</p>
-          </div>
-        </div>
-      </footer>
+        <section id="how-it-works" className="border-b border-parchment-border bg-parchment py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="text-sm font-bold uppercase tracking-[0.16em] text-terracotta-text">How it works</p><h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">From idea to playable in three steps.</h2><p className="mt-4 text-base leading-7 text-ink-900/60">The interface stays out of the way so the project stays in focus.</p></div><div className="divide-y divide-parchment-border rounded-2xl border border-parchment-border bg-parchment-raised px-6 shadow-card">{STEPS.map(([number, title, description]) => <div key={number} className="grid gap-3 py-6 sm:grid-cols-[64px_180px_1fr] sm:items-start"><span className="text-sm font-bold text-terracotta-text">{number}</span><h3 className="font-bold">{title}</h3><p className="text-sm leading-6 text-ink-900/60">{description}</p></div>)}</div></div></div>
+        </section>
+
+        <section className="bg-terracotta py-16 sm:py-20"><div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"><div className="max-w-2xl"><p className="text-sm font-bold uppercase tracking-[0.16em] text-ink-900/60">Ready when you are</p><h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">Find a project worth playing tonight.</h2><p className="mt-4 max-w-xl text-base leading-7 text-ink-900/70">Browse the marketplace for free, then come back whenever you are ready to share your own work.</p></div><button type="button" onClick={() => onNavigate('home')} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 text-sm font-bold text-paper shadow-sm transition-transform hover:-translate-y-0.5 active:scale-[0.98]">Open marketplace <ArrowRight size={17} /></button></div></section>
+      </main>
+
+      <footer className="bg-parchment-raised"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-ink-900/55 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><div className="flex items-center gap-2 font-bold text-ink-900"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink-900 text-terracotta"><Zap size={14} /></span>Voltra</div><p>Made for creators and players. Not affiliated with Mojang or Microsoft.</p><a href="https://github.com/Vann1945/Voltra1" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-semibold text-ink-900 hover:text-terracotta-text"><Users size={15} /> View source</a></div></footer>
     </div>
   );
 }

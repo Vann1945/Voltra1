@@ -1,11 +1,7 @@
-import React, { useState, useRef, useEffect, useId } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
-import { getButtonClasses } from '../lib/designSystem';
 
-export interface CustomSelectOption {
-  value: string;
-  label: string;
-}
+export interface CustomSelectOption { value: string; label: string; }
 
 interface CustomSelectProps {
   value: string;
@@ -22,16 +18,13 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listboxId = useId();
-
-  const normalizedOptions: CustomSelectOption[] = options.map(opt =>
-    typeof opt === 'string' ? { value: opt, label: opt } : opt
-  );
-  const selectedOption = normalizedOptions.find(o => o.value === value);
-  const selectedIndex = normalizedOptions.findIndex(o => o.value === value);
+  const normalizedOptions = options.map(option => typeof option === 'string' ? { value: option, label: option } : option);
+  const selectedOption = normalizedOptions.find(option => option.value === value);
+  const selectedIndex = normalizedOptions.findIndex(option => option.value === value);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setIsOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -42,56 +35,34 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
     setIsOpen(true);
   };
 
-  const closeDropdown = (refocusTrigger: boolean) => {
+  const choose = (option: CustomSelectOption) => {
+    onChange(option.value);
     setIsOpen(false);
-    if (refocusTrigger) triggerRef.current?.focus();
+    triggerRef.current?.focus();
   };
 
-  // Dropdown ini sebelumnya tidak punya dukungan keyboard sama sekali —
-  // tidak bisa ditutup dengan Escape, tidak ada navigasi panah, dan tanpa
-  // role ARIA yang benar (listbox/option) sehingga screen reader tidak tahu
-  // ini adalah pemilih dengan daftar pilihan. Semua ditambahkan di bawah.
-  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openDropdown();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
+  const handleTriggerKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
       openDropdown();
     }
   };
 
-  const handleListKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeDropdown(true);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActiveIndex(prev => Math.min(prev + 1, normalizedOptions.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActiveIndex(prev => Math.max(prev - 1, 0));
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      setActiveIndex(0);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      setActiveIndex(normalizedOptions.length - 1);
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      const opt = normalizedOptions[activeIndex];
-      if (opt) {
-        onChange(opt.value);
-        closeDropdown(true);
-      }
-    } else if (e.key === 'Tab') {
-      setIsOpen(false);
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') { event.preventDefault(); setIsOpen(false); triggerRef.current?.focus(); return; }
+    if (event.key === 'ArrowDown') { event.preventDefault(); setActiveIndex(index => Math.min(index + 1, normalizedOptions.length - 1)); return; }
+    if (event.key === 'ArrowUp') { event.preventDefault(); setActiveIndex(index => Math.max(index - 1, 0)); return; }
+    if (event.key === 'Home') { event.preventDefault(); setActiveIndex(0); return; }
+    if (event.key === 'End') { event.preventDefault(); setActiveIndex(normalizedOptions.length - 1); return; }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      const activeOption = normalizedOptions[activeIndex];
+      if (activeOption) choose(activeOption);
     }
   };
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
-      {/* Trigger */}
       <button
         ref={triggerRef}
         id={id}
@@ -99,15 +70,14 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={isOpen ? listboxId : undefined}
-        onClick={() => (isOpen ? closeDropdown(false) : openDropdown())}
+        onClick={() => isOpen ? setIsOpen(false) : openDropdown()}
         onKeyDown={handleTriggerKeyDown}
-        className={`w-full flex items-center justify-between ${getButtonClasses('secondary', 'md')}`}
+        className="flex min-h-11 w-full items-center justify-between rounded-xl border border-parchment-border bg-parchment-raised px-4 py-3 text-left text-sm font-medium text-ink-900 shadow-sm transition-[border-color,box-shadow] hover:border-ink-900/25 focus:outline-none focus-visible:border-terracotta focus-visible:ring-4 focus-visible:ring-terracotta/15"
       >
-        <span className="truncate">{selectedOption ? selectedOption.label : placeholder || 'Select option...'}</span>
-        <ChevronDown size={14} className={`shrink-0 ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="truncate">{selectedOption?.label || placeholder || 'Select option'}</span>
+        <ChevronDown size={16} aria-hidden="true" className={`ml-3 shrink-0 text-ink-900/55 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Dropdown */}
       {isOpen && (
         <div
           id={listboxId}
@@ -115,29 +85,13 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
           tabIndex={-1}
           autoFocus
           onKeyDown={handleListKeyDown}
-          aria-activedescendant={activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined}
-          className="absolute left-0 right-0 top-full z-[120] mt-1 max-h-56 overflow-y-auto rounded-lg bg-parchment-raised shadow-card outline-none"
+          aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
+          className="absolute left-0 right-0 top-full z-[120] mt-2 max-h-64 overflow-y-auto rounded-xl border border-parchment-border bg-parchment-raised p-1 shadow-card-float outline-none"
         >
-          {normalizedOptions.map((opt, i) => {
-            const isSelected = opt.value === value;
-            const isActive = i === activeIndex;
-            return (
-              <button
-                key={opt.value}
-                id={`${listboxId}-opt-${i}`}
-                role="option"
-                aria-selected={isSelected}
-                type="button"
-                onMouseEnter={() => setActiveIndex(i)}
-                onClick={() => { onChange(opt.value); closeDropdown(true); }}
-                className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition-colors border-b border-parchment-border last:border-b-0 ${
-                  isSelected ? 'bg-terracotta text-ink-900' : isActive ? 'bg-ink-900/[0.05] text-ink-900' : 'text-ink-900 hover:bg-terracotta/40'
-                }`}
-              >
-                <span className="truncate">{opt.label}</span>
-                {isSelected && <Check size={13} className="shrink-0 ml-2" />}
-              </button>
-            );
+          {normalizedOptions.map((option, index) => {
+            const isSelected = option.value === value;
+            const isActive = index === activeIndex;
+            return <button key={option.value} id={`${listboxId}-option-${index}`} type="button" role="option" aria-selected={isSelected} onMouseEnter={() => setActiveIndex(index)} onClick={() => choose(option)} className={`flex min-h-10 w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${isSelected ? 'bg-terracotta/15 font-bold text-ink-900' : isActive ? 'bg-ink-900/[0.05] text-ink-900' : 'text-ink-900/75 hover:bg-ink-900/[0.04]'}`}><span className="truncate">{option.label}</span>{isSelected && <Check size={15} className="ml-3 shrink-0 text-terracotta-text" />}</button>;
           })}
         </div>
       )}

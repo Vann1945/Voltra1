@@ -1,26 +1,19 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { AddonCard } from './AddonCard';
 import { Addon } from '../types';
-import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { ViewState } from '../App';
 import { CustomSelect } from './CustomSelect';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
 
-interface MarketplaceProps {
-  addons: Addon[];
-  loading: boolean;
-  userLikes: Set<string>;
-  onToggleLike: (addonId: string, isLiked: boolean) => void;
-  onRequireAuth: () => void;
-  onNavigate: (view: ViewState) => void;
-  layoutMode?: 'grid' | 'list';
-}
-
+interface MarketplaceProps { addons: Addon[]; loading: boolean; userLikes: Set<string>; onToggleLike: (addonId: string, isLiked: boolean) => void; onRequireAuth: () => void; onNavigate: (view: ViewState) => void; layoutMode?: 'grid' | 'list'; }
 type SortOption = 'newest' | 'oldest' | 'most_liked' | 'highest_rated';
 type CategoryOption = 'All' | 'Bukkit Plugins' | 'Modpack' | 'Customization' | 'Add-Ons' | 'Shaders' | 'Mods' | 'Resource Packs' | 'Data Pack' | 'World' | 'Skin Pack';
 type DateRangeOption = 'all' | 'today' | 'week' | 'month';
+
+const CATEGORIES: CategoryOption[] = ['All', 'Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack'];
 
 export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate, layoutMode = 'grid' }: MarketplaceProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,409 +21,57 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [dateRange, setDateRange] = useState<DateRangeOption>('all');
   const [tagFilter, setTagFilter] = useState('');
-  const [authorFilter, setAuthorFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(12);
   const observerTarget = useRef<HTMLDivElement>(null);
-  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+
+  useEffect(() => { const timer = window.setTimeout(() => setDebouncedQuery(searchQuery.trim()), 200); return () => window.clearTimeout(timer); }, [searchQuery]);
+  useEffect(() => { setVisibleCount(12); }, [debouncedQuery, selectedCategory, sortBy, dateRange, tagFilter]);
   useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedQuery(searchQuery), 200);
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+    if (loading) return;
+    const observer = new IntersectionObserver(entries => { if (entries[0]?.isIntersecting) setVisibleCount(count => Math.min(count + 12, 1000)); }, { rootMargin: '320px' });
+    if (observerTarget.current) observer.observe(observerTarget.current);
+    return () => observer.disconnect();
+  }, [loading]);
 
   const filteredAndSortedAddons = useMemo(() => {
     let result = addons;
-
-    if (debouncedQuery) {
-      const q = debouncedQuery.toLowerCase();
-      result = result.filter(a =>
-        (a.title && a.title.toLowerCase().includes(q)) ||
-        (a.description && a.description.toLowerCase().includes(q)) ||
-        (a.tags && a.tags.some(t => t.toLowerCase().includes(q))) ||
-        (a.authorName && a.authorName.toLowerCase().includes(q))
-      );
-    }
-    if (selectedCategory !== 'All') result = result.filter(a => a.category === selectedCategory);
+    const query = debouncedQuery.toLowerCase();
+    if (query) result = result.filter(addon => addon.title?.toLowerCase().includes(query) || addon.description?.toLowerCase().includes(query) || addon.tags?.some(tag => tag.toLowerCase().includes(query)) || addon.authorName?.toLowerCase().includes(query));
+    if (selectedCategory !== 'All') result = result.filter(addon => addon.category === selectedCategory);
     if (dateRange !== 'all') {
-      const now = new Date();
       const cutoff = new Date();
-      if (dateRange === 'today') cutoff.setDate(now.getDate() - 1);
-      if (dateRange === 'week') cutoff.setDate(now.getDate() - 7);
-      if (dateRange === 'month') cutoff.setMonth(now.getMonth() - 1);
-      result = result.filter(a => new Date(a.createdAt) >= cutoff);
+      if (dateRange === 'today') cutoff.setDate(cutoff.getDate() - 1);
+      if (dateRange === 'week') cutoff.setDate(cutoff.getDate() - 7);
+      if (dateRange === 'month') cutoff.setMonth(cutoff.getMonth() - 1);
+      result = result.filter(addon => new Date(addon.createdAt) >= cutoff);
     }
-    if (tagFilter) {
-      const wanted = tagFilter.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-      result = result.filter(a => a.tags && wanted.some(q => a.tags.some(t => t.toLowerCase().includes(q))));
+    if (tagFilter.trim()) {
+      const wanted = tagFilter.toLowerCase().split(',').map(tag => tag.trim()).filter(Boolean);
+      result = result.filter(addon => wanted.some(wantedTag => addon.tags?.some(tag => tag.toLowerCase().includes(wantedTag))));
     }
-    if (authorFilter) { const q = authorFilter.toLowerCase(); result = result.filter(a => a.authorName && a.authorName.toLowerCase().includes(q)); }
+    return [...result].sort((a, b) => sortBy === 'most_liked' ? b.likesCount - a.likesCount : sortBy === 'highest_rated' ? (b.averageRating || 0) - (a.averageRating || 0) : sortBy === 'oldest' ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [addons, debouncedQuery, selectedCategory, sortBy, dateRange, tagFilter]);
 
-    return [...result].sort((a, b) => {
-      if (sortBy === 'most_liked') return b.likesCount - a.likesCount;
-      if (sortBy === 'highest_rated') return (b.averageRating || 0) - (a.averageRating || 0);
-      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      return 0;
-    });
-  }, [addons, debouncedQuery, selectedCategory, sortBy, dateRange, tagFilter, authorFilter]);
-
-  useEffect(() => { setVisibleCount(12); }, [debouncedQuery, selectedCategory, sortBy, dateRange, tagFilter, authorFilter]);
-
-  useEffect(() => {
-    if (loading) return;
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount(prev => Math.min(prev + 12, filteredAndSortedAddons.length));
-        }
-      },
-      { threshold: 0.1, rootMargin: '400px' }
-    );
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
-  }, [filteredAndSortedAddons.length, loading]);
-
-  const featuredAddons = useMemo(() => addons.filter(a => a.isFeatured), [addons]);
-
+  const featuredAddons = useMemo(() => addons.filter(addon => addon.isFeatured), [addons]);
   const searchSuggestions = useMemo(() => {
-    if (!debouncedQuery.trim()) return [];
-    const q = debouncedQuery.toLowerCase();
-    return addons
-      .filter(a => (a.title && a.title.toLowerCase().includes(q)) || (a.authorName && a.authorName.toLowerCase().includes(q)))
-      .slice(0, 5);
+    if (!debouncedQuery) return [];
+    const query = debouncedQuery.toLowerCase();
+    return addons.filter(addon => addon.title?.toLowerCase().includes(query) || addon.authorName?.toLowerCase().includes(query)).slice(0, 5);
   }, [addons, debouncedQuery]);
+  const activeFilterCount = (selectedCategory !== 'All' ? 1 : 0) + (sortBy !== 'newest' ? 1 : 0) + (dateRange !== 'all' ? 1 : 0) + (tagFilter ? 1 : 0);
+  const clearFilters = () => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setShowFilters(false); };
 
-  const activeFilterCount =
-    (selectedCategory !== 'All' ? 1 : 0) + (tagFilter ? 1 : 0) + (authorFilter ? 1 : 0) + (dateRange !== 'all' ? 1 : 0);
-  const hasActiveFilters = activeFilterCount > 0 || sortBy !== 'newest';
+  return <section id="explore" className="min-h-[100dvh] bg-parchment pb-20" aria-label="Marketplace explore">
+    <div className="border-b border-parchment-border bg-parchment-raised"><div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"><div className="max-w-3xl"><p className="inline-flex items-center gap-2 text-sm font-bold text-terracotta-text"><Sparkles size={16} /> Community marketplace</p><h1 className="mt-4 text-4xl font-bold tracking-[-0.04em] text-ink-900 sm:text-5xl">Find something worth playing.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-ink-900/60">Browse reviewed Minecraft add-ons from creators around the community. Search by name, tag, or creator.</p></div>
+      <div className="mt-10 rounded-2xl border border-parchment-border bg-parchment p-4 shadow-card sm:p-5"><div className="flex flex-col gap-3 lg:flex-row"><div className="relative flex-1"><Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/45" /><input id="marketplace-search" role="combobox" aria-label="Search add-ons, tags, authors" aria-autocomplete="list" aria-controls="search-suggestions" aria-expanded={showSuggestions && searchSuggestions.length > 0} autoComplete="off" value={searchQuery} onChange={event => { setSearchQuery(event.target.value); setShowSuggestions(true); }} onFocus={() => setShowSuggestions(true)} onBlur={() => window.setTimeout(() => setShowSuggestions(false), 200)} placeholder="Search add-ons, tags, authors" className={`${getInputClasses()} pl-11`} />{showSuggestions && searchSuggestions.length > 0 && <div id="search-suggestions" role="listbox" className="absolute left-0 right-0 top-full z-[120] mt-2 overflow-hidden rounded-xl border border-parchment-border bg-parchment-raised p-1 shadow-card-float">{searchSuggestions.map(addon => <button key={addon.id} type="button" role="option" onClick={() => { onNavigate({ type: 'addon', id: addon.id }); setShowSuggestions(false); }} className="flex min-h-12 w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-ink-900/[0.04]"><span className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-ink-900"><FadeImage src={addon.imageUrl} alt="" className="h-full w-full object-cover" /></span><span className="min-w-0"><span className="block truncate text-sm font-bold text-ink-900">{addon.title}</span><span className="block truncate text-xs text-ink-900/55">by {addon.authorName}</span></span></button>)}</div>}</div><div className="flex gap-3"><CustomSelect value={sortBy} onChange={value => setSortBy(value as SortOption)} options={[{ value: 'newest', label: 'Newest' }, { value: 'most_liked', label: 'Most liked' }, { value: 'highest_rated', label: 'Highest rated' }, { value: 'oldest', label: 'Oldest' }]} className="min-w-[148px]" /><button type="button" onClick={() => setShowFilters(value => !value)} aria-expanded={showFilters} aria-controls="marketplace-filters" className={`${getButtonClasses('secondary', 'md')} shrink-0`}><SlidersHorizontal size={16} />Filters{activeFilterCount > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta px-1.5 text-[10px] text-paper">{activeFilterCount}</span>}</button></div></div>{showFilters && <div id="marketplace-filters" className="mt-4 grid gap-4 border-t border-parchment-border pt-4 sm:grid-cols-3"><label className="text-xs font-bold text-ink-900/60">Category<CustomSelect value={selectedCategory} onChange={value => setSelectedCategory(value as CategoryOption)} options={CATEGORIES} className="mt-2" /></label><label className="text-xs font-bold text-ink-900/60">Date added<CustomSelect value={dateRange} onChange={value => setDateRange(value as DateRangeOption)} options={[{ value: 'all', label: 'Any time' }, { value: 'today', label: 'Past 24 hours' }, { value: 'week', label: 'Past week' }, { value: 'month', label: 'Past month' }]} className="mt-2" /></label><label className="text-xs font-bold text-ink-900/60">Tags<input value={tagFilter} onChange={event => setTagFilter(event.target.value)} placeholder="e.g. survival, medieval" className={`${getInputClasses()} mt-2`} /></label></div>}</div>
+    </div></div>
 
-  return (
-    <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
-      <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-                  <div className="mb-10">
-            <div className="inline-flex items-center gap-2 bg-terracotta-ink rounded-full px-4 py-2 mb-6 shadow-sm">
-              <Sparkles size={13} className="text-paper" />
-              <span className="text-xs font-bold text-paper uppercase tracking-widest">Minecraft Marketplace</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight mb-4 leading-tight">
-              Find Your<br />Next Add-on
-            </h1>
-            <p className="text-base font-normal text-ink-900/60 max-w-md mx-auto">
-              Browse, download, and share Minecraft add-ons built by the community.
-            </p>
-          </div>
-
-                  <div className="flex justify-center">
-            <div className="relative flex flex-col gap-4 bg-parchment-raised rounded-2xl shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
-              <div className="flex flex-col lg:flex-row items-stretch gap-3">
-                {/* Search input */}
-                <div className="relative w-full flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/40" size={20} aria-hidden="true" />
-                  <input
-                    type="text"
-                    id="marketplace-search"
-                    role="combobox"
-                    aria-label="Search add-ons, tags, authors"
-                    aria-autocomplete="list"
-                    aria-controls="search-suggestions"
-                    aria-expanded={showSuggestions && searchSuggestions.length > 0}
-                    autoComplete="off"
-                    placeholder="Search add-ons, tags, authors..."
-                    value={searchQuery}
-                    onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className={`${getInputClasses()} pl-12 h-[56px]`}
-                  />
-
-                    {showSuggestions && searchSuggestions.length > 0 && (
-                      <div
-                        id="search-suggestions"
-                        role="listbox"
-                        aria-label="Search suggestions"
-                        className="absolute left-0 z-50 w-full rounded-lg bg-parchment-raised shadow-card neumorph overflow-hidden mt-2 glass"
-                      >
-                        {searchSuggestions.map(addon => (
-                          <button
-                            key={addon.id}
-                            type="button"
-                            role="option"
-                            aria-selected={false}
-                            className="w-full p-2.5 text-left text-sm font-bold text-ink-900 hover:bg-terracotta/40 transition-colors flex items-center gap-3 border-b border-parchment-border last:border-b-0"
-                            onClick={() => { onNavigate({ type: 'addon', id: addon.id }); setShowSuggestions(false); }}
-                          >
-                            <div className="h-10 w-10 shrink-0 overflow-hidden bg-ink-900 border border-parchment-border rounded-lg" aria-hidden="true">
-                              <FadeImage src={addon.imageUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                            </div>
-                            <div className="flex flex-col overflow-hidden">
-                              <span className="truncate">{addon.title}</span>
-                              <span className="text-xs text-ink-900/50 font-medium truncate">by {addon.authorName}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                </div>
-
-                <div className="flex w-full lg:w-auto items-stretch gap-3">
-                  <div className="hidden sm:flex items-center gap-1 bg-parchment-raised border border-parchment-border rounded-lg p-1 h-[56px]" role="group" aria-label="Quick Sort">
-                    <button
-                      type="button"
-                      onClick={() => setSortBy('newest')}
-                      aria-pressed={sortBy === 'newest'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'newest' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
-                    >
-                      Newest
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSortBy('most_liked')}
-                      aria-pressed={sortBy === 'most_liked'}
-                      className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'most_liked' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
-                    >
-                      Popular
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setShowFilters(prev => {
-                        return !prev;
-                      });
-                    }}
-                    aria-expanded={showFilters}
-                    aria-controls="filter-panel"
-                    className={`relative flex flex-1 lg:flex-none items-center justify-center gap-2 h-[56px] px-6 border border-parchment-border rounded-xl text-sm font-bold uppercase transition-all duration-300 ease-out active:scale-[0.97] ${
-                      showFilters || hasActiveFilters
-                        ? 'bg-ink-900/5 text-ink-900 shadow-none'
-                        : 'bg-parchment-raised text-ink-900 shadow-sm hover:border-ink-900/20 hover:shadow-md'
-                    }`}
-                  >
-                    <SlidersHorizontal size={17} aria-hidden="true" />
-                    <span>Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center bg-terracotta border border-parchment-border rounded-lg text-[10px] text-paper font-bold">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {showFilters && (
-                  <div
-                    id="filter-panel"
-                    className="w-full"
-                    style={{ overflow: 'visible' }}
-                  >
-                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 pt-4 border-t border-parchment-border mt-1">
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor="filter-category" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Category</label>
-                        <CustomSelect
-                          id="filter-category"
-                          value={selectedCategory}
-                          onChange={val => setSelectedCategory(val as CategoryOption)}
-                          options={[
-                            { value: 'All', label: 'All' },
-                            { value: 'Bukkit Plugins', label: 'Bukkit Plugins' },
-                            { value: 'Modpack', label: 'Modpack' },
-                            { value: 'Customization', label: 'Customization' },
-                            { value: 'Add-Ons', label: 'Add-Ons' },
-                            { value: 'Shaders', label: 'Shaders' },
-                            { value: 'Mods', label: 'Mods' },
-                            { value: 'Resource Packs', label: 'Resource Packs' },
-                            { value: 'Data Pack', label: 'Data Pack' },
-                            { value: 'World', label: 'World' },
-                            { value: 'Skin Pack', label: 'Skin Pack' },
-                          ]}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor="filter-sort" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Sort By</label>
-                        <CustomSelect
-                          id="filter-sort"
-                          value={sortBy}
-                          onChange={val => setSortBy(val as SortOption)}
-                          options={[
-                            { value: 'newest', label: 'Newest First' },
-                            { value: 'most_liked', label: 'Most Liked' },
-                            { value: 'highest_rated', label: 'Highest Rated' },
-                            { value: 'oldest', label: 'Oldest First' },
-                          ]}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor="filter-date" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Date</label>
-                        <CustomSelect
-                          id="filter-date"
-                          value={dateRange}
-                          onChange={val => setDateRange(val as DateRangeOption)}
-                          options={[
-                            { value: 'all', label: 'Any Time' },
-                            { value: 'today', label: 'Past 24h' },
-                            { value: 'week', label: 'Past Week' },
-                            { value: 'month', label: 'Past Month' },
-                          ]}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor="filter-tag" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Tag</label>
-                        <input
-                          id="filter-tag"
-                          type="text"
-                          placeholder="Filter by tag... (pisahkan dengan koma)"
-                          value={tagFilter}
-                          onChange={e => setTagFilter(e.target.value)}
-                          className="w-full border border-parchment-border rounded-lg bg-parchment-raised py-2.5 px-3 text-sm font-bold text-ink-900 placeholder-ink-900/40 focus:outline-none focus:shadow-[0_2px_12px_rgba(217,119,87,0.15)] transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    {hasActiveFilters && (
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => { setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
-                          className="text-xs font-bold text-ink-900 underline hover:text-terracotta-text transition-colors uppercase"
-                        >
-                          Clear All Filters
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
-        {!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All' && (
-          <div className="mb-14">
-            <h2 className="flex items-center gap-3 text-2xl font-bold text-ink-900 tracking-tight mb-6">
-              <span className="inline-flex items-center gap-2 bg-terracotta rounded-lg px-3 py-1 shadow-card">
-                <Sparkles size={18} className="text-ink-900" />
-                Featured
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredAddons.map((addon, index) => (
-                <div key={addon.id} className="relative">
-                  <AddonCard
-                    addon={addon}
-                    isLiked={userLikes.has(addon.id)}
-                    onToggleLike={onToggleLike}
-                    onRequireAuth={onRequireAuth}
-                    onNavigate={onNavigate}
-                    priority={index === 0}
-                  />
-                  <div className="absolute -top-3 -right-3 bg-terracotta rounded-lg px-3 py-1 text-xs font-bold text-ink-900 shadow-card uppercase">
-                    Featured
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-2xl font-bold text-ink-900 tracking-tight">
-            {searchQuery ? `Results for "${searchQuery}"` : 'All Add-ons'}
-          </h2>
-          <span className="text-sm font-normal text-ink-900/70">
-            {filteredAndSortedAddons.length} add-on{filteredAndSortedAddons.length !== 1 ? 's' : ''} found
-          </span>
-        </div>
-
-        {activeFilterCount > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            {selectedCategory !== 'All' && (
-              <span className="inline-flex items-center gap-1.5 bg-terracotta-text rounded-lg px-3 py-1.5 text-xs font-bold text-white shadow-card">
-                {selectedCategory}
-                <button type="button" aria-label="Remove category filter" onClick={() => setSelectedCategory('All')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
-              </span>
-            )}
-            {tagFilter && (
-              <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
-                Tag: {tagFilter}
-                <button type="button" aria-label="Remove tag filter" onClick={() => setTagFilter('')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
-              </span>
-            )}
-            {authorFilter && (
-              <span className="inline-flex items-center gap-1.5 bg-parchment-raised rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
-                Author: {authorFilter}
-                <button type="button" aria-label="Remove author filter" onClick={() => setAuthorFilter('')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
-              </span>
-            )}
-            {dateRange !== 'all' && (
-              <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
-                {dateRange}
-                <button type="button" aria-label="Remove date filter" onClick={() => setDateRange('all')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
-              </span>
-            )}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-        ) : filteredAndSortedAddons.length === 0 ? (
-          <div className="rounded-lg bg-parchment-raised py-24 text-center shadow-card">
-            <Search size={40} className="mx-auto mb-4 text-ink-900/30" />
-            <h3 className="text-lg font-bold text-ink-900">Nothing matches that search</h3>
-            <p className="mt-1 text-sm font-normal text-ink-900/60">Try a different keyword, or clear your filters to see everything.</p>
-              <button
-                type="button"
-                onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
-                className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase btn-3d"
-              >
-              Clear filters
-            </button>
-          </div>
-        ) : (
-          <div className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-parchment-raised shadow-card'}
-          >
-              {filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => (
-                <div
-                  key={addon.id}
-                  className={layoutMode === 'list' ? 'w-full' : ''}
-                >
-                  <AddonCard
-                    addon={addon}
-                    isLiked={userLikes.has(addon.id)}
-                    onToggleLike={onToggleLike}
-                    onRequireAuth={onRequireAuth}
-                    onNavigate={onNavigate}
-                    compact={layoutMode === 'list'}
-                    priority={
-                      index === 0 &&
-                      !(!loading && featuredAddons.length > 0 && !searchQuery && selectedCategory === 'All')
-                    }
-                  />
-                </div>
-              ))}
-          </div>
-        )}
-
-        {/* Infinite scroll sentinel */}
-        {!loading && (
-          <div
-            ref={observerTarget}
-            className="flex justify-center py-12"
-            style={{ opacity: filteredAndSortedAddons.length > visibleCount ? 1 : 0, pointerEvents: 'none' }}
-          >
-            {filteredAndSortedAddons.length > visibleCount && (
-              <div className="rounded-lg bg-terracotta p-3 shadow-card">
-                  <Skeleton className="h-6 w-16" />
-                </div>
-            )}
-          </div>
-        )}
-      </div>
-    </section>
-  );
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="flex flex-col gap-4 border-b border-parchment-border py-8 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[0.14em] text-terracotta-text">Explore</p><h2 className="mt-2 text-2xl font-bold tracking-[-0.03em]">{debouncedQuery ? `Results for “${debouncedQuery}”` : 'All add-ons'}</h2></div><div className="flex items-center gap-3 text-sm text-ink-900/55"><span>{filteredAndSortedAddons.length} {filteredAndSortedAddons.length === 1 ? 'project' : 'projects'}</span>{activeFilterCount > 0 && <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1 font-bold text-terracotta-text hover:underline"><X size={14} />Clear</button>}</div></div>
+      {featuredAddons.length > 0 && !debouncedQuery && selectedCategory === 'All' && <section className="py-10"><div className="mb-5 flex items-center justify-between"><div><p className="text-sm font-bold uppercase tracking-[0.14em] text-terracotta-text">Curated</p><h2 className="mt-2 text-xl font-bold">Featured projects</h2></div></div><div className="grid gap-6 md:grid-cols-3">{featuredAddons.slice(0, 3).map((addon, index) => <AddonCard key={addon.id} addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onRequireAuth={onRequireAuth} onNavigate={onNavigate} priority={index === 0} />)}</div></section>}
+      <div className="pb-8 pt-10">{loading ? <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)}</div> : filteredAndSortedAddons.length === 0 ? <div className="rounded-2xl border border-parchment-border bg-parchment-raised px-6 py-20 text-center shadow-card"><Search size={32} className="mx-auto text-ink-900/30" /><h3 className="mt-4 text-lg font-bold">No projects found</h3><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-900/55">Try another search or clear the filters to see more of the community library.</p><button type="button" onClick={clearFilters} className={`mt-6 ${getButtonClasses('primary', 'md')}`}>Clear filters</button></div> : <div className={layoutMode === 'grid' ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised'}>{filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => <AddonCard key={addon.id} addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onRequireAuth={onRequireAuth} onNavigate={onNavigate} compact={layoutMode === 'list'} priority={index === 0} />)}</div>}
+      </div><div ref={observerTarget} className="h-8" aria-hidden="true" /></div>
+  </section>;
 }

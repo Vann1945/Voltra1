@@ -248,7 +248,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
   return (
     <div className="w-full max-w-[420px]">
-      <div className="bg-parchment-raised rounded-lg shadow-card neumorph p-8 sm:p-10 glass">
+      <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card sm:p-8">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight">
             {view === 'login' && 'Welcome back'}
@@ -271,7 +271,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               initial={{ opacity: 0, y: -8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: -8, height: 0 }}
-              className="mb-5 overflow-hidden"
+              className="mb-6 overflow-hidden"
             >
               <div role="alert" aria-live="assertive" className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
                 <AlertCircle className="text-danger shrink-0 mt-0.5" size={16} />
@@ -285,7 +285,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               initial={{ opacity: 0, y: -8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: -8, height: 0 }}
-              className="mb-5 overflow-hidden"
+              className="mb-6 overflow-hidden"
             >
               <div role="status" aria-live="polite" className="p-4 bg-success/[0.08] border border-success/20 rounded-lg flex items-start gap-3">
                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={16} />
@@ -327,7 +327,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-1 overflow-hidden"
                 >
-                  <label htmlFor="auth-name" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+                  <label htmlFor="auth-name" className="block text-xs font-bold text-ink-900">
                     Full Name
                   </label>
                   <div className="relative">
@@ -351,7 +351,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             </AnimatePresence>
 
             <div className="space-y-1">
-<label htmlFor="auth-email" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+<label htmlFor="auth-email" className="block text-xs font-bold text-ink-900">
                     Email
               </label>
               <div className="relative">
@@ -383,7 +383,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                   className="space-y-1 overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
-                    <label htmlFor="auth-password" className="block text-xs font-bold text-ink-900 uppercase tracking-widest">
+                    <label htmlFor="auth-password" className="block text-xs font-bold text-ink-900">
                       Password
                     </label>
                     {view === 'login' && (
@@ -422,7 +422,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 bg-terracotta rounded-lg py-3.5 px-4 flex items-center justify-center gap-2 font-semibold text-ink-900 uppercase text-sm shadow-card btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`mt-2 w-full disabled:cursor-not-allowed disabled:opacity-50 ${getButtonClasses('primary', 'lg')}`}
             >
               {loading ? (
                 <div className="w-full">
@@ -450,9 +450,9 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
 
         {view !== 'forgot' && view !== 'unverified' && (
           <>
-            <div className="flex items-center gap-3 my-7">
+            <div className="my-6 flex items-center gap-3">
               <div className="flex-1 h-[2px] bg-ink-900/20" />
-              <span className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">or</span>
+              <span className="text-xs font-semibold text-ink-900/50">or</span>
               <div className="flex-1 h-[2px] bg-ink-900/20" />
             </div>
 

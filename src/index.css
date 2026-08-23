@@ -19,36 +19,36 @@
     100% { background-position: 200% 50%; }
   }
 
-  /* Palet utama: netral hangat 60%, surface krem 30%, oranye 10%. */
-  --color-paper: #fff8f1;
-  --color-paper-soft: #fffaf6;
-  --color-paper-deep: #f5e8dc;
-  --color-ink: #2b1810;
-  --color-ink-soft: color-mix(in srgb, var(--color-ink) 62%, transparent);
-  --color-ink-faint: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  /* Visual hierarchy: cool neutral base, white surfaces, one terracotta accent. */
+  --color-paper: #f3f6f5;
+  --color-paper-soft: #e9efee;
+  --color-paper-deep: #dce5e3;
+  --color-ink: #172329;
+  --color-ink-soft: color-mix(in srgb, var(--color-ink) 64%, transparent);
+  --color-ink-faint: color-mix(in srgb, var(--color-ink) 42%, transparent);
   --color-ink-hairline: color-mix(in srgb, var(--color-ink) 10%, transparent);
-  --color-accent: #e8753b;
-  --color-accent-soft: #f29a62;
-  --color-accent-deep: #b94e24;
-  --color-danger: #c74634;
-  --color-success: #4d8a68;
-  --color-gold: #c88a26;
-  --shadow-card: 0 0 0 1px rgba(83, 47, 28, 0.06), 0 2px 8px rgba(48, 29, 18, 0.04);
-  --shadow-card-hover: 0 0 0 1px rgba(83, 47, 28, 0.10), 0 6px 16px rgba(48, 29, 18, 0.08);
-  --shadow-card-float: 0 0 0 1px rgba(83, 47, 28, 0.08), 0 12px 24px rgba(48, 29, 18, 0.10);
+  --color-accent: #d86b4d;
+  --color-accent-soft: #eb9b82;
+  --color-accent-deep: #b84f38;
+  --color-danger: #bd4b4b;
+  --color-success: #3f7d67;
+  --color-gold: #a7742b;
+  --shadow-card: 0 1px 2px rgba(23, 35, 41, 0.04), 0 8px 24px rgba(23, 35, 41, 0.05);
+  --shadow-card-hover: 0 2px 4px rgba(23, 35, 41, 0.06), 0 14px 32px rgba(23, 35, 41, 0.09);
+  --shadow-card-float: 0 4px 8px rgba(23, 35, 41, 0.06), 0 20px 42px rgba(23, 35, 41, 0.10);
 
   /* Alias dihapus untuk konsistensi. Jika ada yang masih pakai, akan diganti ke token utama. */
 
-  --color-parchment: #fff8f1;
+  --color-parchment: #f3f6f5;
   --color-parchment-raised: #ffffff;
-  --color-parchment-border: #f0dacc;
-  --color-ink-900: #2b1810;
-  --color-ink-700: #684737;
-  --color-olive-600: #8b6b58;
-  --color-stone-500: #9d7d68;
-  --color-terracotta: #e8753b;
-  --color-terracotta-text: #b94e24;
-  --color-terracotta-ink: #7d321b;
+  --color-parchment-border: #dbe4e2;
+  --color-ink-900: #172329;
+  --color-ink-700: #53636a;
+  --color-olive-600: #718088;
+  --color-stone-500: #8b979b;
+  --color-terracotta: #d86b4d;
+  --color-terracotta-text: #b84f38;
+  --color-terracotta-ink: #7e3829;
 
   --color-linen-50: var(--color-parchment-raised);
   --color-linen-100: var(--color-parchment);
@@ -119,39 +119,34 @@
 }
 
 .glass {
-  background: color-mix(in srgb, var(--color-parchment-raised) 88%, transparent);
-  backdrop-filter: blur(8px) saturate(1.02);
-  -webkit-backdrop-filter: blur(8px) saturate(1.02);
-  border: 1px solid color-mix(in srgb, var(--color-terracotta) 16%, transparent);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-ink) 5%, transparent);
+  background: var(--color-parchment-raised);
+  border: 1px solid var(--color-parchment-border);
+  box-shadow: var(--shadow-card);
 }
 
 .dark .glass {
-  background: color-mix(in srgb, var(--color-parchment-raised) 85%, transparent);
-  border-color: color-mix(in srgb, var(--color-parchment-border) 80%, transparent);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: var(--color-parchment-raised);
+  border-color: var(--color-parchment-border);
+  box-shadow: var(--shadow-card);
 }
 
 .oled .glass {
-  background: rgba(11, 7, 5, 0.88);
-  border-color: rgba(60, 31, 20, 0.80);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
+  background: #0f1213;
+  border-color: #273033;
+  box-shadow: var(--shadow-card);
 }
 
 .neumorph {
-  background: var(--color-paper);
-  box-shadow: 4px 4px 10px color-mix(in srgb, var(--color-ink) 7%, transparent), -4px -4px 10px rgba(255, 255, 255, 0.48);
+  background: var(--color-parchment-raised);
+  border: 1px solid var(--color-parchment-border);
+  box-shadow: var(--shadow-card);
   border-radius: 16px;
 }
 
-.dark .neumorph {
-  background: var(--color-paper);
-  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.38), -4px -4px 10px rgba(255, 160, 108, 0.03);
-}
-
+.dark .neumorph,
 .oled .neumorph {
-  background: #000000;
-  box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.82), -2px -2px 8px rgba(255, 138, 69, 0.03);
+  background: var(--color-parchment-raised);
+  box-shadow: var(--shadow-card);
 }
 
 /* .btn-3d class removed to enforce standard flat/neumorphic buttons via utility classes */

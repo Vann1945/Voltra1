@@ -58,7 +58,7 @@ function getAddonPayloadError(data: Record<string, unknown>): string {
 }
 
 const Label = ({ children, hint, htmlFor }: { children: React.ReactNode; hint?: boolean; htmlFor?: string }) => (
-  <label htmlFor={htmlFor} className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+  <label htmlFor={htmlFor} className="mb-2 flex items-center gap-1 text-sm font-bold text-ink-900">
     {children} {hint && <HelpCircle size={12} className="text-ink-900/40" />}
   </label>
 );
@@ -868,7 +868,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                           type="file"
                           ref={panoramaInputRef}
                           onChange={handlePanoramaSelected}
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp"
                           className="hidden"
                         />
 

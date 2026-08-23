@@ -222,7 +222,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   if (!addon) {
     if (loading) {
       return (
-        <div className="mx-auto max-w-7xl px-4 py-16 text-center min-h-[100dvh]">
+        <div className="mx-auto min-h-[100dvh] max-w-7xl px-4 py-16 text-center">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <SkeletonCard />
           </div>
@@ -230,12 +230,9 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       );
     }
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center min-h-[100dvh]">
+      <div className="mx-auto min-h-[100dvh] max-w-7xl px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-ink-900">Add-on not found</h2>
-        <button
-          onClick={() => onNavigate('home')}
-          className={`mt-5 ${getButtonClasses('primary', 'md')}`}
-        >
+        <button onClick={() => onNavigate('home')} className={`mt-5 ${getButtonClasses('primary', 'md')}`}>
           Return to Marketplace
         </button>
       </div>
@@ -297,17 +294,17 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 min-h-[100dvh]">
+    <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <button
         onClick={() => onNavigate('home')}
-        className="mb-8 flex items-center gap-2 text-sm font-bold text-ink-900 uppercase hover:text-terracotta-text transition-colors"
+        className="mb-8 inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-ink-900/65 transition-colors hover:bg-ink-900/[0.04] hover:text-ink-900"
       >
         <ArrowLeft size={16} /> Back to Marketplace
       </button>
 
-    <div className="overflow-hidden rounded-2xl bg-parchment-raised shadow-card neumorph glass">
+    <article className="overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card">
         <div
-          className="aspect-[21/9] w-full overflow-hidden bg-ink-900 relative border-b border-parchment-border"
+          className="relative aspect-[21/9] w-full overflow-hidden border-b border-parchment-border bg-ink-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -353,13 +350,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
           )}
         </div>
 
-        <div className="p-8">
+        <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
             <div>
-              <span className="inline-block bg-terracotta rounded-full px-3 py-1.5 text-xs font-bold uppercase text-paper mb-3 shadow-sm">
+                              <span className="inline-flex rounded-full bg-terracotta/15 px-3 py-1.5 text-xs font-bold text-terracotta-text">
+
                 {addon.category}
               </span>
-              <h1 className="text-4xl sm:text-5xl font-bold text-ink-900 tracking-tight leading-tight">{addon.title}</h1>
+              <h1 className="text-3xl font-bold leading-tight tracking-[-0.04em] text-ink-900 sm:text-5xl">{addon.title}</h1>
 
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink-900/60">
                 <div onClick={() => onNavigate({ type: 'author', id: addon.authorId })} className="flex items-center gap-2 cursor-pointer hover:text-ink-900 transition-colors">
@@ -380,7 +378,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
               <button
                 onClick={() => setIsReportModalOpen(true)}
                 className={getButtonClasses('secondary', 'md')}
@@ -401,16 +399,16 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 border-t border-parchment-border pt-8">
-            <div className="lg:col-span-2">
-              <h2 className="text-lg font-bold text-ink-900 uppercase mb-4">Description</h2>
+          <div className="grid grid-cols-1 gap-8 border-t border-parchment-border pt-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+            <div>
+              <h2 className="mb-4 text-lg font-bold text-ink-900">Description</h2>
               <RichTextContent html={fullDescription ?? addon.description} isDarkMode={isDarkMode}/>
             </div>
 
             <div className="space-y-6">
               {addon.demoUrl && (
-                <div className="bg-parchment-raised rounded-lg shadow-card neumorph p-5 glass">
-                  <h2 className="text-sm font-bold text-ink-900 uppercase mb-3 flex items-center gap-2"><ExternalLink size={16} /> Demo / Preview</h2>
+                <div className="rounded-2xl border border-parchment-border bg-parchment p-5 shadow-card">
+                  <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-ink-900"><ExternalLink size={16} /> Demo preview</h2>
                   {demoYouTubeId ? (
                     <div className="aspect-video w-full overflow-hidden border border-parchment-border rounded-lg bg-ink-900 relative">
                       {videoActivated ? (
@@ -458,13 +456,13 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             onRequireAuth={onRequireAuth}
           />
         </div>
-      </div>
+      </article>
 
       {addon.panoramaUrl && (
-        <div className="mt-8 overflow-hidden rounded-2xl bg-parchment-raised shadow-card neumorph glass">
-          <div className="px-6 pt-6 pb-4 border-b border-parchment-border">
-            <h2 className="text-lg font-bold text-ink-900 uppercase">Panorama</h2>
-            <p className="text-xs text-ink-900/50 font-medium mt-1">Geser untuk menjelajahi panorama.</p>
+        <section className="mt-8 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card">
+          <div className="border-b border-parchment-border px-6 py-5">
+            <h2 className="text-lg font-bold text-ink-900">Panorama <span className="text-sm font-medium text-ink-900/45">(optional)</span></h2>
+            <p className="mt-1 text-xs font-medium text-ink-900/50">Drag to explore the full image.</p>
           </div>
           <div
             ref={panoramaStripRef}
@@ -478,7 +476,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               className="h-[240px] sm:h-[320px] w-auto max-w-none pointer-events-none"
             />
           </div>
-        </div>
+        </section>
       )}
 
       <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} addonId={addon.id} />
