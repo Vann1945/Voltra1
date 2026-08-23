@@ -41,9 +41,9 @@ export function Toast({ toast, onClose }: ToastProps) {
           key={toast.id}
           role={isSuccess ? 'status' : 'alert'}
           aria-live={isSuccess ? 'polite' : 'assertive'}
-          className="fixed bottom-6 left-1/2 z-[500] w-[calc(100%-2rem)] max-w-[360px] -translate-x-1/2 toast-enter"
+          className="toast-position fixed z-[500]"
         >
-          <div className="relative overflow-hidden rounded-xl border border-parchment-border bg-parchment-raised shadow-[0_6px_20px_rgba(0,0,0,0.1)]">
+          <div className="toast-enter relative w-full overflow-hidden rounded-xl border border-parchment-border bg-parchment-raised shadow-[0_6px_20px_rgba(0,0,0,0.1)]">
             <div className={`absolute bottom-0 left-0 top-0 w-1 ${isSuccess ? 'bg-success' : 'bg-danger'}`} />
 
             <div className="flex items-start gap-3 px-4 py-4 pl-5">
@@ -58,7 +58,7 @@ export function Toast({ toast, onClose }: ToastProps) {
                 <p className={`mb-0.5 text-xs font-bold uppercase tracking-widest ${isSuccess ? 'text-success' : 'text-danger'}`}>
                   {isSuccess ? 'Success' : 'Error'}
                 </p>
-                <p className="text-sm leading-snug text-ink-900">{toast.message}</p>
+                <p className="break-words text-sm leading-snug text-ink-900">{toast.message}</p>
               </div>
 
               <button
