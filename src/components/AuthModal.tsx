@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { AuthCard } from './AuthCard';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface AuthModalProps {
@@ -10,6 +10,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const reduceMotion = useReducedMotion();
   useBodyScrollLock(isOpen);
 
   return (
@@ -17,18 +18,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       {isOpen && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center overflow-y-auto p-4">
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            exit={reduceMotion ? undefined : { opacity: 0 }}
             onClick={onClose}
             className="absolute inset-0 bg-ink-900/70"
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2 }}
+            exit={reduceMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
             role="dialog"
             aria-modal="true"
             aria-label="Sign in to Voltra"

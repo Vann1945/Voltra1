@@ -11,20 +11,27 @@ export function useAddons() {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const lastFetchedAtRef = useRef(0);
+  const addonsRequestRef = useRef<AbortController | null>(null);
   const MIN_REFETCH_GAP_MS = 15000; // Increase to 15s to avoid spamming the DB on fast tab switching
 
   const fetchAddons = useCallback(async (isBackground = false) => {
+    addonsRequestRef.current?.abort();
+    const controller = new AbortController();
+    addonsRequestRef.current = controller;
     lastFetchedAtRef.current = Date.now();
     if (!isBackground) setLoading(true);
     try {
-      const res = await fetch('/api/addons', { credentials: 'include' });
+      const res = await fetch('/api/addons', { credentials: 'include', signal: controller.signal });
       if (!res.ok) throw new Error('Failed to retrieve addons');
       const data = await res.json();
-      setAddons(data.addons);
+      if (!controller.signal.aborted && Array.isArray(data.addons)) setAddons(data.addons);
     } catch (err) {
-      console.error('Error fetching addons:', err);
+      if ((err as Error)?.name !== 'AbortError') console.error('Error fetching addons:', err);
     } finally {
-      setLoading(false);
+      if (addonsRequestRef.current === controller) {
+        addonsRequestRef.current = null;
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -63,6 +70,7 @@ export function useAddons() {
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      addonsRequestRef.current?.abort();
     };
   }, [fetchAddons]);
 

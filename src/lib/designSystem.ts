@@ -84,7 +84,7 @@ export const HAPTIC_PATTERNS = {
 
 // Helper for standardized button classes
 export const getButtonClasses = (variant: 'primary' | 'secondary' | 'ghost' | 'danger', size: 'sm' | 'md' | 'lg' = 'md') => {
-  const base = 'inline-flex items-center justify-center font-bold uppercase tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 active:scale-[0.98] select-none';
+  const base = 'inline-flex items-center justify-center font-bold uppercase tracking-wide transition-[background-color,border-color,box-shadow,transform,opacity,color] duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 active:scale-[0.98] select-none';
   
   const sizes = {
     sm: 'px-3 py-1.5 text-xs rounded-lg gap-1.5',
@@ -104,7 +104,7 @@ export const getButtonClasses = (variant: 'primary' | 'secondary' | 'ghost' | 'd
 
 // Helper for standard input classes
 export const getInputClasses = (hasError = false) => {
-  return `w-full rounded-xl bg-parchment-raised px-4 py-3 text-sm font-medium text-ink-900 placeholder:text-ink-900/40 outline-none transition-all ${
+  return `w-full rounded-xl bg-parchment-raised px-4 py-3 text-sm font-medium text-ink-900 placeholder:text-ink-900/40 outline-none transition-[border-color,box-shadow,background-color] duration-200 ease-out ${
     hasError 
       ? 'border-2 border-danger focus:border-danger focus:ring-4 focus:ring-danger/20' 
       : 'border border-parchment-border focus:border-terracotta focus:ring-4 focus:ring-terracotta/20 hover:border-ink-900/20'

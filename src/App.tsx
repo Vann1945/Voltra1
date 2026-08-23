@@ -7,7 +7,7 @@ import { Toast } from './components/Toast';
 import { Skeleton, SkeletonCard } from './components/Skeleton';
 import { useAddons } from './hooks/useAddons';
 import { ToastProvider, useToast } from './hooks/useToast';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 
 const UserProfile = lazy(() => import('./components/UserProfile').then(m => ({ default: m.UserProfile })));
 const UploadModal = lazy(() => import('./components/UploadModal').then(m => ({ default: m.UploadModal })));
@@ -107,6 +107,7 @@ export default function App() {
 
 function AppShell() {
   const { toast, hideToast } = useToast();
+  const reduceMotion = useReducedMotion();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentView, setCurrentView] = useState<ViewState>(() =>
@@ -235,6 +236,7 @@ function AppShell() {
 
   return (
     <div className={`${theme === 'dark' ? 'dark' : theme === 'oled' ? 'dark oled' : ''} theme-shell relative isolate min-h-[100dvh] bg-parchment text-ink-900 selection:bg-terracotta selection:text-ink-900`}>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <BorderEffectStyles />
       {currentView !== 'landing' && (
         <Navbar
@@ -252,7 +254,7 @@ function AppShell() {
 
       {verifyBanner && (
         <div className="max-w-3xl mx-auto mt-4 px-4">
-          <div className="p-4 bg-success/[0.06] border border-success/20 rounded-2xl flex items-start gap-3 shadow-card">
+          <div role="status" aria-live="polite" className="p-4 bg-success/[0.06] border border-success/20 rounded-2xl flex items-start gap-3 shadow-card">
             <CheckCircle2 className="text-success shrink-0 mt-0.5" size={18} />
             <p className="text-sm font-medium text-ink-900 flex-1">
               {verifyBanner === 'success'
@@ -260,8 +262,10 @@ function AppShell() {
                 : 'This email was already verified.'}
             </p>
             <button
+              type="button"
               onClick={() => setVerifyBanner(null)}
-              className="text-ink-900/50 hover:text-ink-900 transition-colors"
+              className="text-ink-900/50 hover:text-ink-900 transition-colors focus-visible:ring-2 focus-visible:ring-terracotta"
+
               aria-label="Dismiss"
             >
               <X size={16} />
@@ -270,14 +274,14 @@ function AppShell() {
         </div>
       )}
 
-      <main className="relative">
+      <main id="main-content" tabIndex={-1} className="relative outline-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={getViewKey(currentView)}
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: -16 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             className="w-full"
           >
             <Suspense fallback={<PageSkeleton />}>

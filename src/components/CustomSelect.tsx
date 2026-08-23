@@ -12,10 +12,11 @@ interface CustomSelectProps {
   options: (string | CustomSelectOption)[];
   onChange: (val: string) => void;
   placeholder?: string;
+  id?: string;
   className?: string;
 }
 
-export function CustomSelect({ value, options, onChange, placeholder, className = '' }: CustomSelectProps) {
+export function CustomSelect({ value, options, onChange, placeholder, id, className = '' }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,6 +94,7 @@ export function CustomSelect({ value, options, onChange, placeholder, className 
       {/* Trigger */}
       <button
         ref={triggerRef}
+        id={id}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}

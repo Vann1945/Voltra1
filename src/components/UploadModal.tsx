@@ -3,7 +3,7 @@ import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2 } from 'lucide-rea
 import { Skeleton } from './Skeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { DescriptionEditor } from './DescriptionEditor';
 import { CustomSelect } from './CustomSelect';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
@@ -57,8 +57,8 @@ function getAddonPayloadError(data: Record<string, unknown>): string {
   return '';
 }
 
-const Label = ({ children, hint }: { children: React.ReactNode; hint?: boolean }) => (
-  <label className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+const Label = ({ children, hint, htmlFor }: { children: React.ReactNode; hint?: boolean; htmlFor?: string }) => (
+  <label htmlFor={htmlFor} className="block text-xs font-bold text-ink-900 uppercase tracking-widest mb-1.5 flex items-center gap-1">
     {children} {hint && <HelpCircle size={12} className="text-ink-900/40" />}
   </label>
 );
@@ -220,6 +220,7 @@ export function parseTags(raw: string): string[] {
 }
 
 export function UploadModal({ isOpen, onClose }: UploadModalProps) {
+  const reduceMotion = useReducedMotion();
   useBodyScrollLock(isOpen);
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -483,37 +484,48 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   };
 
   const NeuCheckbox = ({ checked, onChange, label, sublabel }: { checked: boolean; onChange: (v: boolean) => void; label: string; sublabel?: string }) => (
-    <label className="flex items-start gap-3 cursor-pointer group">
-      <div
-        onClick={() => onChange(!checked)}
-        className={`mt-0.5 h-5 w-5 border border-parchment-border rounded-lg flex items-center justify-center shrink-0 transition-all ${checked ? 'bg-terracotta' : 'bg-parchment-raised group-hover:bg-terracotta/30'}`}
+    <label className="group flex cursor-pointer items-start gap-3">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="sr-only peer"
+      />
+      <span
+        aria-hidden="true"
+        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border border-parchment-border transition-[background-color,border-color,box-shadow] duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-terracotta peer-focus-visible:ring-offset-2 ${checked ? 'bg-terracotta' : 'bg-parchment-raised group-hover:bg-terracotta/30'}`}
       >
         {checked && <Check size={12} strokeWidth={3} className="text-ink-900" />}
-      </div>
-      <div>
+      </span>
+      <span>
         <span className="text-sm font-bold text-ink-900">{label}</span>
-        {sublabel && <p className="text-xs text-ink-900/50 font-medium mt-0.5">{sublabel}</p>}
-      </div>
+        {sublabel && <span className="mt-0.5 block text-xs font-medium text-ink-900/50">{sublabel}</span>}
+      </span>
     </label>
   );
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center sm:p-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink-900/70" />
+        <div className="fixed inset-0 z-[300] flex items-end justify-center sm:items-center sm:p-4">
+          <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink-900/70" />
           <motion.div
-            initial={{ y: '100%', opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="upload-modal-title"
+            initial={reduceMotion ? false : { y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="relative w-full h-full sm:h-auto sm:max-h-[90vh] max-w-2xl flex flex-col overflow-hidden sm: rounded-lg sm:shadow-card bg-parchment-raised neumorph glass"
+            exit={reduceMotion ? undefined : { y: '100%', opacity: 0 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
+            className="relative flex h-full w-full max-w-2xl flex-col overflow-hidden bg-parchment-raised neumorph glass sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:shadow-card"
           >
             <div className="flex items-center justify-between border-b border-parchment-border px-6 py-4 bg-parchment-raised">
-              <h2 className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
+              <h2 id="upload-modal-title" className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
               <button
+                type="button"
                 onClick={onClose}
-                className="p-2 rounded-lg bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border hover:bg-ink-900/10 transition-colors"
+                aria-label="Close publish dialog"
+                className="rounded-lg border border-parchment-border bg-parchment-raised p-2 text-ink-900 shadow-sm transition-colors hover:bg-ink-900/10 focus-visible:ring-2 focus-visible:ring-terracotta"
               >
                 <X size={16} />
               </button>
@@ -525,6 +537,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   key={s}
                   type="button"
                   onClick={() => goToStep(s)}
+                  aria-current={step === s ? 'step' : undefined}
                   className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest border-r border-parchment-border last:border-r-0 transition-colors ${
                     step === s ? 'bg-terracotta text-paper shadow-sm' : 'bg-parchment-raised text-ink-900/50 hover:bg-ink-900/10'
                   }`}
@@ -548,8 +561,9 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                   {step === 'general' && (
                     <>
                       <div className="mb-5">
-                        <Label>Title *</Label>
+                        <Label htmlFor="upload-title">Title *</Label>
                         <TextInput
+                          id="upload-title"
                           type="text"
                           required
                           value={formData.title}
@@ -559,9 +573,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mb-5">
-                        <Label hint>Class</Label>
+                        <Label htmlFor="upload-class" hint>Class</Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">Which class does your project fit under?</p>
                         <CustomSelect
+                          id="upload-class"
                           value={formData.projectClass}
                           options={['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack']}
                           onChange={val => setFormData({ ...formData, projectClass: val })}
@@ -570,16 +585,18 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                         <div>
-                          <Label>Main Category</Label>
+                          <Label htmlFor="upload-main-category">Main Category</Label>
                           <CustomSelect
+                            id="upload-main-category"
                             value={formData.mainCategory}
                             options={['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack']}
                             onChange={val => setFormData({ ...formData, mainCategory: val })}
                           />
                         </div>
                         <div>
-                          <Label>Additional Category</Label>
+                          <Label htmlFor="upload-additional-category">Additional Category</Label>
                           <CustomSelect
+                            id="upload-additional-category"
                             value={formData.additionalCategory}
                             options={[
                               { value: '', label: 'None' },
@@ -593,11 +610,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mb-5">
-                        <Label hint>Tags</Label>
+                        <Label htmlFor="upload-tags" hint>Tags</Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Help people find your add-on. Separate each tag with a comma (,).
                         </p>
                         <TextInput
+                          id="upload-tags"
                           type="text"
                           placeholder="pvp, survival, medieval, horror"
                           value={formData.tagsInput}
@@ -681,7 +699,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mb-5">
-                        <Label hint>Download File / URL *</Label>
+                        <Label htmlFor="upload-download-url" hint>Download File / URL *</Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Upload your file — it's hosted for you automatically. Or paste your own link instead.
                         </p>
@@ -703,6 +721,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         ) : (
                           <div className="flex gap-2">
                             <TextInput
+                              id="upload-download-url"
                               required
                               type="url"
                               value={formData.downloadUrl}
@@ -741,11 +760,12 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mb-5">
-                        <Label hint>Demo / Preview Video URL</Label>
+                        <Label htmlFor="upload-demo-url" hint>Demo / Preview Video URL</Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Paste a YouTube link and it'll play right on your add-on page. Optional.
                         </p>
                         <TextInput
+                          id="upload-demo-url"
                           type="url"
                           value={formData.demoUrl}
                           onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
@@ -768,7 +788,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mt-5 pt-5 border-t border-parchment-border">
-                        <Label>Panorama Image *</Label>
+                        <Label htmlFor="upload-panorama" >Panorama Image *</Label>
                         <p className="text-[11px] text-ink-900/50 font-medium mb-2">
                           Wide screenshot used as the header banner on your add-on page. Required.
                         </p>
@@ -804,7 +824,8 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                               )}
                           </button>
                         )}
-                        <input
+                          <input
+                          id="upload-panorama"
                           type="file"
                           ref={panoramaInputRef}
                           onChange={handlePanoramaSelected}

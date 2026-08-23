@@ -193,17 +193,19 @@ export function WindowThemeToggle({ theme, onToggle }: WindowThemeToggleProps) {
   );
 }
 
-export function ThemeToggle({ theme }: ThemeToggleProps) {
+export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
+  const label = theme === 'light' ? 'Open appearance settings. Current theme: Light' : theme === 'dark' ? 'Open appearance settings. Current theme: Dark' : 'Open appearance settings. Current theme: OLED';
   return (
-    <div
-      aria-hidden="true"
-      title={theme === 'light' ? 'Theme: Light' : theme === 'dark' ? 'Theme: Dark' : 'Theme: OLED'}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg border border-parchment-border ${
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg border border-parchment-border transition-[background-color,color,transform] duration-200 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 ${
         theme === 'light' ? 'bg-terracotta text-ink-900' : 'bg-ink-900 text-paper'
       }`}
     >
-      <Zap size={16} strokeWidth={2.5} className="drop-shadow-sm" />
-    </div>
+      <Zap aria-hidden="true" size={16} strokeWidth={2.5} className="drop-shadow-sm" />
+    </button>
   );
 }
 
@@ -251,6 +253,9 @@ function MobileBottomNav({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={ANIMATION.springBouncy}
+              id="mobile-action-sheet"
+              role="dialog"
+              aria-label="Mobile actions"
               className="fixed inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] z-[200] mx-3 flex flex-col gap-2 sm:hidden"
             >
               {user ? (
@@ -377,6 +382,8 @@ function MobileBottomNav({
         <button
           type="button"
           onClick={() => handleAction(() => setIsSheetOpen((v) => !v))}
+          aria-expanded={isSheetOpen}
+          aria-controls="mobile-action-sheet"
           className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-bold uppercase tracking-wide transition-colors ${
             isSheetOpen ? 'text-terracotta-text' : 'text-ink-900/70'
           }`}
@@ -421,11 +428,11 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
   return (
     <>
-    <nav className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/85 backdrop-blur-md border-b border-parchment-border transition-colors duration-200">
+    <nav aria-label="Primary navigation" className="sticky top-0 z-[100] w-full max-w-full overflow-x-clip bg-parchment-raised/85 backdrop-blur-md border-b border-parchment-border transition-colors duration-200">
       <div className="mx-auto flex h-[65px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
           <div className="relative hidden sm:block" ref={themeWrapperRef}>
-            <ThemeToggle theme={theme} />
+            <ThemeToggle theme={theme} onToggle={() => setIsThemeCardOpen((v) => !v)} />
 
             {isThemeCardOpen && (
               <div className="absolute left-0 top-full mt-3 w-[min(320px,calc(100vw-2rem))] z-[110]">
@@ -440,12 +447,14 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             )}
           </div>
 
-          <span
+            <button
+            type="button"
+            aria-label="Go to home"
             className="text-xl font-bold text-ink-900 tracking-tight uppercase cursor-pointer"
             onClick={() => onNavigate('home')}
           >
             Voltra
-          </span>
+          </button>
         </div>
 
 
@@ -468,6 +477,8 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <button
               type="button"
               onClick={() => setIsSettingsOpen((v) => !v)}
+              aria-expanded={isSettingsOpen}
+              aria-controls="desktop-settings-panel"
               className="group/settings flex items-center rounded-xl bg-parchment-raised px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               title="Open settings"
             >
@@ -480,6 +491,9 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             <>
               {isSettingsOpen && (
                 <div
+                  id="desktop-settings-panel"
+                  role="region"
+                  aria-label="Settings controls"
                   className="absolute right-0 top-full z-[120] mt-3 w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-card"
                 >
                   <div className="mb-4 flex items-center justify-between gap-3 border-b border-parchment-border pb-3">
@@ -623,6 +637,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
           {user ? (
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={onOpenUpload}
                 className="group/publish flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               >
@@ -634,6 +649,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
 
               {user.role === 'admin' && (
               <button
+                type="button"
                 onClick={() => onNavigate('admin')}
                 className="group/admin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-paper shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
               >
@@ -645,6 +661,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               )}
 
               <button
+                type="button"
                 onClick={() => onNavigate(currentView === 'home' ? 'profile' : 'home')}
                 className="group/profile flex items-center bg-parchment-raised rounded-xl px-3 py-2.5 text-sm font-bold text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-ink-900/20 hover:shadow-md active:scale-[0.97]"
               >
@@ -661,7 +678,9 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
               </button>
               <div className="h-6 w-px bg-ink-900/10 hidden sm:block" />
               <button
+                type="button"
                 onClick={logout}
+                aria-label="Log out"
                 className="p-2.5 rounded-xl bg-parchment-raised text-ink-900 shadow-sm border border-parchment-border transition-all duration-300 ease-out hover:border-danger/30 hover:text-danger hover:shadow-md active:scale-[0.97]"
                 title="Logout"
               >
@@ -670,6 +689,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
             </div>
           ) : (
             <button
+              type="button"
               onClick={onOpenAuth}
               className="group/signin flex items-center bg-terracotta rounded-xl px-3 py-2.5 text-sm font-bold text-paper shadow-[0_4px_12px_rgba(232,117,59,0.25)] transition-all duration-300 ease-out hover:shadow-[0_6px_16px_rgba(232,117,59,0.35)] hover:-translate-y-0.5 active:scale-[0.97]"
             >

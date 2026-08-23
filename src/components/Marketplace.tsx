@@ -2,10 +2,9 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
 import { Addon } from '../types';
 import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
-import { Skeleton } from './Skeleton';
+import { Skeleton, SkeletonCard } from './Skeleton';
 import { ViewState } from '../App';
-import { motion, AnimatePresence } from 'motion/react';
-import { SkeletonCard } from './Skeleton';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { CustomSelect } from './CustomSelect';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
@@ -34,6 +33,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
   const [showFilters, setShowFilters] = useState(false);
   const [filterPanelExpanded, setFilterPanelExpanded] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const [visibleCount, setVisibleCount] = useState(12);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -111,11 +111,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
 
   return (
     <section id="explore" className="relative min-h-[100dvh] pb-16" aria-label="Marketplace Explore">
-      <h1 className="sr-only">Minecraft Marketplace Add-ons</h1>
-
       <div className="relative border-b border-parchment-border bg-parchment-raised pt-16 pb-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-10">
+                  <motion.div initial={reduceMotion ? false : { opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={reduceMotion ? { duration: 0 } : { duration: 0.24 }} className="mb-10">
             <div className="inline-flex items-center gap-2 bg-terracotta rounded-full px-4 py-2 mb-6 shadow-sm">
               <Sparkles size={13} className="text-paper" />
               <span className="text-xs font-bold text-paper uppercase tracking-widest">Minecraft Marketplace</span>
@@ -128,7 +126,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             </p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex justify-center">
+                  <motion.div initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={reduceMotion ? { duration: 0 } : { delay: 0.06, duration: 0.24 }} className="flex justify-center">
             <div className="relative flex flex-col gap-4 bg-parchment-raised rounded-2xl shadow-card neumorph p-4 sm:p-5 w-full sm:w-[680px] lg:w-[840px] text-left glass">
               <div className="flex flex-col lg:flex-row items-stretch gap-3">
                 {/* Search input */}
@@ -136,7 +134,11 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/40" size={20} aria-hidden="true" />
                   <input
                     type="text"
+                    id="marketplace-search"
                     aria-label="Search add-ons, tags, authors"
+                    aria-controls="search-suggestions"
+                    aria-expanded={showSuggestions && searchSuggestions.length > 0}
+                    autoComplete="off"
                     placeholder="Search add-ons, tags, authors..."
                     value={searchQuery}
                     onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
@@ -153,16 +155,17 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         initial={{ opacity: 0, y: -6, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                        transition={{ duration: 0.15 }}
+                        transition={reduceMotion ? { duration: 0 } : { duration: 0.15 }}
                         className="absolute left-0 z-50 w-full rounded-lg bg-parchment-raised shadow-card neumorph overflow-hidden mt-2 glass"
                       >
                         {searchSuggestions.map(addon => (
                           <button
                             key={addon.id}
+                            type="button"
                             role="option"
                             aria-selected={false}
                             className="w-full p-2.5 text-left text-sm font-bold text-ink-900 hover:bg-terracotta/40 transition-colors flex items-center gap-3 border-b border-parchment-border last:border-b-0"
-                            onMouseDown={() => { onNavigate({ type: 'addon', id: addon.id }); setShowSuggestions(false); }}
+                            onClick={() => { onNavigate({ type: 'addon', id: addon.id }); setShowSuggestions(false); }}
                           >
                             <div className="h-10 w-10 shrink-0 overflow-hidden bg-ink-900 border border-parchment-border rounded-lg" aria-hidden="true">
                               <FadeImage src={addon.imageUrl} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
@@ -181,6 +184,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                 <div className="flex w-full lg:w-auto items-stretch gap-3">
                   <div className="hidden sm:flex items-center gap-1 bg-parchment-raised border border-parchment-border rounded-lg p-1 h-[56px]" role="group" aria-label="Quick Sort">
                     <button
+                      type="button"
                       onClick={() => setSortBy('newest')}
                       aria-pressed={sortBy === 'newest'}
                       className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'newest' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
@@ -188,6 +192,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                       Newest
                     </button>
                     <button
+                      type="button"
                       onClick={() => setSortBy('most_liked')}
                       aria-pressed={sortBy === 'most_liked'}
                       className={`h-full px-4 text-xs font-bold uppercase tracking-wide transition-colors rounded-md ${sortBy === 'most_liked' ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/70 hover:text-ink-900 hover:bg-ink-900/5'}`}
@@ -229,15 +234,16 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                        transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
                     onAnimationComplete={() => { if (showFilters) setFilterPanelExpanded(true); }}
                     className="w-full"
                     style={{ overflow: filterPanelExpanded ? 'visible' : 'hidden' }}
                   >
                     <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 pt-4 border-t border-parchment-border mt-1">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Category</label>
+                        <label htmlFor="filter-category" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Category</label>
                         <CustomSelect
+                          id="filter-category"
                           value={selectedCategory}
                           onChange={val => setSelectedCategory(val as CategoryOption)}
                           options={[
@@ -256,8 +262,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Sort By</label>
+                        <label htmlFor="filter-sort" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Sort By</label>
                         <CustomSelect
+                          id="filter-sort"
                           value={sortBy}
                           onChange={val => setSortBy(val as SortOption)}
                           options={[
@@ -269,8 +276,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Date</label>
+                        <label htmlFor="filter-date" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Date</label>
                         <CustomSelect
+                          id="filter-date"
                           value={dateRange}
                           onChange={val => setDateRange(val as DateRangeOption)}
                           options={[
@@ -282,8 +290,9 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Tag</label>
+                        <label htmlFor="filter-tag" className="text-[10px] font-bold text-ink-900 uppercase tracking-widest">Tag</label>
                         <input
+                          id="filter-tag"
                           type="text"
                           placeholder="Filter by tag... (pisahkan dengan koma)"
                           value={tagFilter}
@@ -354,25 +363,25 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             {selectedCategory !== 'All' && (
               <span className="inline-flex items-center gap-1.5 bg-terracotta-text rounded-lg px-3 py-1.5 text-xs font-bold text-white shadow-card">
                 {selectedCategory}
-                <button onClick={() => setSelectedCategory('All')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
+                <button type="button" aria-label="Remove category filter" onClick={() => setSelectedCategory('All')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
               </span>
             )}
             {tagFilter && (
               <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 Tag: {tagFilter}
-                <button onClick={() => setTagFilter('')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
+                <button type="button" aria-label="Remove tag filter" onClick={() => setTagFilter('')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
               </span>
             )}
             {authorFilter && (
               <span className="inline-flex items-center gap-1.5 bg-parchment-raised rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 Author: {authorFilter}
-                <button onClick={() => setAuthorFilter('')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
+                <button type="button" aria-label="Remove author filter" onClick={() => setAuthorFilter('')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
               </span>
             )}
             {dateRange !== 'all' && (
               <span className="inline-flex items-center gap-1.5 bg-terracotta rounded-lg px-3 py-1.5 text-xs font-bold text-ink-900 shadow-card">
                 {dateRange}
-                <button onClick={() => setDateRange('all')} className="hover:opacity-60 transition-opacity"><X size={11} /></button>
+                <button type="button" aria-label="Remove date filter" onClick={() => setDateRange('all')} className="hover:opacity-60 transition-opacity"><X aria-hidden="true" size={11} /></button>
               </span>
             )}
           </div>
@@ -388,6 +397,7 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
             <h3 className="text-lg font-bold text-ink-900">Nothing matches that search</h3>
             <p className="mt-1 text-sm font-normal text-ink-900/60">Try a different keyword, or clear your filters to see everything.</p>
               <button
+                type="button"
                 onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSortBy('newest'); setDateRange('all'); setTagFilter(''); setAuthorFilter(''); }}
                 className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ink-900 bg-terracotta rounded-lg shadow-card uppercase btn-3d"
               >
@@ -396,20 +406,18 @@ export function Marketplace({ addons, loading, userLikes, onToggleLike, onRequir
           </div>
         ) : (
           <motion.div
-            layout
             initial="hidden"
             animate="visible"
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: reduceMotion ? 0 : 0.04 } } }}
             className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'mx-auto flex w-full max-w-4xl flex-col divide-y divide-ink/10 overflow-hidden rounded-lg bg-parchment-raised shadow-card'}
           >
             <AnimatePresence mode="popLayout">
               {filteredAndSortedAddons.slice(0, visibleCount).map((addon, index) => (
                 <motion.div
-                  layout
                   key={addon.id}
-                  variants={{ hidden: { opacity: 0, scale: 0.96, y: 16 }, visible: { opacity: 1, scale: 1, y: 0 } }}
-                  exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-                  transition={{ duration: 0.54, ease: 'easeOut' }}
+                  variants={{ hidden: { opacity: 0, scale: 0.98, y: 8 }, visible: { opacity: 1, scale: 1, y: 0 } }}
+                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.98, transition: { duration: 0.12 } }}
+                  transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
                   className={layoutMode === 'list' ? 'w-full' : ''}
                 >
                   <AddonCard
