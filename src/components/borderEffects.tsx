@@ -431,13 +431,20 @@ export function ProfileAvatar({
 }: ProfileAvatarProps) {
   const effect = getBorderEffect(borderValue);
   const fallback = (displayName || '?').charAt(0).toUpperCase();
+  const hasPhoto = typeof photoURL === 'string' && photoURL.trim().length > 0;
 
   return (
     <div className={`relative ${sizeClassName} shrink-0 ${className}`}>
       {renderBorderDecoration(effect)}
       <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
-        {photoURL ? (
-          <FadeImage src={photoURL} alt={displayName || 'avatar'} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+        {hasPhoto ? (
+          <FadeImage
+            src={photoURL}
+            alt={displayName || 'avatar'}
+            className="h-full w-full object-cover"
+            referrerPolicy="no-referrer"
+            fallback={<span className={`font-bold text-ink-900 ${textSizeClassName}`}>{fallback}</span>}
+          />
         ) : (
           <span className={`font-bold text-ink-900 ${textSizeClassName}`}>{fallback}</span>
         )}

@@ -205,6 +205,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-900">
           <FadeImage
             src={coverImage}
+            fallbackSrc={addon.imageUrl}
             alt={addon.title}
             containerClassName="h-full w-full"
             className="h-full w-full object-cover"
@@ -283,6 +284,7 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, onToggl
       <div className={`relative ${compact ? 'aspect-[16/8]' : 'aspect-[16/10]'} w-full overflow-hidden bg-ink-900`}>
         <FadeImage
           src={coverImage}
+          fallbackSrc={addon.imageUrl}
           alt={addon.title}
           containerClassName="h-full w-full"
           className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"

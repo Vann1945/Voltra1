@@ -7,13 +7,14 @@ import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
 
 function parseJsonArray(value: unknown): string[] {
-  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  const clean = (items: unknown[]) => items
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .map((item) => item.trim());
+  if (Array.isArray(value)) return clean(value);
   if (typeof value !== 'string' || !value.trim()) return [];
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed)
-      ? parsed.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-      : [];
+    return Array.isArray(parsed) ? clean(parsed) : [];
   } catch {
     return [];
   }
@@ -21,7 +22,9 @@ function parseJsonArray(value: unknown): string[] {
 
 function rowToAddon(r: any, truncateDescription: boolean) {
   const DESCRIPTION_PREVIEW_LENGTH = 600;
-  const rawDescription: string = r.description || '';
+  const rawDescription: string = typeof r.description === 'string' ? r.description : '';
+  const imageUrl = typeof r.image_url === 'string' ? r.image_url.trim() : '';
+  const authorPhoto = typeof r.author_photo === 'string' && r.author_photo.trim() ? r.author_photo.trim() : null;
   const imageUrls = parseJsonArray(r.image_urls);
   return {
     id: r.id,
@@ -32,8 +35,8 @@ function rowToAddon(r: any, truncateDescription: boolean) {
     category: r.category,
     additionalCategory: r.additional_category,
     projectClass: r.project_class,
-    imageUrl: r.image_url,
-    imageUrls: imageUrls.length > 0 ? imageUrls : (typeof r.image_url === 'string' && r.image_url ? [r.image_url] : []),
+    imageUrl,
+    imageUrls: imageUrls.length > 0 ? imageUrls : (imageUrl ? [imageUrl] : []),
     panoramaUrl: r.panorama_url,
     tags: parseJsonArray(r.tags),
     downloadUrl: r.download_url,
@@ -43,7 +46,7 @@ function rowToAddon(r: any, truncateDescription: boolean) {
     socials: parseJsonArray(r.socials),
     authorId: r.author_id,
     authorName: r.resolved_author_name || r.author_name,
-    authorPhoto: r.author_photo || null,
+    authorPhoto,
     authorBorder: r.author_border || 'none',
     status: r.status,
     isFeatured: !!r.is_featured,
