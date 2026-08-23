@@ -2,12 +2,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { query } from '../src/lib/db.js';
-import { normalizeEmail } from '../src/lib/userStore.js';
+import { normalizeEmail, isAdminEmail } from '../src/lib/userStore.js';
 import { verifyRecaptcha } from '../src/lib/recaptcha.server.js';
 import { sendVerificationEmail } from '../src/lib/email.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
-import { getPublicSiteUrl } from '../src/lib/siteUrl.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -42,8 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 jam
     const uid = crypto.randomUUID();
-    // Registrasi publik selalu user; promosi admin harus dilakukan melalui kontrol admin/database.
-    const role = 'user';
+    const role = isAdminEmail(email) ? 'admin' : 'user';
 
     try {
       await query(
@@ -52,16 +50,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
          VALUES (?, ?, ?, NULL, ?, ?, FALSE, ?, ?)`,
         [uid, email, name, role, passwordHash, verifyToken, verifyTokenExpires]
       );
-    } catch (err: unknown) {
+    } catch (err: any) {
       // ER_DUP_ENTRY dari UNIQUE(email) — race condition dua request register
       // bersamaan, atau memang sudah terdaftar. Baik dari OAuth maupun manual.
-      if ((err as any)?.code === 'ER_DUP_ENTRY') {
+      if (err?.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ error: 'Email is already registered.' });
       }
       throw err;
     }
 
-    const origin = getPublicSiteUrl();
+    const origin = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`;
     const verifyUrl = `${origin}/api/verify-email?token=${verifyToken}&uid=${uid}`;
 
     try {
@@ -75,8 +73,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(201).json({ ok: true });
-  } catch (err: unknown) {
+  } catch (err: any) {
     safeLogError('[register] handler error:', err);
-    return res.status(500).json({ error: 'Internal server error.' });
+    return res.status(500).json({ error: err?.message || 'Internal server error.' });
   }
 }

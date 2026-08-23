@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import { query, queryOne } from '../src/lib/db.js';
 import { getSessionUser, requireUser } from '../src/lib/apiAuth.js';
 import { buildAddonPayload, AddonUploadInput, validateAddonPatch } from '../src/lib/utils.js';
-import { sanitizeDescriptionForStorage } from '../src/lib/sanitizeServer.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
 
@@ -63,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (id) {
     if (req.method === 'GET') {
       try {
-        const addon = await queryOne<{ status: string; author_id: string; [key: string]: unknown }>('SELECT * FROM addons WHERE id = ?', [id]);
+        const addon = await queryOne<any>('SELECT * FROM addons WHERE id = ?', [id]);
         if (!addon) return res.status(404).json({ error: 'Add-on not found.' });
 
         if (addon.status !== 'approved') {
@@ -98,25 +97,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const values: any[] = [];
 
         if (isAdmin && typeof body.status === 'string') { fields.push('status = ?'); values.push(body.status); }
-        if (isAdmin && typeof body.isFeatured === 'boolean') { fields.push('is_featured = ?'); values.push(body.isFeatured ? 1 : 0); }
+        if (isAdmin && typeof body.isFeatured === 'boolean') { fields.push('is_featured = ?'); values.push(body.isFeatured); }
         if (isAdmin && typeof body.category === 'string') { fields.push('category = ?'); values.push(body.category); }
         if (isAdmin && Array.isArray(body.tags)) { fields.push('tags = ?'); values.push(JSON.stringify(body.tags)); }
         if (typeof body.title === 'string') { fields.push('title = ?'); values.push(body.title); }
-        if (typeof body.description === 'string') { fields.push('description = ?'); values.push(sanitizeDescriptionForStorage(body.description)); }
+        if (typeof body.description === 'string') { fields.push('description = ?'); values.push(body.description); }
         if (typeof body.downloadUrl === 'string') { fields.push('download_url = ?'); values.push(body.downloadUrl); }
         if (typeof body.panoramaUrl === 'string') { fields.push('panorama_url = ?'); values.push(body.panoramaUrl); }
         if (typeof body.demoUrl === 'string') { fields.push('demo_url = ?'); values.push(body.demoUrl); }
-        if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted ? 1 : 0); }
-        if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments ? 1 : 0); }
+        if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted); }
+        if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments); }
 
         if (fields.length === 0) return res.status(400).json({ error: 'No fields were changed.' });
 
         values.push(id);
         await query(`UPDATE addons SET ${fields.join(', ')} WHERE id = ?`, values);
         return res.status(200).json({ ok: true });
-      } catch (err: unknown) {
+      } catch (err: any) {
         safeLogError('[api/addons PATCH] error:', err);
-        const status = (err as any)?.statusCode || 500;
+        const status = err?.statusCode || 500;
         return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to update add-on.' });
       }
     }
@@ -131,9 +130,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         await query('DELETE FROM addons WHERE id = ?', [id]);
         return res.status(200).json({ ok: true });
-      } catch (err: unknown) {
+      } catch (err: any) {
         safeLogError('[api/addons DELETE] error:', err);
-        const status = (err as any)?.statusCode || 500;
+        const status = err?.statusCode || 500;
         return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to delete add-on.' });
       }
     }
@@ -143,9 +142,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
-      if (!process.env.TIDB_HOST) {
-        return res.status(200).json({ addons: [] });
-      }
       const user = await getSessionUser(req);
       let rows: any[];
       if (user?.role === 'admin') {
@@ -173,8 +169,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const input = req.body as AddonUploadInput;
       const addonId = crypto.randomUUID();
       const payload = buildAddonPayload(input, addonId, user.uid, user.name || 'Anonymous');
-      // Sanitasi HTML deskripsi di server sebagai defense-in-depth sebelum disimpan.
-      payload.description = sanitizeDescriptionForStorage(payload.description);
 
       await query(
         `INSERT INTO addons
@@ -187,13 +181,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), payload.panoramaUrl,
           JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
           JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
-          payload.isFeatured ? 1 : 0, payload.unlisted ? 1 : 0, payload.allowComments ? 1 : 0,
+          payload.isFeatured, payload.unlisted, payload.allowComments,
         ]
       );
       return res.status(201).json({ id: addonId });
-    } catch (err: unknown) {
+    } catch (err: any) {
       safeLogError('[api/addons POST] error:', err);
-      const status = (err as any)?.statusCode || 500;
+      const status = err?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to create add-on.' });
     }
   }

@@ -132,11 +132,11 @@ function uploadToImgbb(file: File, onProgress: (pct: number) => void): Promise<s
 
         xhr.onload = () => {
           try {
-            const res = JSON.parse(xhr.responseText) as Record<string, unknown>;
-            if (xhr.status >= 200 && xhr.status < 300 && typeof res?.url === 'string') {
-              resolve(res.url);
+            const res = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300 && res?.url) {
+              resolve(res.url as string);
             } else {
-              reject(new Error((res?.error as string) || 'Upload failed, please try again.'));
+              reject(new Error(res?.error || 'Upload failed, please try again.'));
             }
           } catch {
             reject(new Error('Upload failed, please try again.'));
@@ -192,11 +192,11 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
 
         xhr.onload = () => {
           try {
-            const res = JSON.parse(xhr.responseText) as Record<string, unknown>;
-            if (xhr.status >= 200 && xhr.status < 300 && typeof res?.secure_url === 'string') {
-              resolve(res.secure_url);
+            const res = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300 && res?.secure_url) {
+              resolve(res.secure_url as string);
             } else {
-              reject(new Error(((res?.error as Record<string, unknown>)?.message as string) || 'Upload failed, please try again.'));
+              reject(new Error(res?.error?.message || 'Upload failed, please try again.'));
             }
           } catch {
             reject(new Error('Upload failed, please try again.'));

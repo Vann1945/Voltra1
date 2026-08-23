@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import type { OutputAsset } from 'rollup';
-import million from 'million/compiler';
 
 function inlineCssPlugin(): Plugin {
   return {
@@ -12,23 +11,28 @@ function inlineCssPlugin(): Plugin {
     enforce: 'post',
     generateBundle(_options, bundle) {
       const isAsset = (f: (typeof bundle)[string]): f is OutputAsset => f.type === 'asset';
+
       const htmlFile = Object.values(bundle).find((f) => isAsset(f) && f.fileName.endsWith('.html')) as
         | OutputAsset
         | undefined;
       if (!htmlFile) return;
+
       const cssFiles = Object.values(bundle).filter(
         (f) => isAsset(f) && f.fileName.endsWith('.css'),
       ) as OutputAsset[];
       if (cssFiles.length === 0) return;
+
       let html = htmlFile.source as string;
+
       for (const cssFile of cssFiles) {
         const linkRegex = new RegExp(
-          `<link[^>]*href="[^"]*${cssFile.fileName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}"[^>]*>`,
+          `<link[^>]*href="[^"]*${cssFile.fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`,
         );
         const cssSource = typeof cssFile.source === 'string' ? cssFile.source : Buffer.from(cssFile.source).toString('utf-8');
         html = html.replace(linkRegex, `<style>${cssSource}</style>`);
         delete bundle[cssFile.fileName];
       }
+
       htmlFile.source = html;
     },
   };
@@ -46,20 +50,12 @@ export default defineConfig(({mode}) => {
     },
     server: {
       host: '0.0.0.0',
-      port: 3002,
-      allowedHosts: true,
-      proxy: {
-        "/api": {
-          target: "https://voltra-marketplace.web.id",
-          changeOrigin: true,
-          secure: false,
-        }
-      },
+      port: 3000,
       hmr: process.env.DISABLE_HMR !== 'true',
     },
     build: {
       sourcemap: false,
-      target: 'esnext',
+      target: 'es2020',
       cssCodeSplit: false,
       cssMinify: true,
       minify: 'terser',
@@ -67,24 +63,15 @@ export default defineConfig(({mode}) => {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          pure_funcs: ['console.info', 'console.debug', 'console.warn'],
-          passes: 2
         },
-        format: {
-          comments: false
-        }
       },
       rollupOptions: {
-        treeshake: {
-          moduleSideEffects: false,
-          propertyReadSideEffects: false
-        },
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],
             'vendor-motion': ['motion/react'],
             'vendor-icons': ['lucide-react'],
-            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+            'vendor-firebase': ['firebase/app', 'firebase/auth'],
           },
         },
       },

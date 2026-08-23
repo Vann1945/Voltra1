@@ -54,8 +54,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Comment must be at most 1000 characters.' });
       }
 
-      const safeComment = typeof comment === 'string' ? comment.trim() : null;
-
       // Pastikan addonId benar-benar merujuk ke addon yang sudah disetujui —
       // tanpa ini, siapa pun bisa POST review ke ID sembarangan (termasuk
       // addon yang belum di-approve atau bahkan ID yang tidak ada sama
@@ -72,10 +70,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           await conn.execute(
             'INSERT INTO reviews (id, addon_id, user_id, user_name, user_photo, rating, comment) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [reviewId, addonId, user.uid, user.name, user.image || null, rating, safeComment]
+            [reviewId, addonId, user.uid, user.name, user.image || null, rating, comment?.trim() || null]
           );
-        } catch (err: unknown) {
-          if ((err as any)?.code === 'ER_DUP_ENTRY') {
+        } catch (err: any) {
+          if (err?.code === 'ER_DUP_ENTRY') {
             await conn.rollback();
             conn.release();
             return res.status(409).json({ error: 'You have already reviewed this add-on.' });
@@ -99,9 +97,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       return res.status(201).json({ id: reviewId });
-    } catch (err: unknown) {
+    } catch (err: any) {
       safeLogError('[api/reviews POST] error:', err);
-      const status = (err as any)?.statusCode || 500;
+      const status = err?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to submit review.' });
     }
   }

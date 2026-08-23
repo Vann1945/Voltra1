@@ -35,7 +35,11 @@ function RecaptchaWidget({ onChange }: { onChange: (token: string | null) => voi
     let cancelled = false;
     setStatus('loading');
     widgetIdRef.current = null;
-    if (containerRef.current) containerRef.current.innerHTML = '';
+    if (containerRef.current) {
+      while (containerRef.current.firstChild) {
+        containerRef.current.removeChild(containerRef.current.firstChild);
+      }
+    }
 
     loadRecaptcha()
       .then(() => {
@@ -215,7 +219,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
         if (onSuccess) onSuccess();
       }
     } catch (err: any) {
-      if (err.message === 'EMAIL_NOT_VERIFIED' || err.message?.includes('belum diverifikasi')) {
+      if (err.message === 'EMAIL_NOT_VERIFIED' || err.message?.includes('not yet verified') || err.message?.includes('belum diverifikasi')) {
         setView('unverified');
       } else {
         setError(err.message || 'Something went wrong.');

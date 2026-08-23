@@ -55,9 +55,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err: unknown) {
+  } catch (err: any) {
     safeLogError('[LikesJS] error:', err);
-    const status = (err as any)?.statusCode || 500;
+    const status = err?.statusCode || 500;
     return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process like.' });
   }
 }

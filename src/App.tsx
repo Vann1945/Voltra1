@@ -37,6 +37,18 @@ export const slugify = (text: string) =>
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 
+export const categoryToSlug = (category?: string): string => {
+  if (!category) return 'add-ons';
+  const normalized = category.trim().toLowerCase().replace(/\s+/g, '-');
+  if (normalized === 'add-on' || normalized === 'addon' || normalized === 'add-ons') return 'add-ons';
+  if (normalized === 'resource-pack' || normalized === 'resource-packs' || normalized === 'texture-pack' || normalized === 'texture-packs') return 'texture-pack';
+  return slugify(category) || 'add-ons';
+};
+
+const RESERVED_TOP_SEGMENTS = new Set([
+  'home', 'landing', 'streak', 'profile', 'admin', 'reset-password', 'author',
+]);
+
 function normalizeAppPath(pathname: string): string {
   const normalized = pathname.replace(/\/+$/, '') || '/';
   if (normalized === '/voltra') return '/';
@@ -178,9 +190,10 @@ function AppShell() {
   useEffect(() => {
     const handlePopState = () => {
       const path = normalizeAppPath(window.location.pathname);
-      const isAddonPath = path.startsWith('/addon/') || path.startsWith('/home/');
+      const segments = path.split('/').filter(Boolean);
+      const isAddonPath = segments.length === 2 && !RESERVED_TOP_SEGMENTS.has(segments[0]);
       if (isAddonPath) {
-        const slug = decodeURIComponent(path.split('/')[2] || '');
+        const slug = decodeURIComponent(segments[1]);
         const addon = addons.find(a => slugify(a.title) === slug || a.id === slug);
         if (addon) setCurrentView({ type: 'addon', id: addon.id });
         else if (!loading) setCurrentView('home');
@@ -204,7 +217,8 @@ function AppShell() {
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
       const addon = addons.find(a => a.id === view.id);
-      path = `/home/${addon ? slugify(addon.title) : view.id}`;
+      const prefix = categoryToSlug(addon?.category);
+      path = `/${prefix}/${addon ? slugify(addon.title) : view.id}`;
     } else if (typeof view === 'object' && view.type === 'author') {
       path = `/author/${view.id}`;
     }

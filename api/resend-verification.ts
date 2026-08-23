@@ -5,7 +5,6 @@ import { findUserByEmail } from '../src/lib/userStore.js';
 import { sendVerificationEmail } from '../src/lib/email.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
-import { getPublicSiteUrl } from '../src/lib/siteUrl.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -30,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       user.id,
     ]);
 
-    const origin = getPublicSiteUrl();
+    const origin = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`;
     const verifyUrl = `${origin}/api/verify-email?token=${verifyToken}&uid=${user.id}`;
     try {
       await sendVerificationEmail(user.email, verifyUrl);
@@ -38,8 +37,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       safeLogError('[ResendJS] email failed to send:', err);
     }
     return res.status(200).json({ ok: true });
-  } catch (err: unknown) {
+  } catch (err: any) {
     safeLogError('[ResendJS] handler error:', err);
-    return res.status(500).json({ error: 'Internal server error.' });
+    return res.status(500).json({ error: err?.message || 'Internal server error.' });
   }
 }
