@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Skeleton } from './Skeleton';
@@ -31,8 +31,11 @@ export function FadeImage({ className, containerClassName, src, alt, fallback, f
   const [activeSrc, setActiveSrc] = useState(normalizedSrc);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(!normalizedSrc);
+  const previousSrcRef = useRef(normalizedSrc);
 
   useEffect(() => {
+    if (previousSrcRef.current === normalizedSrc) return;
+    previousSrcRef.current = normalizedSrc;
     setActiveSrc(normalizedSrc);
     setIsLoaded(false);
     setHasError(!normalizedSrc);
