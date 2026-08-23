@@ -112,7 +112,7 @@ export function ReviewSection({ addonId, reviews, onReviewSubmitted, onReviewDel
   };
 
   return (
-    <div className="border-t border-parchment-border pt-8 mt-8">
+    <div className="pt-4">
       <h2 className="text-lg font-bold text-ink-900 uppercase mb-4 flex items-center gap-2">
         <MessageSquare size={18} /> Reviews {reviews.length > 0 && <span className="text-ink-900/40 font-normal normal-case">({reviews.length})</span>}
       </h2>

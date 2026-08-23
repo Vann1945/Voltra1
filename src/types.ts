@@ -14,6 +14,16 @@ export interface AddonSocial {
   url: string;
 }
 
+export interface AddonVersion {
+  id: string;
+  addonId: string;
+  version: string;
+  downloadUrl: string;
+  changelog?: string;
+  compatibilityNotes?: string;
+  createdAt: string;
+}
+
 export interface Addon {
   id: string;
   title: string;
@@ -38,6 +48,7 @@ export interface Addon {
   ratingCount?: number;
   status?: 'pending' | 'approved' | 'rejected';
   isFeatured?: boolean;
+  versions?: AddonVersion[];
   versionHistory?: string;
   compatibilityNotes?: string;
   changelog?: string;

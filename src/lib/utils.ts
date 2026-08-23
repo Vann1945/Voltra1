@@ -22,6 +22,13 @@ export function nowISO(): string {
   return new Date().toISOString();
 }
 
+export interface AddonVersionInput {
+  version: string;
+  downloadUrl: string;
+  changelog?: string;
+  compatibilityNotes?: string;
+}
+
 export interface AddonUploadInput {
   title: string;
   description: string;
@@ -33,6 +40,9 @@ export interface AddonUploadInput {
   imageUrls: string[];
   panoramaUrl: string;
   downloadUrl: string;
+  versions?: AddonVersionInput[];
+  changelog?: string;
+  compatibilityNotes?: string;
   demoUrl: string;
   license: string;
   distributionPref: string;
@@ -98,6 +108,9 @@ export function buildAddonPayload(
     imageUrls: input.imageUrls.length > 0 ? input.imageUrls : [input.imageUrl].filter(Boolean),
     panoramaUrl: input.panoramaUrl,
     downloadUrl: input.downloadUrl,
+    versions: input.versions || [{ version: '1.0.0', downloadUrl: input.downloadUrl, changelog: input.changelog || '', compatibilityNotes: input.compatibilityNotes || '' }],
+    changelog: input.changelog || '',
+    compatibilityNotes: input.compatibilityNotes || '',
     demoUrl: input.demoUrl || '',
     authorId,
     authorName,

@@ -5,6 +5,7 @@ import { getSessionUser, requireUser } from '../src/lib/apiAuth.js';
 import { buildAddonPayload, AddonUploadInput, validateAddonPatch } from '../src/lib/utils.js';
 import { checkRateLimit, getClientIp } from '../src/lib/rateLimit.js';
 import { safeLogError } from '../src/lib/safeLog.js';
+import { ensureFeatureTables } from '../src/lib/featureSchema.js';
 
 function parseJsonArray(value: unknown): string[] {
   const clean = (items: unknown[]) => items
@@ -81,6 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (id) {
     if (req.method === 'GET') {
       try {
+        await ensureFeatureTables();
         const addon = await queryOne<any>(
           `SELECT a.*, u.photo_url AS author_photo, u.profile_border AS author_border,
                   COALESCE(u.display_name, a.author_name) AS resolved_author_name
@@ -98,7 +100,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (!isOwner && !isAdmin) return res.status(404).json({ error: 'Add-on not found.' });
         }
 
-        return res.status(200).json({ addon: rowToAddon(addon, false) });
+        const versionRows = await query<any>(
+          'SELECT id, addon_id, version, download_url, changelog, compatibility_notes, created_at FROM addon_versions WHERE addon_id = ? ORDER BY created_at DESC',
+          [id]
+        );
+        const detail = rowToAddon(addon, false) as any;
+        detail.versions = versionRows.map(version => ({
+          id: version.id,
+          addonId: version.addon_id,
+          version: version.version,
+          downloadUrl: version.download_url,
+          changelog: version.changelog || '',
+          compatibilityNotes: version.compatibility_notes || '',
+          createdAt: new Date(version.created_at).toISOString(),
+        }));
+        return res.status(200).json({ addon: detail });
       } catch (err) {
         safeLogError('[api/addons GET id] error:', err);
         return res.status(500).json({ error: 'Failed to load add-on.' });
@@ -215,9 +231,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const allowed = await checkRateLimit(`create-addon:${user.uid}`, 10, 60 * 60_000);
       if (!allowed) return res.status(429).json({ error: 'Too many add-ons created in the last hour. Please try again later.' });
       const input = req.body as AddonUploadInput;
+      const versions = Array.isArray(input.versions) && input.versions.length > 0
+        ? input.versions
+        : [{ version: '1.0.0', downloadUrl: input.downloadUrl, changelog: '', compatibilityNotes: '' }];
+      if (versions.length > 2) return res.status(400).json({ error: 'An add-on can have at most two versions.' });
+      for (const version of versions) {
+        if (!version || typeof version.version !== 'string' || !version.version.trim() || version.version.length > 80) {
+          return res.status(400).json({ error: 'Each version needs a name of at most 80 characters.' });
+        }
+        if (typeof version.downloadUrl !== 'string' || !/^https?:\/\//.test(version.downloadUrl)) {
+          return res.status(400).json({ error: 'Each version needs a valid download URL.' });
+        }
+        if (typeof version.changelog === 'string' && version.changelog.length > 10000) {
+          return res.status(400).json({ error: 'Each changelog must be at most 10,000 characters.' });
+        }
+      }
       const addonId = crypto.randomUUID();
-      const payload = buildAddonPayload(input, addonId, user.uid, user.name || 'Anonymous');
+      const payload = buildAddonPayload({ ...input, downloadUrl: versions[0].downloadUrl, versions } as AddonUploadInput, addonId, user.uid, user.name || 'Anonymous');
 
+      await ensureFeatureTables();
       await query(
         `INSERT INTO addons
            (id, title, description, category, additional_category, project_class, image_url, image_urls,
@@ -232,7 +264,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           payload.isFeatured, payload.unlisted, payload.allowComments,
         ]
       );
-      return res.status(201).json({ id: addonId });
+      const versionPlaceholders = versions.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
+      const versionValues = versions.flatMap(version => [
+        crypto.randomUUID(),
+        addonId,
+        version.version.trim(),
+        version.downloadUrl.trim(),
+        version.changelog || '',
+        version.compatibilityNotes || '',
+      ]);
+      await query(
+        `INSERT INTO addon_versions (id, addon_id, version, download_url, changelog, compatibility_notes) VALUES ${versionPlaceholders}`,
+        versionValues
+      );
+      return res.status(201).json({ id: addonId, versions: versions.length });
     } catch (err: any) {
       safeLogError('[api/addons POST] error:', err);
       const status = err?.statusCode || 500;

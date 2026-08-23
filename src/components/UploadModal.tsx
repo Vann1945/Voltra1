@@ -32,6 +32,14 @@ const PROJECT_LICENSES = [
 const STEPS = ['general', 'description', 'license'] as const;
 type Step = typeof STEPS[number];
 
+type DraftVersion = {
+  version: string;
+  downloadUrl: string;
+  changelog: string;
+  compatibilityNotes: string;
+  fileName?: string;
+};
+
 const ADDON_CATEGORIES = ['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack'];
 
 function getAddonPayloadError(data: Record<string, unknown>): string {
@@ -275,6 +283,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     socials: [] as { platform: string; url: string }[],
   });
 
+  const [versions, setVersions] = useState<DraftVersion[]>([
+    { version: '1.0.0', downloadUrl: '', changelog: '', compatibilityNotes: '' },
+  ]);
+  const versionFileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [versionUploadProgress, setVersionUploadProgress] = useState<Record<number, number | null>>({});
   const [step, setStep] = useState<Step>('general');
   const [stepError, setStepError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -356,6 +369,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     try {
       const downloadUrl = await uploadAddonFile(file, pct => setFileUploadProgress(pct));
       setFormData(prev => ({ ...prev, downloadUrl }));
+      setVersions(prev => prev.map((version, index) => index === 0 ? { ...version, downloadUrl, fileName: file.name } : version));
       setUploadedFileName(file.name);
       showToast('File uploaded successfully.', 'success');
     } catch (err: unknown) {
@@ -365,9 +379,46 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   };
 
+  const handleVersionFileSelected = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setVersionUploadProgress(prev => ({ ...prev, [index]: 0 }));
+    try {
+      const downloadUrl = await uploadAddonFile(file, pct => setVersionUploadProgress(prev => ({ ...prev, [index]: pct })));
+      setVersions(prev => prev.map((version, versionIndex) => versionIndex === index ? { ...version, downloadUrl, fileName: file.name } : version));
+      if (index === 0) {
+        setFormData(prev => ({ ...prev, downloadUrl }));
+        setUploadedFileName(file.name);
+      }
+      showToast(`Version ${index + 1} file uploaded successfully.`, 'success');
+    } catch (err: unknown) {
+      showToast((err as Error)?.message || 'Failed to upload version file.', 'error');
+    } finally {
+      setVersionUploadProgress(prev => ({ ...prev, [index]: null }));
+    }
+  };
+
+  const updateVersion = (index: number, patch: Partial<DraftVersion>) => {
+    setVersions(prev => prev.map((version, versionIndex) => versionIndex === index ? { ...version, ...patch } : version));
+    if (index === 0 && patch.downloadUrl !== undefined) {
+      setFormData(prev => ({ ...prev, downloadUrl: patch.downloadUrl || '' }));
+      if (!patch.downloadUrl) setUploadedFileName('');
+    }
+  };
+
+  const addVersion = () => {
+    setVersions(prev => prev.length >= 2 ? prev : [...prev, { version: '', downloadUrl: '', changelog: '', compatibilityNotes: '' }]);
+  };
+
+  const removeVersion = (index: number) => {
+    if (index === 0) return;
+    setVersions(prev => prev.filter((_, versionIndex) => versionIndex !== index));
+  };
+
   const clearUploadedFile = () => {
     setUploadedFileName('');
-    setFormData(prev => ({ ...prev, downloadUrl: '' }));
+    updateVersion(0, { downloadUrl: '', fileName: '' });
   };
 
   const removeImage = (url: string) => {
@@ -386,9 +437,16 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const validateStep = (s: Step): string => {
     if (s === 'general') {
       if (!formData.title.trim()) return 'Title is mandatory.';
-      if (!formData.downloadUrl.trim()) return 'Download URL is required.';
-      if (!isValidHttpUrl(formData.downloadUrl)) return 'Download URL must start with http:// or https://.';
+      if (!formData.downloadUrl.trim()) return 'Download URL is required for version 1.';
+      if (!isValidHttpUrl(formData.downloadUrl)) return 'Version 1 download URL must start with http:// or https://.';
       if (!formData.imageUrl && formData.imageUrls.length === 0) return 'At least 1 cover image must be filled in.';
+      if (versions.length > 2) return 'You can add at most two versions.';
+      for (let index = 0; index < versions.length; index++) {
+        const version = versions[index];
+        if (!version.version.trim()) return `Version ${index + 1} name is required.`;
+        if (!version.downloadUrl.trim() || !isValidHttpUrl(version.downloadUrl)) return `Version ${index + 1} needs a valid download URL.`;
+        if (version.changelog.length > 10000) return `Version ${index + 1} changelog is too long.`;
+      }
       if (formData.panoramaUrl.trim() && !isValidHttpUrl(formData.panoramaUrl)) return 'Panorama URL must start with http:// or https://.';
     }
     if (s === 'description') {
@@ -459,6 +517,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         imageUrls: formData.imageUrls.length > 0 ? formData.imageUrls : [formData.imageUrl].filter(Boolean),
         panoramaUrl: formData.panoramaUrl,
         downloadUrl: formData.downloadUrl,
+        versions: versions.map(({ fileName, ...version }) => version),
         demoUrl: formData.demoUrl || '',
         license: formData.license,
         distributionPref: formData.distributionPref,
@@ -498,6 +557,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           imageUrls: formData.imageUrls,
           panoramaUrl: formData.panoramaUrl,
           downloadUrl: formData.downloadUrl,
+          versions: versions.map(({ fileName, ...version }) => version),
           demoUrl: formData.demoUrl,
           license: formData.license,
           distributionPref: formData.distributionPref,
@@ -738,64 +798,76 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       </div>
 
                       <div className="mb-5">
-                        <Label htmlFor="upload-download-url" hint>Download File / URL *</Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Upload your file — it's hosted for you automatically. Or paste your own link instead.
-                        </p>
-
-                        {uploadedFileName ? (
-                          <div className="flex items-center justify-between gap-3 border border-parchment-border rounded-lg bg-parchment-raised px-4 py-2.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-ink-900 min-w-0">
-                              <Check size={14} className="text-ink-900 shrink-0" />
-                              <span className="truncate">{uploadedFileName}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={clearUploadedFile}
-                              className="shrink-0 text-[11px] font-bold text-ink-900/50 uppercase underline hover:text-ink-900 transition-colors"
-                            >
-                              Change
+                        <div className="flex items-end justify-between gap-4">
+                          <div>
+                            <Label hint>Project Versions *</Label>
+                            <p className="text-[11px] font-medium text-ink-900/50">Keep up to two downloadable versions in one addon category.</p>
+                          </div>
+                          {versions.length < 2 && (
+                            <button type="button" onClick={addVersion} className="shrink-0 text-xs font-bold text-terracotta-text underline underline-offset-2 hover:text-terracotta-ink">
+                              + Add version
                             </button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <TextInput
-                              id="upload-download-url"
-                              required
-                              type="url"
-                              value={formData.downloadUrl}
-                              onChange={e => setFormData({ ...formData, downloadUrl: e.target.value })}
-                              placeholder="https://... or upload a file →"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => addonFileInputRef.current?.click()}
-                              disabled={fileUploadProgress !== null}
-                              title="Upload file"
-                              className="shrink-0 px-4 py-2.5 rounded-lg bg-terracotta text-paper font-bold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105 active:brightness-95 transition-all"
-                            >
-                              {fileUploadProgress !== null ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <FileArchive size={16} />}
-                            </button>
-                            <input
-                              type="file"
-                              ref={addonFileInputRef}
-                              onChange={handleAddonFileSelected}
-                              accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip"
-                              className="hidden"
-                            />
-                          </div>
-                        )}
+                          )}
+                        </div>
 
-                        {fileUploadProgress !== null && (
-                          <div className="mt-2">
-                            <div className="h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
-                              <div className="h-full bg-terracotta-soft transition-all duration-200" style={{ width: `${fileUploadProgress}%` }} />
+                        <div className="mt-4 space-y-4">
+                          {versions.map((version, index) => (
+                            <div key={index} className="rounded-2xl border border-parchment-border bg-parchment p-4 shadow-sm">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Version {index + 1}</p>
+                                  <p className="mt-1 text-[11px] font-medium text-ink-900/50">{index === 0 ? 'This is the default download.' : 'Optional update for existing users.'}</p>
+                                </div>
+                                {index > 0 && <button type="button" onClick={() => removeVersion(index)} className="rounded-lg p-1.5 text-ink-900/45 hover:bg-danger/[0.08] hover:text-danger" aria-label={`Remove version ${index + 1}`}><Trash2 size={15} /></button>}
+                              </div>
+
+                              <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,160px)_1fr]">
+                                <TextInput
+                                  id={`upload-version-${index + 1}`}
+                                  required
+                                  value={version.version}
+                                  onChange={event => updateVersion(index, { version: event.target.value })}
+                                  placeholder={index === 0 ? '1.0.0' : '1.1.0'}
+                                  aria-label={`Version ${index + 1} name`}
+                                />
+                                <div className="flex min-w-0 gap-2">
+                                  <TextInput
+                                    id={`upload-version-url-${index + 1}`}
+                                    required
+                                    type="url"
+                                    value={version.downloadUrl}
+                                    onChange={event => updateVersion(index, { downloadUrl: event.target.value, fileName: '' })}
+                                    placeholder="https://..."
+                                    aria-label={`Version ${index + 1} download URL`}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => index === 0 ? addonFileInputRef.current?.click() : versionFileInputRefs.current[index]?.click()}
+                                    disabled={index === 0 ? fileUploadProgress !== null : versionUploadProgress[index] !== null}
+                                    title={`Upload version ${index + 1} file`}
+                                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition-[background-color,transform] duration-150 hover:bg-terracotta-text active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    {index === 0 && fileUploadProgress !== null || index > 0 && versionUploadProgress[index] !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} />}
+                                  </button>
+                                  {index === 0 ? (
+                                    <input type="file" ref={addonFileInputRef} onChange={handleAddonFileSelected} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip" className="hidden" />
+                                  ) : (
+                                    <input type="file" ref={element => { versionFileInputRefs.current[index] = element; }} onChange={event => handleVersionFileSelected(event, index)} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip" className="hidden" />
+                                  )}
+                                </div>
+                              </div>
+
+                              {(version.fileName || index === 0 && uploadedFileName) && <p className="mt-2 flex items-center gap-2 text-[11px] font-bold text-success"><Check size={13} />{version.fileName || uploadedFileName}</p>}
+                              <label htmlFor={`upload-version-changelog-${index + 1}`} className="mt-4 block text-xs font-bold uppercase tracking-widest text-ink-900/60">Changelog</label>
+                              <textarea id={`upload-version-changelog-${index + 1}`} value={version.changelog} onChange={event => updateVersion(index, { changelog: event.target.value })} rows={3} maxLength={10000} placeholder={index === 0 ? 'What is included in this release?' : 'What changed since the previous version?'} className={`${getInputClasses()} mt-2 resize-y`} />
+                              <label htmlFor={`upload-version-compatibility-${index + 1}`} className="mt-3 block text-xs font-bold uppercase tracking-widest text-ink-900/60">Compatibility notes <span className="font-medium normal-case tracking-normal text-ink-900/40">(optional)</span></label>
+                              <TextInput id={`upload-version-compatibility-${index + 1}`} value={version.compatibilityNotes} onChange={event => updateVersion(index, { compatibilityNotes: event.target.value })} placeholder="Minecraft 1.21+" className="mt-2" />
                             </div>
-                            <p className="text-[10px] font-bold text-ink-900/50 uppercase mt-1">
-                              Uploading… {Math.round(fileUploadProgress)}%
-                            </p>
-                          </div>
-                        )}
+                          ))}
+                        </div>
+
+                        {fileUploadProgress !== null && <p className="mt-2 text-[10px] font-bold uppercase text-ink-900/50">Uploading version 1… {Math.round(fileUploadProgress)}%</p>}
+                        {Object.entries(versionUploadProgress).map(([index, progress]) => progress !== null && <p key={index} className="mt-2 text-[10px] font-bold uppercase text-ink-900/50">Uploading version {Number(index) + 1}… {Math.round(progress)}%</p>)}
                       </div>
 
                       <div className="mb-5">

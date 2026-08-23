@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Addon, Review } from '../types';
+import { Addon, AddonVersion, Review } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { ArrowLeft, Download, AlertTriangle, ArrowDownToLine, Check, ExternalLink, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronLeft, ChevronRight, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
 import { ViewState } from '../App';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
@@ -37,13 +37,15 @@ interface AddonDetailProps {
   addons: Addon[];
   loading?: boolean;
   userLikes: Set<string>;
+  userBookmarks: Set<string>;
   onToggleLike: (addonId: string, isLiked: boolean) => void;
+  onToggleBookmark: (addonId: string, isBookmarked: boolean) => void;
   onRequireAuth: () => void;
   onNavigate: (view: ViewState) => void;
   isDarkMode: boolean;
 }
 
-export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate, isDarkMode }: AddonDetailProps) {
+export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate, isDarkMode }: AddonDetailProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -57,9 +59,17 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [videoActivated, setVideoActivated] = useState(false);
+  const [versions, setVersions] = useState<AddonVersion[]>([]);
+  const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
+  const [isVersionEditorOpen, setIsVersionEditorOpen] = useState(false);
+  const [isVersionSaving, setIsVersionSaving] = useState(false);
+  const [versionDraft, setVersionDraft] = useState({ version: '', downloadUrl: '', changelog: '', compatibilityNotes: '' });
 
   const addon = addons.find(a => a.id === addonId);
   const isLiked = userLikes.has(addonId);
+  const isBookmarked = userBookmarks.has(addonId);
+  const activeVersion = versions.find(version => version.id === selectedVersionId) || versions[0];
+  const activeDownloadUrl = activeVersion?.downloadUrl || addon?.downloadUrl || '';
   const [fullDescription, setFullDescription] = useState<string | null>(null);
   const images = useMemo(
     () => (addon?.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls : [addon?.imageUrl || '']),
@@ -75,6 +85,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
       .then(data => {
         if (!cancelled && data?.addon?.description !== undefined) {
           setFullDescription(data.addon.description);
+          const loadedVersions = Array.isArray(data.addon.versions) ? data.addon.versions as AddonVersion[] : [];
+          const resolvedVersions = loadedVersions.length > 0 ? loadedVersions : data.addon.downloadUrl ? [{ id: `legacy-${data.addon.id}`, addonId: data.addon.id, version: 'Current', downloadUrl: data.addon.downloadUrl, changelog: data.addon.changelog || '', compatibilityNotes: data.addon.compatibilityNotes || '', createdAt: data.addon.createdAt }] : [];
+          setVersions(resolvedVersions);
+          setSelectedVersionId(resolvedVersions[0]?.id || null);
         }
       })
       .catch(() => {});
@@ -223,13 +237,18 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     e.preventDefault();
     if (isDownloading || downloadSuccess || !addon) return;
 
+    if (!activeDownloadUrl) {
+      showToast('No download is available for this version.', 'error');
+      return;
+    }
+
     // Buka tab download LANGSUNG (masih di dalam user-gesture sinkron dari
     // klik ini). Menunda window.open() di balik await/setTimeout membuat
     // browser menganggapnya popup dan memblokirnya.
     const downloadWindow = window.open('', '_blank');
     if (downloadWindow) {
       downloadWindow.opener = null;
-      downloadWindow.location.href = addon.downloadUrl;
+      downloadWindow.location.href = activeDownloadUrl;
     } else {
       showToast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu coba lagi.', 'error');
     }
@@ -258,8 +277,35 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
     onToggleLike(addon.id, isLiked);
   };
 
+  const handleBookmarkClick = () => {
+    if (!user) { onRequireAuth(); return; }
+    onToggleBookmark(addon.id, isBookmarked);
+    showToast(isBookmarked ? 'Removed from bookmarks.' : 'Saved to bookmarks.', 'success');
+  };
+
+  const handleSaveVersion = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user || (user.uid !== addon.authorId && user.role !== 'admin')) return;
+    setIsVersionSaving(true);
+    try {
+      const res = await fetch('/api/versions', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addonId: addon.id, ...versionDraft }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'Failed to add version.');
+      const created: AddonVersion = { id: data.id, addonId: addon.id, version: data.version, downloadUrl: data.downloadUrl, changelog: data.changelog || '', compatibilityNotes: data.compatibilityNotes || '', createdAt: data.createdAt || new Date().toISOString() };
+      setVersions(prev => [created, ...prev]);
+      setSelectedVersionId(created.id);
+      setVersionDraft({ version: '', downloadUrl: '', changelog: '', compatibilityNotes: '' });
+      setIsVersionEditorOpen(false);
+      showToast('New version added.', 'success');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to add version.', 'error');
+    } finally {
+      setIsVersionSaving(false);
+    }
+  };
+
   return (
-    <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 pb-32 pt-8 sm:px-6 sm:py-12 lg:px-8">
       <button
         onClick={() => onNavigate('home')}
         className="mb-8 inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-ink-900/65 transition-colors hover:bg-ink-900/[0.04] hover:text-ink-900"
@@ -343,24 +389,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
               </div>
             </div>
 
-            <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
-              <button
-                onClick={() => setIsReportModalOpen(true)}
-                className={getButtonClasses('secondary', 'md')}
-                title="Report"
-              >
-                <AlertTriangle size={18} />
-              </button>
-              <button
-                onClick={handleDownloadClick}
-                disabled={isDownloading}
-                className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'lg')}`}
-              >
-                {isDownloading ? (
-                  <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
-                ) : downloadSuccess ? <Check size={18} /> : <Download size={18} />}
-                {isDownloading ? 'Downloading...' : downloadSuccess ? 'Downloaded!' : 'Download'}
-              </button>
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+              <button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'md')} gap-2`} title="Report"><AlertTriangle size={17} /><span className="hidden sm:inline">Report</span></button>
+              <button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'md')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`} aria-pressed={isLiked}><Heart size={17} className={isLiked ? 'fill-current' : ''} /><span className="hidden sm:inline">{isLiked ? 'Liked' : 'Like'}</span></button>
+              <button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'md')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`} aria-pressed={isBookmarked}><Bookmark size={17} className={isBookmarked ? 'fill-current' : ''} /><span className="hidden sm:inline">{isBookmarked ? 'Saved' : 'Bookmark'}</span></button>
             </div>
           </div>
 
@@ -413,21 +445,27 @@ export function AddonDetail({ addonId, addons, loading, userLikes, onToggleLike,
             </div>
           </div>
 
-          <ReviewSection
-            addonId={addon.id}
-            reviews={reviews}
-            onReviewSubmitted={review => setReviews(prev => [review, ...prev])}
-            onReviewDeleted={reviewId => setReviews(prev => prev.filter(review => review.id !== reviewId))}
-            onRequireAuth={onRequireAuth}
-          />
+          <section className="mt-8 rounded-2xl border border-parchment-border bg-parchment p-5 sm:p-6" aria-labelledby="versions-title">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div><h2 id="versions-title" className="flex items-center gap-2 text-lg font-bold text-ink-900"><History size={18} /> Versions & changelog</h2><p className="mt-1 text-sm text-ink-900/55">Choose the release that matches your Minecraft setup.</p></div>
+              {(user?.uid === addon.authorId || user?.role === 'admin') && versions.length < 2 && <button type="button" onClick={() => setIsVersionEditorOpen(value => !value)} className={getButtonClasses('secondary', 'sm')}>{isVersionEditorOpen ? 'Close editor' : 'Add version'}</button>}
+            </div>
+            {versions.length > 0 ? <div className="mt-5 grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]"><div className="space-y-2">{versions.map(version => <button key={version.id} type="button" onClick={() => setSelectedVersionId(version.id)} className={`w-full rounded-xl border px-4 py-3 text-left transition-colors ${activeVersion?.id === version.id ? 'border-terracotta bg-terracotta/10' : 'border-parchment-border bg-parchment-raised hover:border-terracotta/60'}`}><span className="block text-sm font-bold text-ink-900">{version.version}</span><span className="mt-1 block text-xs text-ink-900/50">{new Date(version.createdAt).toLocaleDateString()}</span></button>)}</div><div className="min-h-32 rounded-xl bg-parchment-raised p-4"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">{activeVersion?.version || 'Latest release'}</p><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink-900/70">{activeVersion?.changelog || 'No changelog was provided for this release.'}</p>{activeVersion?.compatibilityNotes && <p className="mt-4 border-t border-parchment-border pt-3 text-xs font-semibold text-ink-900/55">Compatibility: {activeVersion.compatibilityNotes}</p>}</div></div> : <p className="mt-5 rounded-xl bg-parchment-raised p-4 text-sm text-ink-900/55">No version history has been published yet.</p>}
+            {isVersionEditorOpen && <form onSubmit={handleSaveVersion} className="mt-5 grid gap-3 border-t border-parchment-border pt-5 sm:grid-cols-2"><input required value={versionDraft.version} onChange={event => setVersionDraft(prev => ({ ...prev, version: event.target.value }))} placeholder="Version e.g. 1.1.0" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><input required type="url" value={versionDraft.downloadUrl} onChange={event => setVersionDraft(prev => ({ ...prev, downloadUrl: event.target.value }))} placeholder="Download URL" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><textarea value={versionDraft.changelog} onChange={event => setVersionDraft(prev => ({ ...prev, changelog: event.target.value }))} rows={3} placeholder="What changed in this release?" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 sm:col-span-2" /><input value={versionDraft.compatibilityNotes} onChange={event => setVersionDraft(prev => ({ ...prev, compatibilityNotes: event.target.value }))} placeholder="Compatibility notes (optional)" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex justify-end sm:col-span-2"><button type="submit" disabled={isVersionSaving} className={`${getButtonClasses('primary', 'sm')} disabled:opacity-50`}>{isVersionSaving ? 'Saving…' : 'Publish version'}</button></div></form>}
+          </section>
+
         </div>
       </article>
 
-      {addon.panoramaUrl && (
-        <div className="mt-8">
-          <PanoramaViewer src={addon.panoramaUrl} alt={`${addon.title} panorama`} />
-        </div>
-      )}
+      <section className="mt-6 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-label="Project actions">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-parchment-border pb-4"><p className="text-sm font-bold text-ink-900">Want to keep this project?</p><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'sm')} gap-2`}><AlertTriangle size={15} />Report</button><button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Heart size={15} className={isLiked ? 'fill-current' : ''} />{isLiked ? 'Liked' : 'Like'}</button><button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} />{isBookmarked ? 'Saved' : 'Bookmark'}</button></div></div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Download release</p><p className="mt-1 text-sm font-bold text-ink-900">{activeVersion?.version || 'Current version'}</p><p className="mt-1 text-xs text-ink-900/50">{activeVersion?.compatibilityNotes || 'Choose a version above if this project has multiple releases.'}</p></div>{versions.length > 0 && <label className="text-xs font-bold text-ink-900/55">Version<select value={activeVersion?.id || ''} onChange={event => setSelectedVersionId(event.target.value)} className="ml-2 rounded-lg border border-parchment-border bg-parchment px-2 py-2 text-xs font-bold text-ink-900"><option value="">Default</option>{versions.map(version => <option key={version.id} value={version.id}>{version.version}</option>)}</select></label>}</div>
+        <button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 text-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />Downloading {downloadProgress}%</> : downloadSuccess ? <><Check size={18} />Downloaded!</> : <><Download size={18} />Download {activeVersion?.version || 'project'}</>}</button>
+      </section>
+
+      {addon.panoramaUrl && <div className="mt-8"><PanoramaViewer src={addon.panoramaUrl} alt={`${addon.title} panorama`} /></div>}
+
+      <section className="mt-8 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-8" aria-label="Comments and reviews"><div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-terracotta-text"><MessageSquare size={14} /> Community feedback</div><ReviewSection addonId={addon.id} reviews={reviews} onReviewSubmitted={review => setReviews(prev => [review, ...prev])} onReviewDeleted={reviewId => setReviews(prev => prev.filter(review => review.id !== reviewId))} onRequireAuth={onRequireAuth} /></section>
 
       <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} addonId={addon.id} />
     </div>

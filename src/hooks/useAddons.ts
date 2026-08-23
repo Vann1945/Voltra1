@@ -9,6 +9,7 @@ export function useAddons() {
   const { user } = useAuth();
   const [addons, setAddons] = useState<Addon[]>([]);
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [userBookmarks, setUserBookmarks] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const lastFetchedAtRef = useRef(0);
   const addonsRequestRef = useRef<AbortController | null>(null);
@@ -49,6 +50,21 @@ export function useAddons() {
       }
     }
   }, []);
+
+  const fetchBookmarks = useCallback(async () => {
+    if (!user) {
+      setUserBookmarks(new Set());
+      return;
+    }
+    try {
+      const res = await fetch('/api/bookmarks', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setUserBookmarks(new Set<string>(Array.isArray(data.addonIds) ? data.addonIds : []));
+    } catch (err) {
+      console.error('Error fetching bookmarks:', err);
+    }
+  }, [user]);
 
   const fetchLikes = useCallback(async () => {
     if (!user) {
@@ -91,7 +107,8 @@ export function useAddons() {
 
   useEffect(() => {
     fetchLikes();
-  }, [fetchLikes]);
+    fetchBookmarks();
+  }, [fetchLikes, fetchBookmarks]);
 
   useEffect(() => {
     const handleProfileUpdated = (event: Event) => {
@@ -138,9 +155,36 @@ export function useAddons() {
     }
   };
 
+  const toggleBookmark = async (addonId: string, isBookmarked: boolean) => {
+    if (!user) return;
+    setUserBookmarks(prev => {
+      const next = new Set(prev);
+      if (isBookmarked) next.delete(addonId); else next.add(addonId);
+      return next;
+    });
+    try {
+      const res = await fetch('/api/bookmarks', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addonId, isBookmarked }),
+      });
+      if (!res.ok) throw new Error('Failed to toggle bookmark.');
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+      fetchBookmarks();
+    }
+  };
+
   const removeAddon = useCallback((addonId: string) => {
     setAddons(current => current.filter(addon => addon.id !== addonId));
     setUserLikes(current => {
+      if (!current.has(addonId)) return current;
+      const next = new Set(current);
+      next.delete(addonId);
+      return next;
+    });
+    setUserBookmarks(current => {
       if (!current.has(addonId)) return current;
       const next = new Set(current);
       next.delete(addonId);
@@ -166,5 +210,5 @@ export function useAddons() {
     return data.id as string;
   }, [user, fetchAddons]);
 
-  return { addons, loading, userLikes, toggleLike, createAddon, removeAddon, refetchAddons: fetchAddons };
+  return { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, createAddon, removeAddon, refetchAddons: fetchAddons };
 }

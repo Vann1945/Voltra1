@@ -15,12 +15,14 @@ interface AuthorProfileProps {
   addons: Addon[];
   loading: boolean;
   userLikes: Set<string>;
+  userBookmarks: Set<string>;
   onToggleLike: (addonId: string, isLiked: boolean) => void;
+  onToggleBookmark: (addonId: string, isBookmarked: boolean) => void;
   onRequireAuth: () => void;
   onNavigate: (view: ViewState) => void;
 }
 
-export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLike, onRequireAuth, onNavigate }: AuthorProfileProps) {
+export function AuthorProfile({ authorId, addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate }: AuthorProfileProps) {
   const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
   const [authorBorder, setAuthorBorder] = useState<string>('none');
   const { user } = useAuth();
@@ -116,13 +118,7 @@ export function AuthorProfile({ authorId, addons, loading, userLikes, onToggleLi
           >
             {authorAddons.map(addon => (
               <motion.div key={addon.id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                <AddonCard
-                  addon={addon}
-                  isLiked={userLikes.has(addon.id)}
-                  onToggleLike={onToggleLike}
-                  onRequireAuth={onRequireAuth}
-                  onNavigate={onNavigate}
-                />
+                <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={onRequireAuth} onNavigate={onNavigate} />
               </motion.div>
             ))}
           </motion.div>

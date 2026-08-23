@@ -63,12 +63,14 @@ interface UserProfileProps {
   addons: Addon[];
   loading: boolean;
   userLikes: Set<string>;
+  userBookmarks: Set<string>;
   onToggleLike: (addonId: string, isLiked: boolean) => void;
+  onToggleBookmark: (addonId: string, isBookmarked: boolean) => void;
   onNavigate: (view: ViewState) => void;
   onAddonDeleted: (addonId: string) => void;
 }
 
-export function UserProfile({ addons, loading, userLikes, onToggleLike, onNavigate, onAddonDeleted }: UserProfileProps) {
+export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onNavigate, onAddonDeleted }: UserProfileProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -407,7 +409,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             >
               {myUploads.map(addon => (
                 <motion.div key={addon.id} className="relative group" variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to bookmark projects.', 'error')} onNavigate={onNavigate} />
                   <button
                     onClick={e => { e.stopPropagation(); setAddonToDelete(addon.id); }}
                     aria-label={`Delete ${addon.title}`}
@@ -445,7 +447,7 @@ export function UserProfile({ addons, loading, userLikes, onToggleLike, onNaviga
             >
               {myLikes.map(addon => (
                 <motion.div key={addon.id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} onToggleLike={onToggleLike} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to bookmark projects.', 'error')} onNavigate={onNavigate} />
                 </motion.div>
               ))}
             </motion.div>

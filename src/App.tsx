@@ -18,12 +18,14 @@ const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ def
 const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 const StreakApp = lazy(() => import('./StreakApp').then(m => ({ default: m.default })));
+const BookmarksPage = lazy(() => import('./components/BookmarksPage').then(m => ({ default: m.BookmarksPage })));
 
 export type ViewState =
   | 'landing'
   | 'streak'
   | 'home'
   | 'profile'
+  | 'bookmarks'
   | 'admin'
   | { type: 'addon', id: string }
   | { type: 'author', id: string }
@@ -46,7 +48,7 @@ export const categoryToSlug = (category?: string): string => {
 };
 
 const RESERVED_TOP_SEGMENTS = new Set([
-  'home', 'landing', 'streak', 'profile', 'admin', 'reset-password', 'author',
+  'home', 'landing', 'streak', 'profile', 'bookmarks', 'admin', 'reset-password', 'author',
 ]);
 
 function normalizeAppPath(pathname: string): string {
@@ -62,6 +64,7 @@ function getInitialView(pathname: string, search: string): ViewState {
   if (path === '/landing') return 'landing';
   if (path === '/streak') return 'streak';
   if (path === '/profile') return 'profile';
+  if (path === '/bookmarks') return 'bookmarks';
   if (path === '/admin') return 'admin';
   if (path === '/reset-password') {
     const params = new URLSearchParams(search);
@@ -112,7 +115,7 @@ function AppShell() {
   const [currentView, setCurrentView] = useState<ViewState>(() =>
     typeof window === 'undefined' ? 'home' : getInitialView(window.location.pathname, window.location.search)
   );
-  const { addons, loading, userLikes, toggleLike, removeAddon, refetchAddons } = useAddons();
+  const { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, removeAddon, refetchAddons } = useAddons();
   const [verifyBanner, setVerifyBanner] = useState<'success' | 'already' | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark' | 'oled'>(() => {
     if (typeof window === 'undefined') return 'light';
@@ -214,6 +217,7 @@ function AppShell() {
     else if (view === 'landing') path = '/landing';
     else if (view === 'streak') path = '/streak';
     else if (view === 'profile') path = '/profile';
+    else if (view === 'bookmarks') path = '/bookmarks';
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
       const addon = addons.find(a => a.id === view.id);
@@ -289,15 +293,30 @@ function AppShell() {
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
                   layoutMode={layoutMode}
+                  userBookmarks={userBookmarks}
+                  onToggleBookmark={toggleBookmark}
                 />
+
               ) : currentView === 'profile' ? (
                 <UserProfile
                   addons={addons}
                   loading={loading}
                   userLikes={userLikes}
+                  userBookmarks={userBookmarks}
                   onToggleLike={toggleLike}
+                  onToggleBookmark={toggleBookmark}
                   onNavigate={handleNavigate}
                   onAddonDeleted={removeAddon}
+                />
+              ) : currentView === 'bookmarks' ? (
+                <BookmarksPage
+                  addons={addons}
+                  userLikes={userLikes}
+                  userBookmarks={userBookmarks}
+                  onToggleLike={toggleLike}
+                  onToggleBookmark={toggleBookmark}
+                  onRequireAuth={() => setIsAuthOpen(true)}
+                  onNavigate={handleNavigate}
                 />
               ) : currentView === 'admin' ? (
                 <AdminPanel
@@ -312,7 +331,9 @@ function AppShell() {
                   addons={addons}
                   loading={loading}
                   userLikes={userLikes}
+                  userBookmarks={userBookmarks}
                   onToggleLike={toggleLike}
+                  onToggleBookmark={toggleBookmark}
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
                 />
@@ -322,7 +343,9 @@ function AppShell() {
                   addons={addons}
                   loading={loading}
                   userLikes={userLikes}
+                  userBookmarks={userBookmarks}
                   onToggleLike={toggleLike}
+                  onToggleBookmark={toggleBookmark}
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
                   isDarkMode={isDarkMode}
