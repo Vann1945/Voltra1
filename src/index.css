@@ -30,6 +30,7 @@
   --color-accent: #d86b4d;
   --color-accent-soft: #eb9b82;
   --color-accent-deep: #b84f38;
+  --color-terracotta-soft: #eb9b82;
   --color-danger: #bd4b4b;
   --color-success: #3f7d67;
   --color-gold: #a7742b;
@@ -269,9 +270,9 @@ body {
 .streak-root.oled .bg-paper { background: #0b0705; color: #fff3e8; }
 
 .streak-wrapper {
-  --sa-bg: var(--color-cool-bg);
-  --sa-card: var(--color-cool-surface);
-  --sa-card-2: var(--color-parchment-border);
+  --sa-bg: var(--color-paper);
+  --sa-card: var(--color-parchment-raised);
+  --sa-card-2: var(--color-paper-soft);
   --sa-border: var(--color-parchment-border);
   --sa-text: var(--color-ink-900);
   --sa-text-soft: var(--color-ink-700);

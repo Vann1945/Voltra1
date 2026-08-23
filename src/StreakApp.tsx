@@ -94,7 +94,7 @@ function computeStats(log: ActivityLog, journeyStartDate: string | null) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const daysSinceStart = Math.max(1, Math.floor((today.getTime() - start.getTime()) / 86_400_000) + 1);
-    completionRate = Math.round((activeDays / daysSinceStart) * 100);
+    completionRate = Math.min(100, Math.max(0, Math.round((activeDays / daysSinceStart) * 100)));
   }
   return { activeDays, restDays, completionRate };
 }
@@ -160,14 +160,20 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
   });
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [syncState, setSyncState] = useState<'local' | 'syncing' | 'synced'>('local');
 
   useEffect(() => {
     let cancelled = false;
     fetchRemoteHabit().then((remote) => {
-      if (cancelled || !remote) return;
+      if (cancelled) return;
+      if (!remote) {
+        setSyncState('local');
+        return;
+      }
       setHabitName(sanitizeHabitName(remote.name));
       setJourneyStartDate(remote.journeyStartDate);
       setActivityLog(remote.log ?? {});
+      setSyncState('synced');
     });
     return () => {
       cancelled = true;
@@ -247,9 +253,8 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
   const commitHabitName = useCallback(
     (name: string) => {
       setHabitName(name);
-      pushRemoteHabitName(name).then((ok) => {
-        // Silently fail if remote sync fails
-      });
+      setSyncState('syncing');
+      pushRemoteHabitName(name).then((ok) => setSyncState(ok ? 'synced' : 'local'));
     },
     [],
   );
@@ -262,9 +267,8 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
         [todayDateStr]: status,
       }));
 
-      pushRemoteLog(todayDateStr, status).then((ok) => {
-        // Silently fail if remote sync fails
-      });
+      setSyncState('syncing');
+      pushRemoteLog(todayDateStr, status).then((ok) => setSyncState(ok ? 'synced' : 'local'));
 
       if (status === 'active') {
         showToast("Marked as done — see you tomorrow!", 'success');
@@ -287,7 +291,9 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
     setActivityLog({});
     setJourneyStartDate(null);
     setIsResetModalOpen(false);
+    setSyncState('syncing');
     pushRemoteReset().then((ok) => {
+      setSyncState(ok ? 'synced' : 'local');
       showToast(ok ? 'Journey reset.' : 'Journey reset locally.', 'success');
     });
   }, [showToast]);
@@ -309,6 +315,10 @@ function StreakAppMain({ theme = 'light' }: { theme?: 'light' | 'dark' | 'oled' 
               setIsEditingName={setIsEditingName}
               streak={displayStreak}
             />
+            <p role="status" className="-mt-8 flex items-center gap-2 text-xs font-semibold text-[var(--sa-text-muted)]">
+              <span className={`h-2 w-2 rounded-full ${syncState === 'syncing' ? 'animate-pulse bg-[var(--sa-accent)]' : syncState === 'synced' ? 'bg-success' : 'bg-[var(--sa-text-muted)]'}`} aria-hidden="true" />
+              {syncState === 'syncing' ? 'Saving your progress…' : syncState === 'synced' ? 'Synced across devices' : 'Saved on this device'}
+            </p>
 
             <article className="flex flex-col items-center text-center relative -mt-6">
               <MainActionControls theme={theme} statusToday={statusToday} onRecordStatus={handleRecordStatus} />

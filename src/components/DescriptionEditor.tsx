@@ -509,7 +509,9 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           underline: document.queryCommandState('underline'),
           strike: document.queryCommandState('strikeThrough'),
         });
-      } catch {}
+      } catch {
+        setActiveFormats({ bold: false, italic: false, underline: false, strike: false });
+      }
 
       if (!sel.isCollapsed && sel.toString().trim()) {
         pendingSelectionTextRef.current = sel.toString();

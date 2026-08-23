@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { AuthCard } from './AuthCard';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
@@ -12,6 +12,15 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const reduceMotion = useReducedMotion();
   useBodyScrollLock(isOpen);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -39,7 +48,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               type="button"
               onClick={onClose}
               aria-label="Close sign-in dialog"
-              className="absolute -top-12 right-0 p-2 bg-terracotta rounded-lg shadow-card text-ink-900 btn-3d focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta text-ink-900 shadow-card transition-transform hover:bg-terracotta-text active:scale-95 focus-visible:ring-2 focus-visible:ring-white"
             >
               <X size={20} />
             </button>

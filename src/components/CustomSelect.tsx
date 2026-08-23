@@ -17,6 +17,7 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
   const normalizedOptions = options.map(option => typeof option === 'string' ? { value: option, label: option } : option);
   const selectedOption = normalizedOptions.find(option => option.value === value);
@@ -34,6 +35,10 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
     setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
     setIsOpen(true);
   };
+
+  useEffect(() => {
+    if (isOpen) listboxRef.current?.focus();
+  }, [isOpen]);
 
   const choose = (option: CustomSelectOption) => {
     onChange(option.value);
@@ -80,6 +85,7 @@ export function CustomSelect({ value, options, onChange, placeholder, id, classN
 
       {isOpen && (
         <div
+          ref={listboxRef}
           id={listboxId}
           role="listbox"
           tabIndex={-1}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Flame, Heart, LayoutGrid, Library, List, LogIn, LogOut, Menu, MoonStar, Shield, SunMedium, Upload, UserRound, X, Zap } from 'lucide-react';
+import { Bookmark, ChevronDown, Flame, Heart, LayoutGrid, List, LogIn, LogOut, Menu, MoonStar, Shield, SunMedium, Upload, UserRound, X, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
@@ -48,9 +48,9 @@ function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onO
 
   return <>
     <div className={`${isOpen ? 'block' : 'hidden'} fixed inset-0 z-[190] bg-ink-900/35 sm:hidden`} onClick={() => setIsOpen(false)} />
-    <div className={`${isOpen ? 'flex' : 'hidden'} fixed inset-x-4 bottom-[calc(72px+env(safe-area-inset-bottom))] z-[210] flex-col gap-2 rounded-2xl border border-parchment-border bg-parchment-raised p-3 shadow-card-float sm:hidden`} role="dialog" aria-label="More navigation actions">
+    <div className={`${isOpen ? 'flex' : 'hidden'} fixed inset-x-4 bottom-[calc(72px+env(safe-area-inset-bottom))] z-[210] flex-col gap-2 rounded-2xl border border-parchment-border bg-parchment-raised p-3 shadow-card-float sm:hidden`} role="dialog" aria-modal="true" aria-labelledby="quick-actions-title">
       <div className="flex items-center justify-between border-b border-parchment-border px-1 pb-3">
-        <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-terracotta-text">Your space</p><span className="text-sm font-bold">Quick actions</span></div>
+        <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-terracotta-text">Your space</p><span id="quick-actions-title" className="text-sm font-bold">Quick actions</span></div>
         <button type="button" onClick={() => setIsOpen(false)} aria-label="Close menu" className="rounded-lg p-2 text-ink-900/55 hover:bg-ink-900/[0.05]"><X size={16} /></button>
       </div>
       {user ? <button type="button" onClick={() => closeAnd(() => onNavigate('profile'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-ink-900/[0.04]">
@@ -59,7 +59,6 @@ function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onO
       </button> : <button type="button" onClick={() => closeAnd(onOpenAuth)} className={`${getButtonClasses('primary', 'md')} w-full`}><LogIn size={16} /> Sign in</button>}
       {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish a project</button>}
       {user && <>
-        <button type="button" onClick={() => closeAnd(() => onNavigate('library'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Library size={16} /> Library</button>
         <button type="button" onClick={() => closeAnd(() => onNavigate('streak'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button>
       </>}
       {user?.role === 'admin' && <button type="button" onClick={() => closeAnd(() => onNavigate('admin'))} className={`${getButtonClasses('secondary', 'md')} w-full`}><Shield size={16} /> Admin</button>}
@@ -72,7 +71,7 @@ function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onO
     </div>
     <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-4px_16px_rgba(23,35,41,0.06)] backdrop-blur sm:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <button type="button" onClick={() => act(() => onNavigate('home'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('home') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Zap size={18} />Explore</button>
-      <button type="button" onClick={() => act(() => onNavigate('library'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Library size={18} />Library</button>
+      <button type="button" onClick={() => act(() => onNavigate('library'))} aria-current={active('library') ? 'page' : undefined} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Bookmark size={18} />Saved</button>
       <button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/60'}`}>{isOpen ? <X size={18} /> : <Menu size={18} />}Menu</button>
     </nav>
   </>;
@@ -102,8 +101,8 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
       <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <button type="button" onClick={() => onNavigate('home')} className="group flex items-center gap-3 text-left"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-900 text-terracotta shadow-sm transition-transform duration-200 group-hover:-rotate-3 group-active:scale-95"><Zap size={18} /></span><span className="text-lg font-bold tracking-tight">Voltra</span></button>
         <div className="hidden items-center gap-1 rounded-2xl border border-parchment-border bg-parchment px-1.5 py-1.5 sm:flex">
-          <button type="button" onClick={() => onNavigate('home')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}>Explore</button>
-          <button type="button" onClick={() => onNavigate('library')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Library size={15} />Library</span></button>
+          <button type="button" onClick={() => onNavigate('home')} aria-current={isHome ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}>Explore</button>
+          <button type="button" onClick={() => onNavigate('library')} aria-current={isLibrary ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Bookmark size={15} />Saved</span></button>
           <button type="button" onClick={() => onNavigate('streak')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isStreak ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Flame size={15} />Streak</span></button>
         </div>
         <div className="hidden items-center gap-2 sm:flex">
@@ -119,7 +118,7 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                 <div className="mt-2 grid gap-1">
                   <button type="button" role="menuitem" onClick={() => goFromProfile('profile')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><UserRound size={16} />View profile</button>
                   <button type="button" role="menuitem" onClick={() => { HAPTIC_PATTERNS.light(); onOpenUpload(); setProfileMenuOpen(false); }} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Upload size={16} />Publish a project</button>
-                  <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Library size={16} />Library <span className="ml-auto text-xs font-medium text-ink-900/45">Saved + liked</span></button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Bookmark size={16} />Saved <span className="ml-auto text-xs font-medium text-ink-900/45">Saved + liked</span></button>
                   <button type="button" role="menuitem" onClick={() => goFromProfile('streak')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Flame size={16} />Streak</button>
                 </div>
                 {user.role === 'admin' && <button type="button" role="menuitem" onClick={() => goFromProfile('admin')} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Shield size={16} />Admin</button>}

@@ -46,7 +46,7 @@ export const getButtonClasses = (
 ) => {
   const base = 'inline-flex items-center justify-center gap-2 rounded-xl font-bold transition-[background-color,border-color,box-shadow,transform,opacity,color] duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none select-none';
   const sizes = {
-    sm: 'min-h-9 px-3 text-xs',
+    sm: 'min-h-10 px-3 text-xs',
     md: 'min-h-11 px-4 text-sm',
     lg: 'min-h-12 px-5 text-sm',
   };

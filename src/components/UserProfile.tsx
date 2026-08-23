@@ -309,7 +309,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
                 <button
                   type="button"
                   onClick={() => setIsBorderModalOpen(true)}
-                  className="flex w-full items-center gap-3 bg-parchment-raised rounded-lg px-4 py-3 text-sm font-bold text-ink-900 shadow-card btn-3d"
+                  className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-parchment-border bg-parchment-raised px-4 py-3 text-sm font-bold text-ink-900 shadow-card transition-[border-color,box-shadow,transform] hover:border-terracotta/60 hover:shadow-card-hover active:scale-[0.99]"
                 >
                   <ProfileAvatar
                     photoURL={editPhotoURL}
@@ -409,7 +409,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
             >
               {myUploads.map(addon => (
                 <motion.div key={addon.id} className="relative group" variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects to your Library.', 'error')} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} />
                   <button
                     onClick={e => { e.stopPropagation(); setAddonToDelete(addon.id); }}
                     aria-label={`Delete ${addon.title}`}
@@ -447,7 +447,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
             >
               {myLikes.map(addon => (
                 <motion.div key={addon.id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects to your Library.', 'error')} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} />
                 </motion.div>
               ))}
             </motion.div>
