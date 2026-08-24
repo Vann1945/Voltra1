@@ -85,18 +85,79 @@ const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   />
 );
 
-function convertToWebp(file: File, maxDimension = 1600, quality = 0.82, maxBytes = 4 * 1024 * 1024): Promise<File> {
-  return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) { resolve(file); return; }
+const UNREADABLE_IMAGE_MESSAGE =
+  "This image couldn't be read on your device. If it's a photo from cloud storage (Google Photos, etc.) on a slow connection, wait for it to fully download and try again, or pick a different image.";
 
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    const newName = file.name.replace(/\.[^.]+$/, '') + '.webp';
+/**
+ * Decodes a File into an image source we can draw to a canvas.
+ * Prefers createImageBitmap (more reliable across mobile browsers/WebViews,
+ * decodes off the main thread) and falls back to an <img> element for
+ * browsers that don't support it.
+ */
+async function loadImageSource(file: File): Promise<ImageBitmap | HTMLImageElement> {
+  if (file.size === 0) {
+    throw new Error("This file appears to be empty or hasn't fully downloaded yet. Please try selecting it again.");
+  }
 
-    const encode = (canvas: HTMLCanvasElement, nextQuality: number) => {
-      canvas.toBlob(blob => {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      return await createImageBitmap(file);
+    } catch {
+      // Fall through to the <img> based decode below.
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    return await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(UNREADABLE_IMAGE_MESSAGE));
+      img.src = objectUrl;
+    });
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+function getImageSourceDimensions(source: ImageBitmap | HTMLImageElement): { width: number; height: number } {
+  return source instanceof HTMLImageElement
+    ? { width: source.naturalWidth, height: source.naturalHeight }
+    : { width: source.width, height: source.height };
+}
+
+async function convertToWebp(file: File, maxDimension = 1600, quality = 0.82, maxBytes = 4 * 1024 * 1024): Promise<File> {
+  if (!file.type.startsWith('image/')) return file;
+
+  const newName = file.name.replace(/\.[^.]+$/, '') + '.webp';
+  const source = await loadImageSource(file).catch(err => {
+    throw err instanceof Error ? err : new Error(UNREADABLE_IMAGE_MESSAGE);
+  });
+
+  let { width, height } = getImageSourceDimensions(source);
+  if (!width || !height) {
+    if (source instanceof ImageBitmap) source.close();
+    throw new Error(UNREADABLE_IMAGE_MESSAGE);
+  }
+  if (width > maxDimension || height > maxDimension) {
+    const scale = maxDimension / Math.max(width, height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) { if (source instanceof ImageBitmap) source.close(); throw new Error('Could not prepare the image for upload.'); }
+  ctx.drawImage(source, 0, 0, width, height);
+  if (source instanceof ImageBitmap) source.close();
+
+  return new Promise<File>((resolve, reject) => {
+    const encode = (currentCanvas: HTMLCanvasElement, nextQuality: number) => {
+      currentCanvas.toBlob(blob => {
         if (!blob) { reject(new Error('Could not prepare the image for upload.')); return; }
-        if (blob.size <= maxBytes || nextQuality <= 0.45 || canvas.width < 720) {
+        if (blob.size <= maxBytes || nextQuality <= 0.45 || currentCanvas.width < 720) {
           if (blob.size > maxBytes) {
             reject(new Error('Image is still too large after compression. Choose a smaller image.'));
             return;
@@ -105,50 +166,23 @@ function convertToWebp(file: File, maxDimension = 1600, quality = 0.82, maxBytes
           return;
         }
         const smallerCanvas = document.createElement('canvas');
-        smallerCanvas.width = Math.max(720, Math.round(canvas.width * 0.8));
-        smallerCanvas.height = Math.max(480, Math.round(canvas.height * 0.8));
+        smallerCanvas.width = Math.max(720, Math.round(currentCanvas.width * 0.8));
+        smallerCanvas.height = Math.max(480, Math.round(currentCanvas.height * 0.8));
         const smallerContext = smallerCanvas.getContext('2d');
         if (!smallerContext) { reject(new Error('Could not prepare the image for upload.')); return; }
-        smallerContext.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
+        smallerContext.drawImage(currentCanvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
         encode(smallerCanvas, Math.max(0.45, nextQuality - 0.08));
       }, 'image/webp', nextQuality);
     };
-
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      let { width, height } = img;
-      if (width > maxDimension || height > maxDimension) {
-        const scale = maxDimension / Math.max(width, height);
-        width = Math.round(width * scale);
-        height = Math.round(height * scale);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) { reject(new Error('Could not prepare the image for upload.')); return; }
-      ctx.drawImage(img, 0, 0, width, height);
-      encode(canvas, quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('The selected image is not readable.')); };
-    img.src = objectUrl;
+    encode(canvas, quality);
   });
 }
 
-function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error('The selected file is not a readable image.'));
-    };
-    img.src = objectUrl;
-  });
+async function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  const source = await loadImageSource(file);
+  const dims = getImageSourceDimensions(source);
+  if (source instanceof ImageBitmap) source.close();
+  return dims;
 }
 
 async function validatePanoramaFile(file: File): Promise<string> {
@@ -216,6 +250,29 @@ function hasAllowedExtension(fileName: string): boolean {
   return ALLOWED_ADDON_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
+/**
+ * Cloudinary assigns a random public_id to signed uploads unless one is
+ * explicitly signed server-side. Rather than requiring a backend change,
+ * we tag the delivery URL with Cloudinary's `fl_attachment:<name>` flag so
+ * the browser downloads the file using the ORIGINAL filename the user
+ * uploaded, instead of the random Cloudinary id. This only affects how the
+ * file is delivered/downloaded — it doesn't require re-signing the upload.
+ */
+function withOriginalFilename(secureUrl: string, originalFileName: string): string {
+  const uploadMarker = '/upload/';
+  const markerIndex = secureUrl.indexOf(uploadMarker);
+  if (markerIndex === -1) return secureUrl;
+
+  const baseName = originalFileName.replace(/\.[^./]+$/, '');
+  const safeName = baseName
+    .replace(/[^a-zA-Z0-9 _-]/g, '_')
+    .trim()
+    .slice(0, 100) || 'download';
+
+  const insertAt = markerIndex + uploadMarker.length;
+  return `${secureUrl.slice(0, insertAt)}fl_attachment:${encodeURIComponent(safeName)}/${secureUrl.slice(insertAt)}`;
+}
+
 function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!hasAllowedExtension(file.name)) {
@@ -252,7 +309,7 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
           try {
             const res = JSON.parse(xhr.responseText);
             if (xhr.status >= 200 && xhr.status < 300 && res?.secure_url) {
-              resolve(res.secure_url as string);
+              resolve(withOriginalFilename(res.secure_url as string, file.name));
             } else {
               reject(new Error(res?.error?.message || 'Upload failed, please try again.'));
             }

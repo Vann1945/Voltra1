@@ -273,6 +273,25 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     if (downloadWindow) {
       downloadWindow.opener = null;
       downloadWindow.location.href = activeDownloadUrl;
+      // File download (Content-Disposition: attachment) tidak benar-benar
+      // menavigasi tab baru itu ke halaman apa pun — tab-nya tetap di
+      // "about:blank" selamanya dan harus ditutup manual. Di sini kita
+      // tutup otomatis SETELAH memberi waktu download mulai, tapi hanya
+      // jika tab itu memang masih blank (murni trigger download). Kalau
+      // downloadUrl ternyata mengarah ke halaman pihak ketiga (mis.
+      // Mediafire/Google Drive), tab itu akan benar-benar bernavigasi ke
+      // origin lain, sehingga membaca .location.href akan melempar error
+      // cross-origin — dalam kasus itu kita biarkan tab tetap terbuka agar
+      // user bisa berinteraksi dengan halaman tersebut.
+      window.setTimeout(() => {
+        try {
+          if (!downloadWindow.closed && downloadWindow.location.href === 'about:blank') {
+            downloadWindow.close();
+          }
+        } catch {
+          // Cross-origin: tab benar-benar berpindah ke halaman lain, biarkan terbuka.
+        }
+      }, 1500);
     } else {
       showToast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu coba lagi.', 'error');
     }

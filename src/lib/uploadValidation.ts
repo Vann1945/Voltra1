@@ -1,5 +1,5 @@
 export const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
-export const MAX_COVER_IMAGES = 6;
+export const MAX_COVER_IMAGES = 20;
 export const MAX_COVER_IMAGE_BYTES = 4 * 1024 * 1024;
 
 export function parseTags(raw: string): string[] {

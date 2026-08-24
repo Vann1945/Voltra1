@@ -85,6 +85,19 @@ export const AddonCard = React.memo(function AddonCard({ addon, isLiked, isBookm
     if (!downloadWindow) { showToast('Pop-up blocked. Allow pop-ups for this site and try again.', 'error'); return; }
     downloadWindow.opener = null;
     downloadWindow.location.href = addon.downloadUrl;
+    // Tutup otomatis tab kosong itu jika memang cuma trigger file download
+    // (tab tetap "about:blank"). Kalau ternyata dialihkan ke halaman
+    // pihak ketiga, .location.href akan melempar error cross-origin dan
+    // kita biarkan tab tersebut terbuka untuk user.
+    window.setTimeout(() => {
+      try {
+        if (!downloadWindow.closed && downloadWindow.location.href === 'about:blank') {
+          downloadWindow.close();
+        }
+      } catch {
+        // Cross-origin: tab benar-benar berpindah ke halaman lain, biarkan terbuka.
+      }
+    }, 1500);
     setIsDownloading(true);
     fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' }).catch(() => undefined);
     await new Promise(resolve => window.setTimeout(resolve, 900));
