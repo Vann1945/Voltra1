@@ -11,6 +11,7 @@ import { SkeletonCard } from './Skeleton';
 import { FadeImage } from './FadeImage';
 import { BORDER_OPTIONS, getBorderEffect, renderBorderDecoration, getBorderRingClass, ProfileAvatar } from './borderEffects';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { getCoverFileError } from '../lib/uploadValidation';
 
 function convertToWebp(file: File, maxDimension = 512, quality = 0.85): Promise<File> {
   return new Promise(resolve => {
@@ -89,9 +90,34 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
 
   const [photoUploadProgress, setPhotoUploadProgress] = useState<number | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const borderDialogRef = useRef<HTMLDivElement>(null);
   const [isBorderModalOpen, setIsBorderModalOpen] = useState(false);
-  useBodyScrollLock(!!addonToDelete || isBorderModalOpen);
-
+    useBodyScrollLock(!!addonToDelete || isBorderModalOpen);
+  useEffect(() => {
+    if (!isBorderModalOpen) return;
+    const firstButton = borderDialogRef.current?.querySelector<HTMLButtonElement>('button:not([disabled])');
+    firstButton?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsBorderModalOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !borderDialogRef.current) return;
+      const focusable = Array.from(borderDialogRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length < 2) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isBorderModalOpen]);
   useEffect(() => {
     if (user) {
       setEditName(user.displayName || '');
@@ -131,6 +157,11 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    const fileError = getCoverFileError(file);
+    if (fileError) {
+      showToast(fileError, 'error');
+      return;
+    }
 
     setPhotoUploadProgress(0);
 
@@ -181,6 +212,22 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
 
   const handleSaveProfile = async () => {
     if (!user) return;
+    const displayName = editName.trim();
+    const photoURL = editPhotoURL.trim();
+    const bio = editBio.trim();
+    if (!displayName) {
+      showToast('Display name is required.', 'error');
+      return;
+    }
+    if (photoURL) {
+      try {
+        const parsedPhotoURL = new URL(photoURL);
+        if (!['http:', 'https:'].includes(parsedPhotoURL.protocol)) throw new Error('invalid');
+      } catch {
+        showToast('Profile photo URL must start with http:// or https://.', 'error');
+        return;
+      }
+    }
     setSavingProfile(true);
     try {
       const res = await fetch('/api/users?scope=me', {
@@ -188,7 +235,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          displayName: editName, photoURL: editPhotoURL, bio: editBio, profileBorder: editProfileBorder,
+          displayName, photoURL, bio, profileBorder: editProfileBorder,
         }),
       });
       if (!res.ok) {
@@ -197,9 +244,9 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
       }
       const updatedProfile = {
         uid: user.uid,
-        displayName: editName.trim(),
-        photoURL: editPhotoURL.trim() || undefined,
-        bio: editBio.trim() || undefined,
+        displayName,
+        photoURL: photoURL || undefined,
+        bio: bio || undefined,
         profileBorder: editProfileBorder || 'none',
       };
       window.dispatchEvent(new CustomEvent(PROFILE_UPDATED_EVENT, { detail: updatedProfile }));
@@ -240,9 +287,9 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 min-h-[100dvh]">
-      <section aria-labelledby="profile-card-title" className="mb-12 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card neumorph glass">
-        <div className="flex flex-col items-start gap-8 p-6 sm:p-8 md:flex-row md:items-center">
+    <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <section aria-labelledby="profile-card-title" className="mb-8 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card">
+        <div className="flex flex-col items-start gap-6 p-5 sm:p-6 md:flex-row md:items-center">
         <div className="relative h-32 w-32 shrink-0">
           {renderBorderDecoration(getBorderEffect(isEditing ? editProfileBorder : (user?.profileBorder || 'none')))}
           <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised border border-parchment-border flex items-center justify-center transition-all duration-300 ${getBorderRingClass(getBorderEffect(isEditing ? editProfileBorder : (user.profileBorder || 'none')))}`}>
@@ -262,50 +309,28 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
 
         <div className="flex-1 w-full">
           {isEditing ? (
-            <div className="space-y-5 max-w-md">
-              <div>
-                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Display Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className={getInputClasses()}
-                />
+            <div className="w-full max-w-3xl space-y-5 rounded-2xl border border-parchment-border bg-parchment p-4 shadow-sm sm:p-5">
+              <div className="flex items-start justify-between gap-4 border-b border-parchment-border pb-4">
+                <div><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Profile settings</p><h2 className="mt-1 text-lg font-bold text-ink-900">Make your profile yours</h2><p className="mt-1 text-xs font-medium text-ink-900/50">Update what the community sees.</p></div>
+                <span className="rounded-full bg-terracotta/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-terracotta-text">Editing</span>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Profile Picture</label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={editPhotoURL}
-                    onChange={e => setEditPhotoURL(e.target.value)}
-                    className={`flex-1 ${getInputClasses()}`}
-                    placeholder="https://..."
-                  />
-                  <button
-                    type="button"
-                    onClick={() => photoInputRef.current?.click()}
-                    disabled={photoUploadProgress !== null}
-                    className={`shrink-0 disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
-                  >
-                    {photoUploadProgress !== null ? (
-                      <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink-900/10 before:to-transparent" />
-                    ) : (
-                      <Upload size={16} />
-                    )}
+                <div className="mb-2 flex items-center justify-between gap-3"><label htmlFor="profile-display-name" className="block text-xs font-bold text-ink-900">Display name</label><span className="text-xs font-bold text-ink-900/45">{editName.length}/60</span></div>
+                <input id="profile-display-name" type="text" maxLength={60} value={editName} onChange={e => setEditName(e.target.value)} className={getInputClasses()} placeholder="Your creator name" />
+              </div>
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3"><label htmlFor="profile-photo-url" className="block text-xs font-bold text-ink-900">Profile photo</label><span className="text-xs font-medium text-ink-900/45">URL or upload</span></div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input id="profile-photo-url" type="url" maxLength={2000} value={editPhotoURL} onChange={e => setEditPhotoURL(e.target.value)} className={`min-w-0 flex-1 ${getInputClasses()}`} placeholder="https://..." />
+                  <button type="button" onClick={() => photoInputRef.current?.click()} disabled={photoUploadProgress !== null} aria-label="Upload profile photo" className={`shrink-0 disabled:cursor-not-allowed disabled:opacity-50 ${getButtonClasses('secondary', 'md')}`}>
+                    {photoUploadProgress !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-900/20 border-t-terracotta" aria-label="Uploading" /> : <><Upload size={16} aria-hidden="true" /> Upload</>}
                   </button>
                 </div>
-                <input type="file" ref={photoInputRef} onChange={handlePhotoUpload} accept="image/*" className="hidden" />
-                {photoUploadProgress !== null && (
-                  <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
-                    <div className="h-full bg-terracotta-soft transition-all duration-300" style={{ width: `${photoUploadProgress}%` }} />
-                  </div>
-                )}
+                <input type="file" ref={photoInputRef} onChange={handlePhotoUpload} accept="image/jpeg,image/png,image/webp" className="hidden" />
+                {photoUploadProgress !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-900/10" aria-label={`Uploading ${Math.round(photoUploadProgress)} percent`}><div className="h-full rounded-full bg-terracotta transition-[width] duration-200" style={{ width: `${photoUploadProgress}%` }} /></div>}
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                  <Settings size={12} /> Profile Border
-                </label>
+                <div className="mb-2 flex items-center gap-2"><Settings size={14} className="text-terracotta-text" aria-hidden="true" /><label className="block text-xs font-bold text-ink-900">Profile border</label></div>
                 <button
                   type="button"
                   onClick={() => setIsBorderModalOpen(true)}
@@ -323,17 +348,12 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
                 </button>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-ink-900 uppercase tracking-widest mb-2">Bio</label>
-                <textarea
-                  value={editBio}
-                  onChange={e => setEditBio(e.target.value)}
-                  rows={3}
-                  className={`${getInputClasses()} resize-none`}
-                  placeholder="Tell us about yourself..."
-                />
+                <div className="mb-2 flex items-center justify-between gap-3"><label htmlFor="profile-bio" className="block text-xs font-bold text-ink-900">Bio</label><span className="text-xs font-bold text-ink-900/45">{editBio.length}/500</span></div>
+                <textarea id="profile-bio" maxLength={500} value={editBio} onChange={e => setEditBio(e.target.value)} rows={4} className={`${getInputClasses()} resize-y`} placeholder="Tell the community about yourself..." />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
+                  type="button"
                   onClick={handleSaveProfile}
                   disabled={savingProfile}
                   className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
@@ -342,6 +362,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
                   Save Changes
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIsEditing(false)}
                   disabled={savingProfile}
                   className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
@@ -380,10 +401,10 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
         </div>
       </section>
 
-      <div className="space-y-16">
+      <div className="space-y-10">
         <section>
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+          <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight text-ink-900">
               <Package className="text-terracotta-text" /> My Uploads
             </h2>
             <p className="text-xs font-bold text-ink-900 bg-terracotta px-3 py-1.5 rounded-lg shadow-card">
@@ -396,7 +417,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myUploads.length === 0 ? (
-            <div className="rounded-2xl bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+            <div className="rounded-2xl border border-parchment-border bg-parchment-raised py-12 text-center shadow-card">
               <Package size={32} className="mx-auto mb-3 text-ink-900/30" />
               <p className="text-sm font-bold text-ink-900">Nothing published yet</p>
               <p className="mt-1 text-xs font-normal text-ink-900/60">Use the Publish button in the top bar to share your first add-on.</p>
@@ -425,7 +446,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
         </section>
 
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight text-ink-900">
             <Heart className="text-terracotta-text" /> Liked Add-ons
           </h2>
 
@@ -434,7 +455,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           ) : myLikes.length === 0 ? (
-            <div className="rounded-2xl bg-parchment-raised py-16 text-center shadow-card neumorph glass">
+            <div className="rounded-2xl border border-parchment-border bg-parchment-raised py-12 text-center shadow-card">
               <Heart size={32} className="mx-auto mb-3 text-ink-900/30" />
               <p className="text-sm font-bold text-ink-900">No likes yet</p>
               <p className="mt-1 text-xs font-normal text-ink-900/60">Tap the heart on any add-on in the marketplace to save it here.</p>
@@ -455,7 +476,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
         </section>
 
         <section>
-          <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-2">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight text-ink-900">
             <AlertTriangle className="text-terracotta-text" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }} /> My Reports
           </h2>
 
@@ -464,7 +485,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               {[...Array(2)].map((_, i) => <div key={i} className="h-20 border border-parchment-border rounded-lg bg-ink-900/5 animate-pulse" />)}
             </div>
           ) : reports.length === 0 ? (
-            <div className="border border-parchment-border rounded-lg bg-parchment-raised py-16 text-center">
+            <div className="rounded-2xl border border-parchment-border bg-parchment-raised py-12 text-center">
               <p className="text-sm font-bold text-ink-900/60">You haven't submitted any reports.</p>
             </div>
           ) : (
@@ -508,9 +529,12 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-parchment-raised rounded-lg shadow-card p-6"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-addon-title"
+              className="relative w-full max-w-md rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card-float"
             >
-              <h3 className="text-xl font-bold text-ink-900 uppercase mb-2">Delete Add-on?</h3>
+              <h3 id="delete-addon-title" className="mb-2 text-xl font-bold text-ink-900">Delete add-on?</h3>
               <p className="text-ink-900/60 text-sm font-medium mb-6">
                 Are you sure you want to delete this add-on? This action cannot be undone.
               </p>
@@ -545,28 +569,30 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               className="absolute inset-0 bg-ink-900/70"
             />
             <motion.div
+              ref={borderDialogRef}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-parchment-raised rounded-lg shadow-card p-6 max-h-[80vh] flex flex-col"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="profile-border-title"
+              className="relative flex max-h-[80vh] w-full max-w-lg flex-col rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card-float sm:p-6"
             >
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <h3 className="text-lg font-bold text-ink-900 uppercase">Choose Profile Border</h3>
-                <button
-                  onClick={() => setIsBorderModalOpen(false)}
-                  className={getButtonClasses('secondary', 'sm')}
-                >
-                  <X size={18} />
+              <div className="mb-5 flex shrink-0 items-center justify-between gap-4">
+                <div><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Appearance</p><h3 id="profile-border-title" className="mt-1 text-lg font-bold text-ink-900">Choose profile border</h3></div>
+                <button type="button" onClick={() => setIsBorderModalOpen(false)} aria-label="Close profile border dialog" className={getButtonClasses('secondary', 'sm')}>
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-3 overflow-y-auto pr-1 sm:grid-cols-5">
                 {BORDER_OPTIONS.map(option => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => { setEditProfileBorder(option.value); setIsBorderModalOpen(false); }}
                     title={option.label}
-                    className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border transition-all ${
+                    aria-pressed={option.value === editProfileBorder}
+                    className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-xl border p-2 transition-all ${
                       option.value === editProfileBorder ? 'border-terracotta bg-terracotta/10' : 'border-transparent hover:border-ink-900/15 hover:bg-ink-900/5'
                     }`}
                   >

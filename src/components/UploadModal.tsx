@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2 } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2, Upload, ChevronDown } from 'lucide-react';
 import { Skeleton } from './Skeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -9,6 +9,7 @@ import { CustomSelect } from './CustomSelect';
 import { getButtonClasses, getInputClasses } from '../lib/designSystem';
 import { FadeImage } from './FadeImage';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { IMAGE_ACCEPT, MAX_COVER_IMAGES, getCoverFileError, parseTags } from '../lib/uploadValidation';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -41,6 +42,12 @@ type DraftVersion = {
 };
 
 const ADDON_CATEGORIES = ['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack'];
+const createInitialFormData = () => ({
+  title: '', description: '', projectClass: 'Modpack', mainCategory: 'Add-Ons', additionalCategory: '', tagsInput: '',
+  imageUrl: '', imageUrls: [] as string[], panoramaUrl: '', downloadUrl: '', demoUrl: '', license: 'All Rights Reserved',
+  distributionPref: 'Allow distribution to 3rd party', unlisted: false, allowComments: true,
+  socials: [] as { platform: string; url: string }[],
+});
 
 function getAddonPayloadError(data: Record<string, unknown>): string {
   const isStr = (v: unknown, min: number, max: number) => typeof v === 'string' && v.length >= min && v.length <= max;
@@ -78,12 +85,34 @@ const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   />
 );
 
-function convertToWebp(file: File, maxDimension = 1600, quality = 0.82): Promise<File> {
-  return new Promise(resolve => {
+function convertToWebp(file: File, maxDimension = 1600, quality = 0.82, maxBytes = 4 * 1024 * 1024): Promise<File> {
+  return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) { resolve(file); return; }
 
     const objectUrl = URL.createObjectURL(file);
     const img = new Image();
+    const newName = file.name.replace(/\.[^.]+$/, '') + '.webp';
+
+    const encode = (canvas: HTMLCanvasElement, nextQuality: number) => {
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('Could not prepare the image for upload.')); return; }
+        if (blob.size <= maxBytes || nextQuality <= 0.45 || canvas.width < 720) {
+          if (blob.size > maxBytes) {
+            reject(new Error('Image is still too large after compression. Choose a smaller image.'));
+            return;
+          }
+          resolve(new File([blob], newName, { type: 'image/webp' }));
+          return;
+        }
+        const smallerCanvas = document.createElement('canvas');
+        smallerCanvas.width = Math.max(720, Math.round(canvas.width * 0.8));
+        smallerCanvas.height = Math.max(480, Math.round(canvas.height * 0.8));
+        const smallerContext = smallerCanvas.getContext('2d');
+        if (!smallerContext) { reject(new Error('Could not prepare the image for upload.')); return; }
+        smallerContext.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
+        encode(smallerCanvas, Math.max(0.45, nextQuality - 0.08));
+      }, 'image/webp', nextQuality);
+    };
 
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
@@ -93,25 +122,15 @@ function convertToWebp(file: File, maxDimension = 1600, quality = 0.82): Promise
         width = Math.round(width * scale);
         height = Math.round(height * scale);
       }
-
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
-      if (!ctx) { resolve(file); return; }
+      if (!ctx) { reject(new Error('Could not prepare the image for upload.')); return; }
       ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(
-        blob => {
-          if (!blob) { resolve(file); return; }
-          const newName = file.name.replace(/\.[^.]+$/, '') + '.webp';
-          resolve(new File([blob], newName, { type: 'image/webp' }));
-        },
-        'image/webp',
-        quality
-      );
+      encode(canvas, quality);
     };
-    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('The selected image is not readable.')); };
     img.src = objectUrl;
   });
 }
@@ -249,39 +268,17 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
   });
 }
 
-export function parseTags(raw: string): string[] {
-  const seen = new Set<string>();
-  for (const part of raw.split(',')) {
-    const trimmed = part.trim();
-    if (trimmed && trimmed.length <= 30) seen.add(trimmed);
-  }
-  return Array.from(seen).slice(0, 20);
-}
-
 export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const reduceMotion = useReducedMotion();
   useBodyScrollLock(isOpen);
   const { user } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    projectClass: 'Modpack',
-    mainCategory: 'Add-Ons',
-    additionalCategory: '',
-    tagsInput: '',
-    imageUrl: '',
-    imageUrls: [] as string[],
-    panoramaUrl: '',
-    downloadUrl: '',
-    demoUrl: '',
-    license: 'All Rights Reserved',
-    distributionPref: 'Allow distribution to 3rd party',
-    unlisted: false,
-    allowComments: true,
-    socials: [] as { platform: string; url: string }[],
-  });
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [isImageDragActive, setIsImageDragActive] = useState(false);
+  const [isAddonDragActive, setIsAddonDragActive] = useState(false);
+  const [isPanoramaDragActive, setIsPanoramaDragActive] = useState(false);
+  const [formData, setFormData] = useState(createInitialFormData);
 
   const [versions, setVersions] = useState<DraftVersion[]>([
     { version: '1.0.0', downloadUrl: '', changelog: '', compatibilityNotes: '' },
@@ -292,6 +289,10 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [stepError, setStepError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const addonFileInputRef = useRef<HTMLInputElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const modalPanelRef = useRef<HTMLDivElement>(null);
+  const hasAutoAdvancedGeneralRef = useRef(false);
+  const hasAutoAdvancedDescriptionRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const panoramaInputRef = useRef<HTMLInputElement>(null);
 
@@ -301,10 +302,61 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [fileUploadProgress, setFileUploadProgress] = useState<number | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
 
-  const handleImagesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-    e.target.value = '';
+  const handleClose = () => {
+    if (loading || imageUploadProgress !== null || panoramaUploadProgress !== null || fileUploadProgress !== null) return;
+    setFormData(createInitialFormData());
+    setVersions([{ version: '1.0.0', downloadUrl: '', changelog: '', compatibilityNotes: '' }]);
+    setVersionUploadProgress({});
+    setImageUploadProgress(null);
+    setPanoramaUploadProgress(null);
+    setFileUploadProgress(null);
+    setUploadedFileName('');
+    setStep('general');
+    setStepError('');
+    setSuccessMessage('');
+    setAdvancedOpen(false);
+    hasAutoAdvancedGeneralRef.current = false;
+    hasAutoAdvancedDescriptionRef.current = false;
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !loading) handleClose();
+      if (event.key !== 'Tab' || !modalPanelRef.current) return;
+      const focusable = Array.from(modalPanelRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, loading, onClose]);
+
+  const uploadCoverFiles = async (selectedFiles: File[]) => {
+    const availableSlots = Math.max(0, MAX_COVER_IMAGES - formData.imageUrls.length);
+    const files = selectedFiles.slice(0, availableSlots);
+    if (files.length === 0) {
+      showToast(`You can add up to ${MAX_COVER_IMAGES} cover images.`, 'error');
+      return;
+    }
+    const invalidFile = files.find(file => getCoverFileError(file));
+    if (invalidFile) {
+      showToast(getCoverFileError(invalidFile), 'error');
+      return;
+    }
+    if (selectedFiles.length > files.length) {
+      showToast(`Only ${MAX_COVER_IMAGES} cover images are allowed.`, 'error');
+    }
 
     setImageUploadProgress(0);
     try {
@@ -324,7 +376,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
           imageUrl: prev.imageUrl || nextImageUrls[0] || '',
         };
       });
-      showToast(`${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''} uploaded successfully.`, 'success');
+      showToast(`${uploadedUrls.length} cover image${uploadedUrls.length > 1 ? 's' : ''} ready.`, 'success');
     } catch (err: unknown) {
       showToast((err as Error)?.message || 'Image upload failed. Please try again.', 'error');
     } finally {
@@ -332,11 +384,21 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   };
 
-  const handlePanoramaSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImagesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
     e.target.value = '';
-    if (!file) return;
+    if (files.length > 0) await uploadCoverFiles(files);
+  };
 
+  const handleImageDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsImageDragActive(false);
+    if (imageUploadProgress !== null) return;
+    const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    if (files.length > 0) await uploadCoverFiles(files);
+  };
+
+  const uploadPanoramaFile = async (file: File) => {
     const validationError = await validatePanoramaFile(file);
     if (validationError) {
       showToast(validationError, 'error');
@@ -345,7 +407,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
     setPanoramaUploadProgress(0);
     try {
-      const webpFile = await convertToWebp(file, 2400, 0.85);
+        const webpFile = await convertToWebp(file, 1800, 0.76);
       const url = await uploadToImgbb(webpFile, pct => setPanoramaUploadProgress(pct));
       setFormData(prev => ({ ...prev, panoramaUrl: url }));
       showToast('Panorama image uploaded successfully.', 'success');
@@ -356,27 +418,51 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     }
   };
 
+  const handlePanoramaSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file) await uploadPanoramaFile(file);
+  };
+
+  const handlePanoramaDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsPanoramaDragActive(false);
+    if (panoramaUploadProgress !== null) return;
+    const file = event.dataTransfer.files?.[0];
+    if (file) await uploadPanoramaFile(file);
+  };
+
   const removePanorama = () => {
     setFormData(prev => ({ ...prev, panoramaUrl: '' }));
   };
 
-  const handleAddonFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-
+  const uploadPrimaryAddonFile = async (file: File) => {
     setFileUploadProgress(0);
     try {
       const downloadUrl = await uploadAddonFile(file, pct => setFileUploadProgress(pct));
       setFormData(prev => ({ ...prev, downloadUrl }));
       setVersions(prev => prev.map((version, index) => index === 0 ? { ...version, downloadUrl, fileName: file.name } : version));
       setUploadedFileName(file.name);
-      showToast('File uploaded successfully.', 'success');
+      showToast('Project file ready.', 'success');
     } catch (err: unknown) {
       showToast((err as Error)?.message || 'Failed to upload file.', 'error');
     } finally {
       setFileUploadProgress(null);
     }
+  };
+
+  const handleAddonFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file) await uploadPrimaryAddonFile(file);
+  };
+
+  const handleAddonDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsAddonDragActive(false);
+    if (fileUploadProgress !== null) return;
+    const file = event.dataTransfer.files?.[0];
+    if (file) await uploadPrimaryAddonFile(file);
   };
 
   const handleVersionFileSelected = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -416,11 +502,6 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setVersions(prev => prev.filter((_, versionIndex) => versionIndex !== index));
   };
 
-  const clearUploadedFile = () => {
-    setUploadedFileName('');
-    updateVersion(0, { downloadUrl: '', fileName: '' });
-  };
-
   const removeImage = (url: string) => {
     setFormData(prev => {
       const nextImageUrls = prev.imageUrls.filter(u => u !== url);
@@ -433,6 +514,20 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   };
 
   const isValidHttpUrl = (url: string) => /^https?:\/\//.test(url.trim()) && url.trim().length < 1000;
+  const generalReady = Boolean(formData.title.trim() && formData.downloadUrl.trim() && formData.imageUrls.length > 0 && versions.every(version => version.version.trim() && isValidHttpUrl(version.downloadUrl)));
+
+  useEffect(() => {
+    if (!isOpen) {
+      hasAutoAdvancedGeneralRef.current = false;
+      hasAutoAdvancedDescriptionRef.current = false;
+      return;
+    }
+    if (step === 'general' && generalReady && !loading && !hasAutoAdvancedGeneralRef.current) {
+      hasAutoAdvancedGeneralRef.current = true;
+      setStepError('');
+      setStep('description');
+    }
+  }, [generalReady, isOpen, loading, step]);
 
   const validateStep = (s: Step): string => {
     if (s === 'general') {
@@ -481,7 +576,11 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const goPrev = () => {
     setStepError('');
     const idx = STEPS.indexOf(step);
-    if (idx > 0) setStep(STEPS[idx - 1]);
+    if (idx > 0) {
+      if (step === 'description') hasAutoAdvancedGeneralRef.current = true;
+      if (step === 'license') hasAutoAdvancedDescriptionRef.current = true;
+      setStep(STEPS[idx - 1]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -572,7 +671,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
       }
       setSuccessMessage('Add-on published! It is pending admin review.');
       showToast('Add-on published successfully.', 'success');
-      setTimeout(() => { setSuccessMessage(''); onClose(); setStep('general'); }, 2500);
+      setTimeout(() => { setSuccessMessage(''); handleClose(); }, 2500);
     } catch (error: unknown) {
       showToast((error as Error)?.message || 'Failed to publish add-on.', 'error');
     } finally {
@@ -606,44 +705,37 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[300] flex items-end justify-center sm:items-center sm:p-4">
-          <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink-900/70" />
+          <motion.div initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-ink-900/70" />
           <motion.div
+            ref={modalPanelRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="upload-modal-title"
+            aria-describedby="upload-modal-description"
             initial={reduceMotion ? false : { y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={reduceMotion ? undefined : { y: '100%', opacity: 0 }}
             transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: 'easeOut' }}
-            className="relative flex h-[100dvh] max-h-[100dvh] w-full min-h-0 max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-parchment-raised neumorph glass sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:shadow-card"
+            className="relative flex h-[100dvh] max-h-[100dvh] w-full min-h-0 max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-parchment-border bg-parchment-raised shadow-card-float sm:h-auto sm:max-h-[90vh] sm:rounded-2xl"
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-parchment-border bg-parchment-raised px-6 py-4">
-              <h2 id="upload-modal-title" className="text-lg font-bold text-ink-900 uppercase tracking-tight">Create Project</h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close publish dialog"
-                className="rounded-lg border border-parchment-border bg-parchment-raised p-2 text-ink-900 shadow-sm transition-colors hover:bg-ink-900/10 focus-visible:ring-2 focus-visible:ring-terracotta"
-              >
-                <X size={16} />
+            <div className="flex shrink-0 items-center justify-between border-b border-parchment-border bg-parchment-raised px-4 py-4 sm:px-6">
+              <div>
+                <p className="voltra-section-label">Publish</p>
+                <h2 id="upload-modal-title" className="mt-1 text-xl font-bold tracking-tight text-ink-900">Create project</h2>
+                <p id="upload-modal-description" className="mt-1 text-xs font-medium text-ink-900/50">Share your work with the Voltra community.</p>
+              </div>
+              <button ref={closeButtonRef} type="button" onClick={handleClose} aria-label="Close publish dialog" className="rounded-xl border border-parchment-border bg-parchment-raised p-2.5 text-ink-900 transition hover:bg-ink-900/[0.05] focus-visible:ring-2 focus-visible:ring-terracotta">
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
-            <div className="flex shrink-0 border-b border-parchment-border bg-parchment-raised">
-              {STEPS.map((s, idx) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => goToStep(s)}
-                  aria-current={step === s ? 'step' : undefined}
-                  className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest border-r border-parchment-border last:border-r-0 transition-colors ${
-                    step === s ? 'bg-terracotta text-paper shadow-sm' : 'bg-parchment-raised text-ink-900/50 hover:bg-ink-900/10'
-                  }`}
-                >
-                  {idx + 1}. {s}
+            <nav aria-label="Publish steps" className="flex shrink-0 gap-1 border-b border-parchment-border bg-parchment px-4 py-2 sm:px-6">
+              {STEPS.map(s => (
+                <button key={s} type="button" onClick={() => goToStep(s)} aria-current={step === s ? 'step' : undefined} className={`min-h-10 flex-1 rounded-xl px-3 text-xs font-bold transition-colors ${step === s ? 'bg-terracotta text-paper shadow-sm' : 'text-ink-900/50 hover:bg-parchment-raised hover:text-ink-900'}`}>
+                  <span>{s === 'general' ? 'Essentials' : s === 'description' ? 'Description' : 'Publish settings'}</span>
                 </button>
               ))}
-            </div>
+            </nav>
 
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6 pb-8 [scrollbar-width:thin]">
               {successMessage ? (
@@ -658,310 +750,203 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                 <form id="upload-form" onSubmit={handleSubmit}>
                   {step === 'general' && (
                     <>
-                      <div className="mb-5">
-                        <Label htmlFor="upload-title">Title *</Label>
-                        <TextInput
-                          id="upload-title"
-                          type="text"
-                          required
-                          value={formData.title}
-                          onChange={e => setFormData({ ...formData, title: e.target.value })}
-                          placeholder="Give your add-on a name..."
-                        />
-                      </div>
-
-                      <div className="mb-5">
-                        <Label htmlFor="upload-class" hint>Class</Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">Which class does your project fit under?</p>
-                        <CustomSelect
-                          id="upload-class"
-                          value={formData.projectClass}
-                          options={['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack']}
-                          onChange={val => setFormData({ ...formData, projectClass: val })}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                        <div>
-                          <Label htmlFor="upload-main-category">Main Category</Label>
-                          <CustomSelect
-                            id="upload-main-category"
-                            value={formData.mainCategory}
-                            options={['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack']}
-                            onChange={val => setFormData({ ...formData, mainCategory: val })}
-                          />
+                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                          <div>
+                            <p className="voltra-section-label">Essentials</p>
+                            <h3 className="mt-1 text-base font-bold text-ink-900">Tell us about your project</h3>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="upload-additional-category">Additional Category</Label>
-                          <CustomSelect
-                            id="upload-additional-category"
-                            value={formData.additionalCategory}
-                            options={[
-                              { value: '', label: 'None' },
-                              { value: 'Resource Packs', label: 'Resource Packs' },
-                              { value: 'Behavior Packs', label: 'Behavior Packs' },
-                              { value: 'Adventure', label: 'Adventure' },
-                            ]}
-                            onChange={val => setFormData({ ...formData, additionalCategory: val })}
-                          />
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="upload-title">Title *</Label>
+                            <TextInput
+                              id="upload-title"
+                              type="text"
+                              required
+                              value={formData.title}
+                              onChange={e => setFormData({ ...formData, title: e.target.value })}
+                              placeholder="Give your add-on a name..."
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div>
+                              <Label htmlFor="upload-class">Class</Label>
+                              <CustomSelect
+                                id="upload-class"
+                                value={formData.projectClass}
+                                options={ADDON_CATEGORIES}
+                                onChange={val => setFormData({ ...formData, projectClass: val })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="upload-main-category">Main category</Label>
+                              <CustomSelect
+                                id="upload-main-category"
+                                value={formData.mainCategory}
+                                options={ADDON_CATEGORIES}
+                                onChange={val => setFormData({ ...formData, mainCategory: val })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="upload-additional-category">Extra category</Label>
+                              <CustomSelect
+                                id="upload-additional-category"
+                                value={formData.additionalCategory}
+                                options={[
+                                  { value: '', label: 'None' },
+                                  { value: 'Resource Packs', label: 'Resource Packs' },
+                                  { value: 'Behavior Packs', label: 'Behavior Packs' },
+                                  { value: 'Adventure', label: 'Adventure' },
+                                ]}
+                                onChange={val => setFormData({ ...formData, additionalCategory: val })}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </section>
 
-                      <div className="mb-5">
-                        <Label htmlFor="upload-tags" hint>Tags</Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Help people find your add-on. Separate each tag with a comma (,).
-                        </p>
+                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div>
+                            <Label htmlFor="upload-tags">Tags</Label>
+                            <p className="text-xs font-medium text-ink-900/50">Separate with commas.</p>
+                          </div>
+                          <span className="text-xs font-bold text-ink-900/45">{parseTags(formData.tagsInput).length}/20</span>
+                        </div>
                         <TextInput
                           id="upload-tags"
                           type="text"
-                          placeholder="pvp, survival, medieval, horror"
+                          placeholder="pvp, survival, medieval"
                           value={formData.tagsInput}
                           onChange={e => setFormData({ ...formData, tagsInput: e.target.value })}
                         />
                         {formData.tagsInput.trim() && (
-                          <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          <div className="mt-3 flex flex-wrap gap-2" aria-label="Parsed tags">
                             {parseTags(formData.tagsInput).map((tag, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center bg-terracotta rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-paper shadow-sm"
-                              >
+                              <span key={i} className="inline-flex items-center rounded-full bg-terracotta/10 px-2.5 py-1 text-xs font-bold text-terracotta-text">
                                 {tag}
                               </span>
                             ))}
                           </div>
                         )}
-                      </div>
+                      </section>
 
-                      <div className="mb-5">
-                        <Label>Cover Images *</Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Upload one or more screenshots. The first image becomes the main cover.
-                        </p>
-
+                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div>
+                            <Label>Cover images *</Label>
+                            <p className="text-xs font-medium text-ink-900/50">First image becomes the cover.</p>
+                          </div>
+                          <span className="text-xs font-bold text-ink-900/45">{formData.imageUrls.length}/{MAX_COVER_IMAGES}</span>
+                        </div>
                         {formData.imageUrls.length > 0 && (
-                          <div className="flex flex-wrap gap-3 mb-3">
+                          <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Cover image previews">
                             {formData.imageUrls.map(url => (
-                              <div key={url} className="relative w-20 h-20 rounded-lg shadow-card overflow-hidden group">
-                                <FadeImage src={url} alt="Cover preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                                {url === formData.imageUrl && (
-                                  <span className="absolute top-0.5 left-0.5 bg-terracotta text-paper border border-ink-900 px-1 text-[9px] font-bold uppercase">Main</span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(url)}
-                                  aria-label="Remove cover image"
-                                  className="absolute bottom-1 right-1 rounded-lg bg-terracotta p-1.5 text-paper shadow-sm transition-opacity focus-visible:ring-2 focus-visible:ring-terracotta sm:opacity-0 sm:group-hover:opacity-100"
-                                >
-                                  <Trash2 size={11} className="text-paper" />
+                              <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-parchment-border bg-parchment shadow-sm">
+                                <FadeImage src={url} alt="Cover preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                                {url === formData.imageUrl && <span className="absolute left-1 top-1 rounded-full bg-terracotta px-1.5 py-0.5 text-[9px] font-bold uppercase text-paper">Main</span>}
+                                <button type="button" onClick={() => removeImage(url)} aria-label="Remove cover image" className="absolute right-1 top-1 rounded-full bg-ink-900/75 p-1.5 text-paper opacity-100 transition group-hover:opacity-100 sm:opacity-0 focus-visible:opacity-100">
+                                  <Trash2 size={12} aria-hidden="true" />
                                 </button>
                               </div>
                             ))}
                           </div>
                         )}
-
-                        <button
-                          type="button"
+                        <div
+                          role="button"
+                          tabIndex={0}
                           onClick={() => imageInputRef.current?.click()}
-                          disabled={imageUploadProgress !== null}
-                          className="w-full flex items-center justify-center gap-2 border border-dashed border-ink-900/25 bg-parchment-raised py-4 text-sm font-medium text-ink-900 uppercase tracking-wide transition-all hover:bg-terracotta/10 hover:border-ink-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); imageInputRef.current?.click(); } }}
+                          onDragEnter={event => { event.preventDefault(); setIsImageDragActive(true); }}
+                          onDragOver={event => event.preventDefault()}
+                          onDragLeave={() => setIsImageDragActive(false)}
+                          onDrop={handleImageDrop}
+                          aria-label="Add cover images"
+                          className={`flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-4 text-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta ${isImageDragActive ? 'border-terracotta bg-terracotta/10' : 'border-ink-900/20 bg-parchment hover:border-terracotta/60 hover:bg-terracotta/[0.04]'}`}
                         >
-                          {imageUploadProgress !== null ? (
-                            <>
-                              <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
-                              Uploading {Math.round(imageUploadProgress)}%
-                            </>
-                          ) : (
-                            <>
-                              <ImagePlus size={16} />
-                              Upload Images
-                            </>
-                          )}
-                        </button>
-                        <input
-                          type="file"
-                          ref={imageInputRef}
-                          onChange={handleImagesSelected}
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                        />
-
-                        {imageUploadProgress !== null && (
-                          <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
-                            <div
-                              className="h-full bg-terracotta-soft transition-all duration-200"
-                              style={{ width: `${imageUploadProgress}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mb-5">
-                        <div className="flex items-end justify-between gap-4">
-                          <div>
-                            <Label hint>Project Versions *</Label>
-                            <p className="text-[11px] font-medium text-ink-900/50">Keep up to two downloadable versions in one addon category.</p>
-                          </div>
-                          {versions.length < 2 && (
-                            <button type="button" onClick={addVersion} className="shrink-0 text-xs font-bold text-terracotta-text underline underline-offset-2 hover:text-terracotta-ink">
-                              + Add version
-                            </button>
-                          )}
+                          {imageUploadProgress !== null ? <span className="text-sm font-bold text-terracotta-text">Uploading {Math.round(imageUploadProgress)}%</span> : <><Upload size={18} className="text-terracotta-text" aria-hidden="true" /><span className="text-sm font-bold text-ink-900">Drop screenshots here or choose files</span><span className="text-xs font-medium text-ink-900/45">JPG, PNG, or WebP · up to {MAX_COVER_IMAGES} images</span></>}
                         </div>
+                        <input type="file" ref={imageInputRef} onChange={handleImagesSelected} accept={IMAGE_ACCEPT} multiple className="hidden" />
+                        {imageUploadProgress !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-900/10" aria-label={`Uploading ${Math.round(imageUploadProgress)} percent`}><div className="h-full rounded-full bg-terracotta transition-[width] duration-200" style={{ width: `${imageUploadProgress}%` }} /></div>}
+                      </section>
 
-                        <div className="mt-4 space-y-4">
+                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <div className="mb-3 flex items-center justify-between gap-3"><div><p className="voltra-section-label">Header media</p><h3 className="mt-1 text-base font-bold text-ink-900">Add a panorama <span className="text-xs font-medium text-ink-900/45">(optional)</span></h3></div>{formData.panoramaUrl && <button type="button" onClick={removePanorama} className="rounded-lg p-2 text-danger hover:bg-danger/[0.08]" aria-label="Remove panorama image"><Trash2 size={15} aria-hidden="true" /></button>}</div>
+                        {formData.panoramaUrl ? <div className="relative aspect-[21/9] overflow-hidden rounded-xl border border-parchment-border"><FadeImage src={formData.panoramaUrl} alt="Panorama preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" /></div> : <div role="button" tabIndex={0} onClick={() => panoramaInputRef.current?.click()} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); panoramaInputRef.current?.click(); } }} onDragEnter={event => { event.preventDefault(); setIsPanoramaDragActive(true); }} onDragOver={event => event.preventDefault()} onDragLeave={() => setIsPanoramaDragActive(false)} onDrop={handlePanoramaDrop} aria-label="Add panorama image" className={`flex min-h-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed px-4 py-3 text-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta ${isPanoramaDragActive ? 'border-terracotta bg-terracotta/10' : 'border-ink-900/20 bg-parchment hover:border-terracotta/60 hover:bg-terracotta/[0.04]'}`}>{panoramaUploadProgress !== null ? <span className="text-sm font-bold text-terracotta-text" aria-live="polite">Uploading {Math.round(panoramaUploadProgress)}%</span> : <><span className="flex items-center gap-2 text-sm font-bold text-ink-900"><ImagePlus size={16} className="text-terracotta-text" aria-hidden="true" /> Drop or choose panorama</span><span className="text-xs font-medium text-ink-900/45">JPG, PNG, WebP · at least 1,200 px wide · 16:10+</span></>}</div>}
+                        <input id="upload-panorama" type="file" ref={panoramaInputRef} onChange={handlePanoramaSelected} accept={IMAGE_ACCEPT} className="hidden" />
+                        {panoramaUploadProgress !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-900/10" aria-label={`Uploading ${Math.round(panoramaUploadProgress)} percent`}><div className="h-full rounded-full bg-terracotta transition-[width] duration-200" style={{ width: `${panoramaUploadProgress}%` }} /></div>}
+                      </section>
+
+                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="voltra-section-label">Release files</p>
+                            <h3 className="mt-1 text-base font-bold text-ink-900">Add a downloadable version</h3>
+                          </div>
+                          {versions.length < 2 && <button type="button" onClick={addVersion} className="min-h-10 rounded-xl border border-parchment-border px-3 text-xs font-bold text-terracotta-text transition hover:border-terracotta/60 hover:bg-terracotta/[0.04]">+ Version</button>}
+                        </div>
+                        <div className="mt-4 space-y-3">
                           {versions.map((version, index) => (
-                            <div key={index} className="rounded-2xl border border-parchment-border bg-parchment p-4 shadow-sm">
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Version {index + 1}</p>
-                                  <p className="mt-1 text-[11px] font-medium text-ink-900/50">{index === 0 ? 'This is the default download.' : 'Optional update for existing users.'}</p>
-                                </div>
-                                {index > 0 && <button type="button" onClick={() => removeVersion(index)} className="rounded-lg p-1.5 text-ink-900/45 hover:bg-danger/[0.08] hover:text-danger" aria-label={`Remove version ${index + 1}`}><Trash2 size={15} /></button>}
+                            <div key={index} className="rounded-xl border border-parchment-border bg-parchment p-3 sm:p-4">
+                              <div className="mb-3 flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta/10 text-terracotta-text"><FileArchive size={14} aria-hidden="true" /></span><span className="text-sm font-bold text-ink-900">{index === 0 ? 'Current release' : 'Optional update'}</span></div>
+                                {index > 0 && <button type="button" onClick={() => removeVersion(index)} className="rounded-lg p-2 text-ink-900/45 transition hover:bg-danger/[0.08] hover:text-danger" aria-label={`Remove version ${index + 1}`}><Trash2 size={15} aria-hidden="true" /></button>}
                               </div>
-
-                              <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,160px)_1fr]">
-                                <TextInput
-                                  id={`upload-version-${index + 1}`}
-                                  required
-                                  value={version.version}
-                                  onChange={event => updateVersion(index, { version: event.target.value })}
-                                  placeholder={index === 0 ? '1.0.0' : '1.1.0'}
-                                  aria-label={`Version ${index + 1} name`}
-                                />
-                                <div className="flex min-w-0 gap-2">
-                                  <TextInput
-                                    id={`upload-version-url-${index + 1}`}
-                                    required
-                                    type="url"
-                                    value={version.downloadUrl}
-                                    onChange={event => updateVersion(index, { downloadUrl: event.target.value, fileName: '' })}
-                                    placeholder="https://..."
-                                    aria-label={`Version ${index + 1} download URL`}
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => index === 0 ? addonFileInputRef.current?.click() : versionFileInputRefs.current[index]?.click()}
-                                    disabled={index === 0 ? fileUploadProgress !== null : versionUploadProgress[index] !== null}
-                                    title={`Upload version ${index + 1} file`}
-                                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition-[background-color,transform] duration-150 hover:bg-terracotta-text active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {index === 0 && fileUploadProgress !== null || index > 0 && versionUploadProgress[index] !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} />}
+                              <div className="grid gap-3 sm:grid-cols-[minmax(0,136px)_1fr]">
+                                <TextInput id={`upload-version-${index + 1}`} required value={version.version} onChange={event => updateVersion(index, { version: event.target.value })} placeholder={index === 0 ? '1.0.0' : '1.1.0'} aria-label={`Version ${index + 1} name`} />
+                                <div className={`flex min-w-0 gap-2 rounded-xl transition-colors ${isAddonDragActive && index === 0 ? 'ring-2 ring-terracotta' : ''}`} onDragEnter={event => { if (index === 0) { event.preventDefault(); setIsAddonDragActive(true); } }} onDragOver={event => { if (index === 0) event.preventDefault(); }} onDragLeave={() => index === 0 && setIsAddonDragActive(false)} onDrop={event => { if (index === 0) handleAddonDrop(event); }}>
+                                  <TextInput id={`upload-version-url-${index + 1}`} required type="url" value={version.downloadUrl} onChange={event => updateVersion(index, { downloadUrl: event.target.value, fileName: '' })} placeholder="Paste URL or drop file" aria-label={`Version ${index + 1} download URL`} />
+                                  <button type="button" onClick={() => index === 0 ? addonFileInputRef.current?.click() : versionFileInputRefs.current[index]?.click()} disabled={index === 0 ? fileUploadProgress !== null : versionUploadProgress[index] !== null} title={`Upload version ${index + 1} file`} aria-label={`Upload version ${index + 1} file`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition hover:bg-terracotta-text active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+                                    {index === 0 && fileUploadProgress !== null || index > 0 && versionUploadProgress[index] !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} aria-hidden="true" />}
                                   </button>
-                                  {index === 0 ? (
-                                    <input type="file" ref={addonFileInputRef} onChange={handleAddonFileSelected} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip" className="hidden" />
-                                  ) : (
-                                    <input type="file" ref={element => { versionFileInputRefs.current[index] = element; }} onChange={event => handleVersionFileSelected(event, index)} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip" className="hidden" />
-                                  )}
+                                  {index === 0 ? <input type="file" ref={addonFileInputRef} onChange={handleAddonFileSelected} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip,.jar" className="hidden" /> : <input type="file" ref={element => { versionFileInputRefs.current[index] = element; }} onChange={event => handleVersionFileSelected(event, index)} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip,.jar" className="hidden" />}
                                 </div>
                               </div>
-
-                              {(version.fileName || index === 0 && uploadedFileName) && <p className="mt-2 flex items-center gap-2 text-[11px] font-bold text-success"><Check size={13} />{version.fileName || uploadedFileName}</p>}
-                              <label htmlFor={`upload-version-changelog-${index + 1}`} className="mt-4 block text-xs font-bold uppercase tracking-widest text-ink-900/60">Changelog</label>
-                              <textarea id={`upload-version-changelog-${index + 1}`} value={version.changelog} onChange={event => updateVersion(index, { changelog: event.target.value })} rows={3} maxLength={10000} placeholder={index === 0 ? 'What is included in this release?' : 'What changed since the previous version?'} className={`${getInputClasses()} mt-2 resize-y`} />
-                              <label htmlFor={`upload-version-compatibility-${index + 1}`} className="mt-3 block text-xs font-bold uppercase tracking-widest text-ink-900/60">Compatibility notes <span className="font-medium normal-case tracking-normal text-ink-900/40">(optional)</span></label>
-                              <TextInput id={`upload-version-compatibility-${index + 1}`} value={version.compatibilityNotes} onChange={event => updateVersion(index, { compatibilityNotes: event.target.value })} placeholder="Minecraft 1.21+" className="mt-2" />
+                              {(version.fileName || index === 0 && uploadedFileName) && <p className="mt-2 flex items-center gap-2 truncate text-xs font-bold text-success"><Check size={13} aria-hidden="true" />{version.fileName || uploadedFileName}</p>}
+                              <details className="mt-3 rounded-xl border border-parchment-border/70 bg-parchment-raised px-3 py-2">
+                                <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-ink-900"><span>Release notes</span><ChevronDown size={14} aria-hidden="true" /></summary>
+                                <div className="mt-3 space-y-3">
+                                  <div><label htmlFor={`upload-version-changelog-${index + 1}`} className="mb-2 block text-xs font-bold text-ink-900/65">Changelog</label><textarea id={`upload-version-changelog-${index + 1}`} value={version.changelog} onChange={event => updateVersion(index, { changelog: event.target.value })} rows={3} maxLength={10000} placeholder="What changed in this release?" className={`${getInputClasses()} resize-y`} /></div>
+                                  <div><label htmlFor={`upload-version-compatibility-${index + 1}`} className="mb-2 block text-xs font-bold text-ink-900/65">Compatibility <span className="font-medium text-ink-900/40">(optional)</span></label><TextInput id={`upload-version-compatibility-${index + 1}`} value={version.compatibilityNotes} onChange={event => updateVersion(index, { compatibilityNotes: event.target.value })} placeholder="Minecraft 1.21+" /></div>
+                                </div>
+                              </details>
                             </div>
                           ))}
                         </div>
+                        {(fileUploadProgress !== null || Object.values(versionUploadProgress).some(Boolean)) && <p className="mt-3 text-xs font-bold text-terracotta-text" aria-live="polite">Uploading release file… {Math.round(fileUploadProgress ?? Object.values(versionUploadProgress).find(value => value !== null) ?? 0)}%</p>}
+                      </section>
 
-                        {fileUploadProgress !== null && <p className="mt-2 text-[10px] font-bold uppercase text-ink-900/50">Uploading version 1… {Math.round(fileUploadProgress)}%</p>}
-                        {Object.entries(versionUploadProgress).map(([index, progress]) => progress !== null && <p key={index} className="mt-2 text-[10px] font-bold uppercase text-ink-900/50">Uploading version {Number(index) + 1}… {Math.round(progress)}%</p>)}
-                      </div>
-
-                      <div className="mb-5">
-                        <Label htmlFor="upload-demo-url" hint>Demo / Preview Video URL</Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Paste a YouTube link and it'll play right on your add-on page. Optional.
-                        </p>
-                        <TextInput
-                          id="upload-demo-url"
-                          type="url"
-                          value={formData.demoUrl}
-                          onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
-                          placeholder="https://youtube.com/watch?v=..."
-                        />
-                      </div>
-
-                      <div className="space-y-4 pt-4 border-t border-parchment-border">
-                        <NeuCheckbox
-                          id="upload-allow-comments"
-                          checked={formData.allowComments}
-                          onChange={v => setFormData({ ...formData, allowComments: v })}
-                          label="Allow Comments"
-                        />
-                        <NeuCheckbox
-                          id="upload-unlisted"
-                          checked={formData.unlisted}
-                          onChange={v => setFormData({ ...formData, unlisted: v })}
-                          label="Unlisted Project"
-                          sublabel="Won't appear in search or profile. Can be shared via direct link."
-                        />
-                      </div>
-
-                      <div className="mt-5 pt-5 border-t border-parchment-border">
-                        <Label htmlFor="upload-panorama">Panorama Image <span className="font-medium normal-case tracking-normal text-ink-900/45">(optional)</span></Label>
-                        <p className="text-[11px] text-ink-900/50 font-medium mb-2">
-                          Add a wide screenshot for the header banner. JPG, PNG, or WebP; at least 1,200 px wide.
-                        </p>
-
-                        {formData.panoramaUrl ? (
-                          <div className="relative w-full aspect-[21/9] rounded-lg shadow-card overflow-hidden group mb-3">
-                            <FadeImage src={formData.panoramaUrl} alt="Panorama preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                            <button
-                              type="button"
-                              onClick={removePanorama}
-                              aria-label="Remove panorama image"
-                              className="absolute bottom-2 right-2 rounded-lg bg-terracotta p-2 text-paper shadow-sm transition-opacity focus-visible:ring-2 focus-visible:ring-terracotta sm:opacity-0 sm:group-hover:opacity-100"
-                            >
-                              <Trash2 size={13} className="text-paper" />
-                            </button>
+                      <details open={advancedOpen} onToggle={event => setAdvancedOpen(event.currentTarget.open)} className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-ink-900"><span><span className="voltra-section-label block">Optional</span><span className="mt-1 block">Add more project details</span></span><ChevronDown size={18} className={`text-ink-900/50 transition-transform ${advancedOpen ? 'rotate-180' : ''}`} aria-hidden="true" /></summary>
+                        <div className="mt-4 space-y-4">
+                          <div>
+                            <Label htmlFor="upload-demo-url">Demo video URL</Label>
+                            <TextInput id="upload-demo-url" type="url" value={formData.demoUrl} onChange={e => setFormData({ ...formData, demoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=..." />
                           </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => panoramaInputRef.current?.click()}
-                            disabled={panoramaUploadProgress !== null}
-                            className="w-full flex items-center justify-center gap-2 border border-dashed border-ink-900/25 bg-parchment-raised py-6 text-sm font-medium text-ink-900 uppercase tracking-wide transition-all hover:bg-terracotta/10 hover:border-ink-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {panoramaUploadProgress !== null ? (
-                                <>
-                                  <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border relative before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
-                                  Uploading {Math.round(panoramaUploadProgress)}%
-                                </>
-                              ) : (
-                                <>
-                                  <ImagePlus size={16} />
-                                  Upload Panorama
-                                </>
-                              )}
-                          </button>
-                        )}
-                          <input
-                          id="upload-panorama"
-                          type="file"
-                          ref={panoramaInputRef}
-                          onChange={handlePanoramaSelected}
-                          accept="image/jpeg,image/png,image/webp"
-                          className="hidden"
-                        />
-
-                        {panoramaUploadProgress !== null && (
-                          <div className="mt-2 h-2 border border-parchment-border rounded-lg bg-parchment-raised overflow-hidden">
-                            <div
-                              className="h-full bg-terracotta-soft transition-all duration-200"
-                              style={{ width: `${panoramaUploadProgress}%` }}
-                            />
+                          <div className="grid gap-3 rounded-xl border border-parchment-border bg-parchment p-3 sm:grid-cols-2 sm:p-4">
+                            <NeuCheckbox id="upload-allow-comments" checked={formData.allowComments} onChange={v => setFormData({ ...formData, allowComments: v })} label="Allow comments" />
+                            <NeuCheckbox id="upload-unlisted" checked={formData.unlisted} onChange={v => setFormData({ ...formData, unlisted: v })} label="Unlisted project" sublabel="Share by direct link only." />
                           </div>
-                        )}
-                      </div>
+
+                        </div>
+                      </details>
                     </>
                   )}
 
                   {step === 'description' && (
-                    <div>
+                    <div
+                      onBlur={event => {
+                        const relatedTarget = event.relatedTarget as Node | null;
+                        if ((!relatedTarget || !event.currentTarget.contains(relatedTarget)) && formData.description.trim() && !hasAutoAdvancedDescriptionRef.current) {
+                          hasAutoAdvancedDescriptionRef.current = true;
+                          setStepError('');
+                          setStep('license');
+                        }
+                      }}
+                    >
                       <Label>Description *</Label>
+                      <p className="mb-4 text-xs font-medium text-ink-900/50">Add the details players need before downloading.</p>
                       <DescriptionEditor
                         required
                         value={formData.description}
@@ -975,28 +960,19 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                     <div className="space-y-7">
                       <div>
                         <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest mb-1">Project License</h3>
-                        <p className="text-xs text-ink-900/50 font-medium mb-3">
-                          Use the original license for forked projects.{' '}
-                          <a href="#" className="text-ink-900 font-bold underline">Full guidelines</a>
-                        </p>
+                          <p className="text-xs text-ink-900/50 font-medium mb-3">Choose how others may use and share this project.</p>
                         <CustomSelect
                           value={formData.license}
                           options={PROJECT_LICENSES}
                           onChange={val => setFormData({ ...formData, license: val })}
                         />
-                        <a href="#" className="inline-block text-xs text-ink-900/50 font-bold underline mt-2 hover:text-ink-900">
-                          View full license
-                        </a>
                       </div>
 
                       <div className="pt-5 border-t border-parchment-border">
                         <h3 className="text-sm font-bold text-ink-900 uppercase tracking-widest mb-1 flex items-center gap-1">
                           Distribution <HelpCircle size={13} className="text-ink-900/40" />
                         </h3>
-                        <p className="text-xs text-ink-900/50 font-medium mb-3">
-                          Downloads outside the ecosystem don't count toward rewards.{' '}
-                          <a href="#" className="text-ink-900 font-bold underline">Learn more</a>
-                        </p>
+                        <p className="text-xs text-ink-900/50 font-medium mb-3">Choose whether third-party distribution is allowed.</p>
                         <CustomSelect
                           value={formData.distributionPref}
                           options={['Allow distribution to 3rd party', "Don't allow distribution to 3rd party"]}
@@ -1013,13 +989,13 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
               <div className="flex shrink-0 items-center justify-between border-t border-parchment-border bg-parchment-raised p-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
                 <div>
                   {stepError && (
-                    <p className="text-xs font-bold text-danger">{stepError}</p>
+                    <p role="alert" className="text-xs font-bold text-danger">{stepError}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className={getButtonClasses('ghost', 'md')}
                   >
                     Cancel
@@ -1030,7 +1006,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       onClick={goPrev}
                       className={getButtonClasses('secondary', 'md')}
                     >
-                      Previous
+                      Back
                     </button>
                   )}
                   {step !== 'license' ? (
@@ -1039,7 +1015,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                       onClick={goNext}
                       className={getButtonClasses('primary', 'md')}
                     >
-                      Next
+                      Continue
                     </button>
                   ) : (
                     loading ? (
@@ -1053,7 +1029,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         disabled={loading || !!successMessage}
                         className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                       >
-                        Publish Add-on
+                        Publish project
                       </button>
                     )
                   )}
