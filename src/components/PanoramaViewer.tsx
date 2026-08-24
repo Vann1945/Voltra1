@@ -76,10 +76,10 @@ export function PanoramaViewer({ src, alt }: PanoramaViewerProps) {
         <div>
           <div className="flex items-center gap-2 text-terracotta-text">
             <Scan size={16} aria-hidden="true" />
-            <p className="text-xs font-bold uppercase tracking-[0.16em]">Interactive preview</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em]">Panorama</p>
           </div>
-          <h2 id="panorama-heading" className="mt-2 text-xl font-bold tracking-[-0.02em] text-ink-900">Explore the panorama</h2>
-          <p className="mt-1 text-sm font-medium text-ink-900/55">Drag the canvas or use the arrow controls to view the full scene.</p>
+          <h2 id="panorama-heading" className="mt-2 text-xl font-bold tracking-[-0.02em] text-ink-900">Panorama</h2>
+          <p className="mt-1 text-sm font-medium text-ink-900/55">Geser untuk melihat seluruh panorama.</p>
         </div>
         <button
           type="button"

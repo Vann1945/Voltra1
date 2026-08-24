@@ -14,6 +14,7 @@ import { IMAGE_ACCEPT, MAX_COVER_IMAGES, getCoverFileError, parseTags } from '..
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onPublished?: () => void | Promise<void>;
 }
 
 const PROJECT_LICENSES = [
@@ -325,7 +326,7 @@ function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise
   });
 }
 
-export function UploadModal({ isOpen, onClose }: UploadModalProps) {
+export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) {
   const reduceMotion = useReducedMotion();
   useBodyScrollLock(isOpen);
   const { user } = useAuth();
@@ -726,6 +727,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to publish add-on.');
       }
+      await onPublished?.();
       setSuccessMessage('Add-on published! It is pending admin review.');
       showToast('Add-on published successfully.', 'success');
       setTimeout(() => { setSuccessMessage(''); handleClose(); }, 2500);
@@ -1086,7 +1088,7 @@ export function UploadModal({ isOpen, onClose }: UploadModalProps) {
                         disabled={loading || !!successMessage}
                         className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'md')}`}
                       >
-                        Publish project
+                        Publish add-on
                       </button>
                     )
                   )}

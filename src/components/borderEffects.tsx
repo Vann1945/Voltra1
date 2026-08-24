@@ -434,9 +434,10 @@ export function ProfileAvatar({
   const hasPhoto = typeof photoURL === 'string' && photoURL.trim().length > 0;
 
   return (
-    <div className={`relative ${sizeClassName} shrink-0 ${className}`}>
+    <div className={`relative isolate ${sizeClassName} shrink-0 ${className}`}>
+      <span className="sr-only">Profile border: {effect.label}</span>
       {renderBorderDecoration(effect)}
-      <div className={`relative h-full w-full overflow-hidden rounded-full bg-parchment-raised flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
+      <div className={`relative z-10 h-full w-full overflow-hidden rounded-full bg-parchment-raised flex items-center justify-center transition-all ${getBorderRingClass(effect)}`}>
         {hasPhoto ? (
           <FadeImage
             src={photoURL}

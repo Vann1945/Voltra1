@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bookmark, ChevronDown, Flame, Heart, LayoutGrid, List, LogIn, LogOut, Menu, MoonStar, Shield, SunMedium, Upload, UserRound, X, Zap } from 'lucide-react';
+import { Bookmark, ChevronDown, Flame, LogIn, LogOut, Menu, Settings as SettingsIcon, Shield, Upload, UserRound, X, Zap } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ViewState } from '../App';
 import { ProfileAvatar } from './borderEffects';
@@ -10,37 +10,19 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onNavigate: (view: ViewState) => void;
   currentView: ViewState;
-  theme: 'light' | 'dark' | 'oled';
-  onToggleTheme: () => void;
-  onSetTheme: (theme: 'light' | 'dark' | 'oled') => void;
-  layoutMode: 'grid' | 'list';
-  onSetLayoutMode: (mode: 'grid' | 'list') => void;
+
 }
 
 interface MobileBottomNavProps {
   user: { displayName?: string; photoURL?: string | null; profileBorder?: string; role?: string } | null;
   currentView: ViewState;
-  layoutMode: 'grid' | 'list';
-  theme: 'light' | 'dark' | 'oled';
   onNavigate: (view: ViewState) => void;
   onOpenAuth: () => void;
   onOpenUpload: () => void;
-  onSetLayoutMode: (mode: 'grid' | 'list') => void;
-  onToggleTheme: () => void;
   onLogout: () => void;
 }
 
-export function ThemeToggle({ theme, onToggle }: { theme: 'light' | 'dark' | 'oled'; onToggle?: () => void }) {
-  const Icon = theme === 'light' ? SunMedium : MoonStar;
-  return <button type="button" onClick={onToggle} aria-label={`Switch theme. Current theme: ${theme}`} className="flex h-10 w-10 items-center justify-center rounded-xl border border-parchment-border bg-parchment-raised text-ink-900 transition-colors hover:border-terracotta focus-visible:ring-2 focus-visible:ring-terracotta"><Icon size={17} /></button>;
-}
-
-export function WindowThemeToggle({ theme, onToggle }: { theme: 'light' | 'dark' | 'oled'; onToggle: () => void }) {
-  const Icon = theme === 'light' ? SunMedium : MoonStar;
-  return <button type="button" onClick={onToggle} className="flex w-full items-center justify-between rounded-xl border border-parchment-border bg-parchment-raised px-4 py-3 text-sm font-semibold text-ink-900 hover:border-terracotta"><span className="flex items-center gap-2"><Icon size={16} />{theme === 'light' ? 'Light theme' : theme === 'dark' ? 'Dark theme' : 'OLED theme'}</span><span className="text-xs text-ink-900/50">Change</span></button>;
-}
-
-function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onOpenAuth, onOpenUpload, onSetLayoutMode, onToggleTheme, onLogout }: MobileBottomNavProps) {
+function MobileBottomNav({ user, currentView, onNavigate, onOpenAuth, onOpenUpload, onLogout }: MobileBottomNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const act = (callback: () => void) => { HAPTIC_PATTERNS.light(); callback(); };
   const active = (view: string) => view === 'library' ? currentView === 'library' || currentView === 'bookmarks' : currentView === view;
@@ -57,33 +39,28 @@ function MobileBottomNav({ user, currentView, layoutMode, theme, onNavigate, onO
         <ProfileAvatar photoURL={user.photoURL ?? null} displayName={user.displayName || 'User'} borderValue={user.profileBorder ?? 'none'} sizeClassName="h-10 w-10" textSizeClassName="text-sm" />
         <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{user.displayName}</span><span className="block text-xs text-ink-900/55">Open profile</span></span><ChevronDown size={15} className="-rotate-90 text-ink-900/40" />
       </button> : <button type="button" onClick={() => closeAnd(onOpenAuth)} className={`${getButtonClasses('primary', 'md')} w-full`}><LogIn size={16} /> Sign in</button>}
-      {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish a project</button>}
-      {user && <>
-        <button type="button" onClick={() => closeAnd(() => onNavigate('streak'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button>
-      </>}
+      {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish an add-on</button>}
+      <button type="button" onClick={() => closeAnd(() => onNavigate('streak'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button>
+      <button type="button" onClick={() => closeAnd(() => onNavigate('settings'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><SettingsIcon size={16} /> Settings</button>
       {user?.role === 'admin' && <button type="button" onClick={() => closeAnd(() => onNavigate('admin'))} className={`${getButtonClasses('secondary', 'md')} w-full`}><Shield size={16} /> Admin</button>}
-      <div className="grid grid-cols-2 gap-2 border-t border-parchment-border pt-3">
-        <button type="button" onClick={() => onSetLayoutMode('grid')} aria-pressed={layoutMode === 'grid'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'grid' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><LayoutGrid size={14} />Grid</button>
-        <button type="button" onClick={() => onSetLayoutMode('list')} aria-pressed={layoutMode === 'list'} className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold ${layoutMode === 'list' ? 'bg-terracotta text-ink-900' : 'bg-ink-900/[0.04] text-ink-900/60'}`}><List size={14} />List</button>
-      </div>
-      <button type="button" onClick={() => act(onToggleTheme)} className="flex items-center justify-center gap-2 rounded-xl bg-ink-900/[0.04] px-3 py-2.5 text-xs font-bold text-ink-900/70"><SunMedium size={14} />Change theme</button>
       {user && <button type="button" onClick={() => closeAnd(onLogout)} className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={14} />Log out</button>}
     </div>
     <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around border-t border-parchment-border bg-parchment-raised/95 shadow-[0_-4px_16px_rgba(23,35,41,0.06)] backdrop-blur sm:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <button type="button" onClick={() => act(() => onNavigate('home'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('home') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Zap size={18} />Explore</button>
-      <button type="button" onClick={() => act(() => onNavigate('library'))} aria-current={active('library') ? 'page' : undefined} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Bookmark size={18} />Saved</button>
+      <button type="button" onClick={() => act(() => onNavigate('library'))} aria-current={active('library') ? 'page' : undefined} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Bookmark size={18} />Bookmark</button>
       <button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/60'}`}>{isOpen ? <X size={18} /> : <Menu size={18} />}Menu</button>
     </nav>
   </>;
 }
 
-export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, theme, onToggleTheme, onSetTheme, layoutMode, onSetLayoutMode }: NavbarProps) {
+export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: NavbarProps) {
   const { user, logout } = useAuth();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isHome = currentView === 'home';
   const isStreak = currentView === 'streak';
   const isLibrary = currentView === 'library' || currentView === 'bookmarks';
+  const isSettings = currentView === 'settings';
 
   useEffect(() => {
     if (!profileMenuOpen) return;
@@ -102,8 +79,9 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
         <button type="button" onClick={() => onNavigate('home')} className="group flex items-center gap-3 text-left"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-900 text-terracotta shadow-sm transition-transform duration-200 group-hover:-rotate-3 group-active:scale-95"><Zap size={18} /></span><span className="text-lg font-bold tracking-tight">Voltra</span></button>
         <div className="hidden items-center gap-1 rounded-2xl border border-parchment-border bg-parchment px-1.5 py-1.5 sm:flex">
           <button type="button" onClick={() => onNavigate('home')} aria-current={isHome ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}>Explore</button>
-          <button type="button" onClick={() => onNavigate('library')} aria-current={isLibrary ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Bookmark size={15} />Saved</span></button>
+          <button type="button" onClick={() => onNavigate('library')} aria-current={isLibrary ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Bookmark size={15} />Bookmark</span></button>
           <button type="button" onClick={() => onNavigate('streak')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isStreak ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Flame size={15} />Streak</span></button>
+          <button type="button" onClick={() => onNavigate('settings')} aria-current={isSettings ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isSettings ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><SettingsIcon size={15} />Settings</span></button>
         </div>
         <div className="hidden items-center gap-2 sm:flex">
           {user ? <>
@@ -117,12 +95,12 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
                 <div className="flex items-center gap-3 rounded-xl bg-parchment px-3 py-3"><ProfileAvatar photoURL={user.photoURL} displayName={user.displayName} borderValue={user.profileBorder} sizeClassName="h-11 w-11" textSizeClassName="text-sm" /><div className="min-w-0"><p className="truncate text-sm font-bold text-ink-900">{user.displayName}</p><p className="mt-0.5 truncate text-xs text-ink-900/55">Your Voltra profile</p></div></div>
                 <div className="mt-2 grid gap-1">
                   <button type="button" role="menuitem" onClick={() => goFromProfile('profile')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><UserRound size={16} />View profile</button>
-                  <button type="button" role="menuitem" onClick={() => { HAPTIC_PATTERNS.light(); onOpenUpload(); setProfileMenuOpen(false); }} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Upload size={16} />Publish a project</button>
-                  <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Bookmark size={16} />Saved <span className="ml-auto text-xs font-medium text-ink-900/45">Saved + liked</span></button>
+                  <button type="button" role="menuitem" onClick={() => { HAPTIC_PATTERNS.light(); onOpenUpload(); setProfileMenuOpen(false); }} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Upload size={16} />Publish an add-on</button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Bookmark size={16} />Bookmark <span className="ml-auto text-xs font-medium text-ink-900/45">Bookmarks + liked</span></button>
                   <button type="button" role="menuitem" onClick={() => goFromProfile('streak')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Flame size={16} />Streak</button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('settings')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><SettingsIcon size={16} />Settings</button>
                 </div>
                 {user.role === 'admin' && <button type="button" role="menuitem" onClick={() => goFromProfile('admin')} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Shield size={16} />Admin</button>}
-                <div className="mt-2 border-t border-parchment-border pt-2"><div className="grid grid-cols-3 gap-1.5">{(['light', 'dark', 'oled'] as const).map(option => <button key={option} type="button" onClick={() => { onSetTheme(option); setProfileMenuOpen(false); }} className={`rounded-lg border px-2 py-2 text-[11px] font-bold capitalize transition-colors ${theme === option ? 'border-terracotta bg-terracotta/15 text-ink-900' : 'border-parchment-border text-ink-900/60 hover:border-terracotta/60'}`}>{option}</button>)}</div><button type="button" onClick={onToggleTheme} className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-ink-900/[0.04] px-3 py-2.5 text-xs font-bold text-ink-900/70"><SunMedium size={14} />Cycle theme</button></div>
                 <button type="button" role="menuitem" onClick={() => { logout(); setProfileMenuOpen(false); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={16} />Log out</button>
               </div>}
             </div>
@@ -130,6 +108,6 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView, them
         </div>
       </div>
     </nav>
-    <MobileBottomNav user={user} currentView={currentView} layoutMode={layoutMode} theme={theme} onNavigate={onNavigate} onOpenAuth={onOpenAuth} onOpenUpload={onOpenUpload} onSetLayoutMode={onSetLayoutMode} onToggleTheme={onToggleTheme} onLogout={logout} />
+    <MobileBottomNav user={user} currentView={currentView} onNavigate={onNavigate} onOpenAuth={onOpenAuth} onOpenUpload={onOpenUpload} onLogout={logout} />
   </>;
 }

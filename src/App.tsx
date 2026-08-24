@@ -19,6 +19,7 @@ const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ d
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 const StreakApp = lazy(() => import('./StreakApp').then(m => ({ default: m.default })));
 const BookmarksPage = lazy(() => import('./components/BookmarksPage').then(m => ({ default: m.BookmarksPage })));
+const SettingsPage = lazy(() => import('./components/SettingsPage').then(m => ({ default: m.SettingsPage })));
 
 export type ViewState =
   | 'landing'
@@ -27,6 +28,7 @@ export type ViewState =
   | 'profile'
   | 'bookmarks'
   | 'library'
+  | 'settings'
   | 'admin'
   | { type: 'addon', id: string }
   | { type: 'author', id: string }
@@ -49,7 +51,7 @@ export const categoryToSlug = (category?: string): string => {
 };
 
 const RESERVED_TOP_SEGMENTS = new Set([
-  'home', 'landing', 'streak', 'profile', 'bookmarks', 'library', 'admin', 'reset-password', 'author',
+  'home', 'landing', 'streak', 'profile', 'bookmarks', 'library', 'settings', 'admin', 'reset-password', 'author',
 ]);
 
 function normalizeAppPath(pathname: string): string {
@@ -66,6 +68,7 @@ function getInitialView(pathname: string, search: string): ViewState {
   if (path === '/streak') return 'streak';
   if (path === '/profile') return 'profile';
   if (path === '/bookmarks' || path === '/library') return 'library';
+  if (path === '/settings') return 'settings';
   if (path === '/admin') return 'admin';
   if (path === '/reset-password') {
     const params = new URLSearchParams(search);
@@ -219,6 +222,7 @@ function AppShell() {
     else if (view === 'streak') path = '/streak';
     else if (view === 'profile') path = '/profile';
     else if (view === 'bookmarks' || view === 'library') path = '/library';
+    else if (view === 'settings') path = '/settings';
     else if (view === 'admin') path = '/admin';
     else if (typeof view === 'object' && view.type === 'addon') {
       const addon = addons.find(a => a.id === view.id);
@@ -248,11 +252,6 @@ function AppShell() {
           onOpenAuth={() => setIsAuthOpen(true)}
           onNavigate={handleNavigate}
           currentView={currentView}
-          theme={theme}
-          onToggleTheme={cycleTheme}
-          onSetTheme={queueThemeChange}
-          layoutMode={layoutMode}
-          onSetLayoutMode={(m) => setLayoutMode(m)}
         />
       )}
 
@@ -319,6 +318,14 @@ function AppShell() {
                   onRequireAuth={() => setIsAuthOpen(true)}
                   onNavigate={handleNavigate}
                 />
+              ) : currentView === 'settings' ? (
+                <SettingsPage
+                  theme={theme}
+                  layoutMode={layoutMode}
+                  onSetTheme={queueThemeChange}
+                  onSetLayoutMode={setLayoutMode}
+                  onNavigate={handleNavigate}
+                />
               ) : currentView === 'admin' ? (
                 <AdminPanel
                   addons={addons}
@@ -364,7 +371,7 @@ function AppShell() {
 
       <Suspense fallback={null}>
         {isUploadOpen && (
-          <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+          <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onPublished={() => refetchAddons()} />
         )}
         {isAuthOpen && (
           <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Addon, AddonVersion, Review } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronDown, ChevronLeft, ChevronRight, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronDown, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
 import { ViewState } from '../App';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
@@ -76,6 +76,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const [collaborators, setCollaborators] = useState<NonNullable<Addon['collaborators']>>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const gallerySwipeStartXRef = useRef<number | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [videoActivated, setVideoActivated] = useState(false);
   const [versions, setVersions] = useState<AddonVersion[]>([]);
@@ -254,6 +255,24 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     setIsPaused(true);
     setCurrentImageIndex(idx);
   };
+  const handleGalleryPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    gallerySwipeStartXRef.current = event.clientX;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const handleGalleryPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    const startX = gallerySwipeStartXRef.current;
+    gallerySwipeStartXRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (startX === null) return;
+    const deltaX = event.clientX - startX;
+    if (Math.abs(deltaX) < 48) return;
+    if (deltaX < 0) goNext(); else goPrev();
+  };
+  const handleGalleryPointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    gallerySwipeStartXRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
   const demoYouTubeId = addon.demoUrl ? getYouTubeVideoId(addon.demoUrl) : null;
 
   const handleDownloadClick = async (e: React.MouseEvent) => {
@@ -361,6 +380,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
           className="relative aspect-[21/9] w-full overflow-hidden border-b border-parchment-border bg-ink-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onPointerDown={handleGalleryPointerDown}
+          onPointerUp={handleGalleryPointerUp}
+          onPointerCancel={handleGalleryPointerCancel}
+          style={{ touchAction: 'pan-y' }}
         >
           {!imageLoaded && (
             <Skeleton className="absolute inset-0 rounded-none border-0 z-10" />
@@ -374,20 +397,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
           />
           {images.length > 1 && (
             <>
-              <button
-                onClick={goPrev}
-                aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-terracotta rounded-xl shadow-card text-ink-900 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                onClick={goNext}
-                aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-terracotta rounded-xl shadow-card text-ink-900 transition-[transform,box-shadow] duration-200 hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-px"
-              >
-                <ChevronRight size={18} />
-              </button>
               <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 flex">
                 {images.map((_, idx) => (
                   <button
@@ -492,10 +501,10 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
         </div>
       </article>
 
-      <section className="mt-6 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-label="Project actions">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-parchment-border pb-4"><p className="text-sm font-bold text-ink-900">Want to keep this project?</p><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'sm')} gap-2`}><AlertTriangle size={15} />Report</button><button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Heart size={15} className={isLiked ? 'fill-current' : ''} />{isLiked ? 'Liked' : 'Like'}</button><button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} />{isBookmarked ? 'Saved' : 'Save for later'}</button></div></div>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Download release</p><p className="mt-1 text-sm font-bold text-ink-900">{activeVersion?.version || 'Current version'}</p><p className="mt-1 text-xs text-ink-900/50">{activeVersion?.compatibilityNotes || 'Choose a version above if this project has multiple releases.'}</p></div>{versions.length > 0 && <VersionDropdown versions={versions} selectedVersionId={selectedVersionId} onChange={setSelectedVersionId} />}</div>
-        <button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 text-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />Downloading {downloadProgress}%</> : downloadSuccess ? <><Check size={18} />Downloaded!</> : <><Download size={18} />Download {activeVersion?.version || 'project'}</>}</button>
+      <section className="mt-6 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-label="Add-on actions">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-parchment-border pb-4"><p className="text-sm font-bold text-ink-900">Want to keep this add-on?</p><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'sm')} gap-2`}><AlertTriangle size={15} />Report</button><button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Heart size={15} className={isLiked ? 'fill-current' : ''} />{isLiked ? 'Liked' : 'Like'}</button><button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} />{isBookmarked ? 'Bookmarked' : 'Bookmark'}</button></div></div>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">Download release</p><p className="mt-1 text-sm font-bold text-ink-900">{activeVersion?.version || 'Current version'}</p><p className="mt-1 text-xs text-ink-900/50">{activeVersion?.compatibilityNotes || 'Choose a version above if this add-on has multiple releases.'}</p></div>{versions.length > 0 && <VersionDropdown versions={versions} selectedVersionId={selectedVersionId} onChange={setSelectedVersionId} />}</div>
+        <button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 text-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />Downloading {downloadProgress}%</> : downloadSuccess ? <><Check size={18} />Downloaded!</> : <><Download size={18} />Download {activeVersion?.version || 'add-on'}</>}</button>
       </section>
 
       {addon.panoramaUrl && <div className="mt-8"><PanoramaViewer src={addon.panoramaUrl} alt={`${addon.title} panorama`} /></div>}

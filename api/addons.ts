@@ -447,33 +447,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const payload = buildAddonPayload({ ...input, downloadUrl: versions[0].downloadUrl, versions } as AddonUploadInput, addonId, user.uid, user.name || 'Anonymous');
 
       await ensureFeatureTables();
-      await query(
-        `INSERT INTO addons
-           (id, title, description, category, additional_category, project_class, image_url, image_urls,
-            panorama_url, tags, download_url, demo_url, license, distribution_pref, socials, author_id, author_name,
-            status, is_featured, unlisted, allow_comments, likes_count, downloads_count, rating_count, average_rating)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
-        [
-          payload.id, payload.title, payload.description, payload.category, payload.additionalCategory,
-          payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), payload.panoramaUrl,
-          JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
-          JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
-          payload.isFeatured, payload.unlisted, payload.allowComments,
-        ]
-      );
-      const versionPlaceholders = versions.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
-      const versionValues = versions.flatMap(version => [
-        crypto.randomUUID(),
-        addonId,
-        version.version.trim(),
-        version.downloadUrl.trim(),
-        version.changelog || '',
-        version.compatibilityNotes || '',
-      ]);
-      await query(
-        `INSERT INTO addon_versions (id, addon_id, version, download_url, changelog, compatibility_notes) VALUES ${versionPlaceholders}`,
-        versionValues
-      );
+      const conn = await getPool().getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.execute(
+          `INSERT INTO addons
+             (id, title, description, category, additional_category, project_class, image_url, image_urls,
+              panorama_url, tags, download_url, demo_url, license, distribution_pref, socials, author_id, author_name,
+              status, is_featured, unlisted, allow_comments, likes_count, downloads_count, rating_count, average_rating)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
+          [
+            payload.id, payload.title, payload.description, payload.category, payload.additionalCategory,
+            payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls), payload.panoramaUrl,
+            JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
+            JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
+            payload.isFeatured, payload.unlisted, payload.allowComments,
+          ]
+        );
+        const versionPlaceholders = versions.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
+        const versionValues = versions.flatMap(version => [
+          crypto.randomUUID(),
+          addonId,
+          version.version.trim(),
+          version.downloadUrl.trim(),
+          version.changelog || '',
+          version.compatibilityNotes || '',
+        ]);
+        await conn.execute(
+          `INSERT INTO addon_versions (id, addon_id, version, download_url, changelog, compatibility_notes) VALUES ${versionPlaceholders}`,
+          versionValues
+        );
+        await conn.commit();
+      } catch (err) {
+        await conn.rollback();
+        throw err;
+      } finally {
+        conn.release();
+      }
       return res.status(201).json({ id: addonId, versions: versions.length });
     } catch (err: any) {
       safeLogError('[api/addons POST] error:', err);
