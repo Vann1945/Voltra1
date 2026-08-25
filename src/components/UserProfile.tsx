@@ -1,17 +1,20 @@
+'use client';
+
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
-import { Addon, Report } from '../types';
-import { PROFILE_UPDATED_EVENT, useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { Package, Heart, Edit2, Check, X, AlertTriangle, Trash2, Settings, Upload } from 'lucide-react';
-import { ViewState } from '../App';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
+import { Addon, Report } from '@/types';
+import { PROFILE_UPDATED_EVENT, useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { Package, Heart, Edit2, Check, X, AlertTriangle, Trash2, Settings, Upload } from '@/components/icons/animated';
+import { ViewState } from '@/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonCard } from './Skeleton';
 import { FadeImage } from './FadeImage';
 import { BORDER_OPTIONS, getBorderEffect, renderBorderDecoration, getBorderRingClass, ProfileAvatar } from './borderEffects';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { getCoverFileError } from '../lib/uploadValidation';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { getCoverFileError } from '@/lib/uploadValidation';
+import { uploadImageToImageKit } from '@/lib/imageUpload';
 
 function convertToWebp(file: File, maxDimension = 512, quality = 0.85): Promise<File> {
   return new Promise(resolve => {
@@ -51,15 +54,6 @@ function convertToWebp(file: File, maxDimension = 512, quality = 0.85): Promise<
   });
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error('Failed to read image file.'));
-    reader.readAsDataURL(file);
-  });
-}
-
 interface UserProfileProps {
   addons: Addon[];
   loading: boolean;
@@ -69,9 +63,10 @@ interface UserProfileProps {
   onToggleBookmark: (addonId: string, isBookmarked: boolean) => void;
   onNavigate: (view: ViewState) => void;
   onAddonDeleted: (addonId: string) => void;
+  layoutMode?: 'grid' | 'list';
 }
 
-export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onNavigate, onAddonDeleted }: UserProfileProps) {
+export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onNavigate, onAddonDeleted, layoutMode = 'grid' }: UserProfileProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -165,49 +160,30 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
 
     setPhotoUploadProgress(0);
 
-    let imageBase64: string;
+    let webpFile: File;
     try {
-      const webpFile = await convertToWebp(file);
-      imageBase64 = await fileToBase64(webpFile);
+      webpFile = await convertToWebp(file);
     } catch {
       showToast('Failed to read image file.', 'error');
       setPhotoUploadProgress(null);
       return;
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload-image');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.withCredentials = true;
-
-    xhr.upload.onprogress = event => {
-      if (event.lengthComputable) setPhotoUploadProgress((event.loaded / event.total) * 100);
-    };
-
-    xhr.onload = () => {
-      try {
-        const res = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300 && res?.url) {
-          setEditPhotoURL(res.url as string);
-          setPhotoUploadProgress(100);
-          showToast('Photo uploaded successfully.', 'success');
-          setTimeout(() => setPhotoUploadProgress(null), 600);
-        } else {
-          showToast(res?.error || 'Upload failed, please try again.', 'error');
-          setPhotoUploadProgress(null);
-        }
-      } catch {
-        showToast('Upload failed, please try again.', 'error');
-        setPhotoUploadProgress(null);
-      }
-    };
-
-    xhr.onerror = () => {
-      showToast('Could not connect to server.', 'error');
+    try {
+      const url = await uploadImageToImageKit(
+        webpFile,
+        'avatar',
+        editName.trim() || user?.displayName || user?.uid,
+        pct => setPhotoUploadProgress(pct)
+      );
+      setEditPhotoURL(url);
+      setPhotoUploadProgress(100);
+      showToast('Photo uploaded successfully.', 'success');
+      setTimeout(() => setPhotoUploadProgress(null), 600);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Upload failed, please try again.', 'error');
       setPhotoUploadProgress(null);
-    };
-
-    xhr.send(JSON.stringify({ imageBase64 }));
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -426,11 +402,11 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
             <motion.div
               initial="hidden" animate="visible"
               variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
-              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised'}
             >
               {myUploads.map(addon => (
                 <motion.div key={addon.id} className="relative group" variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} compact={layoutMode === 'list'} />
                   <button
                     onClick={e => { e.stopPropagation(); setAddonToDelete(addon.id); }}
                     aria-label={`Delete ${addon.title}`}
@@ -464,11 +440,11 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
             <motion.div
               initial="hidden" animate="visible"
               variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.12 } } }}
-              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              className={layoutMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised'}
             >
               {myLikes.map(addon => (
                 <motion.div key={addon.id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.54, ease: 'easeOut' } } }}>
-                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} />
+                  <AddonCard addon={addon} isLiked={userLikes.has(addon.id)} isBookmarked={userBookmarks.has(addon.id)} onToggleLike={onToggleLike} onToggleBookmark={onToggleBookmark} onRequireAuth={() => showToast('Please sign in to save projects for later.', 'error')} onNavigate={onNavigate} compact={layoutMode === 'list'} />
                 </motion.div>
               ))}
             </motion.div>

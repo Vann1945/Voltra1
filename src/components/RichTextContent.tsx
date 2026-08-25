@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js/lib/core';

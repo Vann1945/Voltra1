@@ -1,7 +1,9 @@
+'use client';
+
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Addon } from '../types';
+import { Addon } from '@/types';
 import { PROFILE_UPDATED_EVENT, ProfileUpdate, useAuth } from './useAuth';
-import { AddonUploadInput } from '../lib/utils';
+import { AddonUploadInput } from '@/lib/utils';
 
 const BACKGROUND_POLL_INTERVAL_MS = 90000;
 

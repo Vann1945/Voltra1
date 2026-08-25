@@ -1,15 +1,19 @@
+'use client';
+
 import React, { useEffect, useState, useRef } from 'react';
-import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2, Upload, ChevronDown } from 'lucide-react';
+import { X, FileArchive, Check, HelpCircle, ImagePlus, Trash2, Upload, ChevronDown } from '@/components/icons/animated';
 import { Skeleton } from './Skeleton';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { DescriptionEditor } from './DescriptionEditor';
 import { CustomSelect } from './CustomSelect';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 import { FadeImage } from './FadeImage';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { IMAGE_ACCEPT, MAX_COVER_IMAGES, getCoverFileError, parseTags } from '../lib/uploadValidation';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { IMAGE_ACCEPT, MAX_COVER_IMAGES, getCoverFileError, parseTags } from '@/lib/uploadValidation';
+import { uploadAddonFile, ADDON_FILE_ACCEPT } from '@/lib/addonFileUpload';
+import { uploadImageToImageKit } from '@/lib/imageUpload';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -201,129 +205,8 @@ async function validatePanoramaFile(file: File): Promise<string> {
   return '';
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error('Failed to read image file.'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function uploadToImgbb(file: File, onProgress: (pct: number) => void): Promise<string> {
-  return new Promise((resolve, reject) => {
-    fileToBase64(file)
-      .then(imageBase64 => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/upload-image');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.withCredentials = true;
-
-        xhr.upload.onprogress = event => {
-          if (event.lengthComputable) onProgress((event.loaded / event.total) * 100);
-        };
-
-        xhr.onload = () => {
-          try {
-            const res = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300 && res?.url) {
-              resolve(res.url as string);
-            } else {
-              reject(new Error(res?.error || 'Upload failed, please try again.'));
-            }
-          } catch {
-            reject(new Error('Upload failed, please try again.'));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Could not connect to server.'));
-        xhr.send(JSON.stringify({ imageBase64 }));
-      })
-      .catch(reject);
-  });
-}
-
-const MAX_ADDON_FILE_BYTES = 200 * 1024 * 1024;
-const ALLOWED_ADDON_EXTENSIONS = ['.mcaddon', '.mcpack', '.mcworld', '.mctemplate', '.zip', '.jar'];
-
-function hasAllowedExtension(fileName: string): boolean {
-  const lower = fileName.toLowerCase();
-  return ALLOWED_ADDON_EXTENSIONS.some(ext => lower.endsWith(ext));
-}
-
-/**
- * Cloudinary assigns a random public_id to signed uploads unless one is
- * explicitly signed server-side. Rather than requiring a backend change,
- * we tag the delivery URL with Cloudinary's `fl_attachment:<name>` flag so
- * the browser downloads the file using the ORIGINAL filename the user
- * uploaded, instead of the random Cloudinary id. This only affects how the
- * file is delivered/downloaded — it doesn't require re-signing the upload.
- */
-function withOriginalFilename(secureUrl: string, originalFileName: string): string {
-  const uploadMarker = '/upload/';
-  const markerIndex = secureUrl.indexOf(uploadMarker);
-  if (markerIndex === -1) return secureUrl;
-
-  const baseName = originalFileName.replace(/\.[^./]+$/, '');
-  const safeName = baseName
-    .replace(/[^a-zA-Z0-9 _-]/g, '_')
-    .trim()
-    .slice(0, 100) || 'download';
-
-  const insertAt = markerIndex + uploadMarker.length;
-  return `${secureUrl.slice(0, insertAt)}fl_attachment:${encodeURIComponent(safeName)}/${secureUrl.slice(insertAt)}`;
-}
-
-function uploadAddonFile(file: File, onProgress: (pct: number) => void): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (!hasAllowedExtension(file.name)) {
-      reject(new Error(`Unsupported file type. Allowed: ${ALLOWED_ADDON_EXTENSIONS.join(', ')}`));
-      return;
-    }
-    if (file.size > MAX_ADDON_FILE_BYTES) {
-      reject(new Error('File is too large (max 200MB).'));
-      return;
-    }
-
-    fetch('/api/upload-image?type=sign', { method: 'POST', credentials: 'include' })
-      .then(async signRes => {
-        const signData = await signRes.json();
-        if (!signRes.ok) throw new Error(signData?.error || 'Failed to prepare upload.');
-        return signData as { cloudName: string; apiKey: string; timestamp: number; folder: string; signature: string };
-      })
-      .then(({ cloudName, apiKey, timestamp, folder, signature }) => {
-        const body = new FormData();
-        body.append('file', file);
-        body.append('api_key', apiKey);
-        body.append('timestamp', String(timestamp));
-        body.append('folder', folder);
-        body.append('signature', signature);
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`);
-
-        xhr.upload.onprogress = event => {
-          if (event.lengthComputable) onProgress((event.loaded / event.total) * 100);
-        };
-
-        xhr.onload = () => {
-          try {
-            const res = JSON.parse(xhr.responseText);
-            if (xhr.status >= 200 && xhr.status < 300 && res?.secure_url) {
-              resolve(withOriginalFilename(res.secure_url as string, file.name));
-            } else {
-              reject(new Error(res?.error?.message || 'Upload failed, please try again.'));
-            }
-          } catch {
-            reject(new Error('Upload failed, please try again.'));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Could not connect to the file host. Please try again.'));
-        xhr.send(body);
-      })
-      .catch(reject);
-  });
+function uploadCoverImage(file: File, onProgress: (pct: number) => void, folderName?: string): Promise<string> {
+  return uploadImageToImageKit(file, 'addon', folderName || 'untitled', onProgress);
 }
 
 export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) {
@@ -421,9 +304,9 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
       const uploadedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
         const webpFile = await convertToWebp(files[i]);
-        const url = await uploadToImgbb(webpFile, pct => {
+        const url = await uploadCoverImage(webpFile, pct => {
           setImageUploadProgress(Math.round(((i + pct / 100) / files.length) * 100));
-        });
+        }, formData.title);
         uploadedUrls.push(url);
       }
       setFormData(prev => {
@@ -466,7 +349,7 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
     setPanoramaUploadProgress(0);
     try {
         const webpFile = await convertToWebp(file, 1800, 0.76);
-      const url = await uploadToImgbb(webpFile, pct => setPanoramaUploadProgress(pct));
+      const url = await uploadCoverImage(webpFile, pct => setPanoramaUploadProgress(pct), formData.title);
       setFormData(prev => ({ ...prev, panoramaUrl: url }));
       showToast('Panorama image uploaded successfully.', 'success');
     } catch (err: unknown) {
@@ -955,11 +838,20 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
                               <div className="grid gap-3 sm:grid-cols-[minmax(0,136px)_1fr]">
                                 <TextInput id={`upload-version-${index + 1}`} required value={version.version} onChange={event => updateVersion(index, { version: event.target.value })} placeholder={index === 0 ? '1.0.0' : '1.1.0'} aria-label={`Version ${index + 1} name`} />
                                 <div className={`flex min-w-0 gap-2 rounded-xl transition-colors ${isAddonDragActive && index === 0 ? 'ring-2 ring-terracotta' : ''}`} onDragEnter={event => { if (index === 0) { event.preventDefault(); setIsAddonDragActive(true); } }} onDragOver={event => { if (index === 0) event.preventDefault(); }} onDragLeave={() => index === 0 && setIsAddonDragActive(false)} onDrop={event => { if (index === 0) handleAddonDrop(event); }}>
-                                  <TextInput id={`upload-version-url-${index + 1}`} required type="url" value={version.downloadUrl} onChange={event => updateVersion(index, { downloadUrl: event.target.value, fileName: '' })} placeholder="Paste URL or drop file" aria-label={`Version ${index + 1} download URL`} />
+                                  <TextInput
+  id={`upload-version-url-${index + 1}`}
+  required
+  type={version.fileName ? 'text' : 'url'}
+  value={version.fileName || version.downloadUrl}
+  readOnly={Boolean(version.fileName)}
+  onChange={event => updateVersion(index, { downloadUrl: event.target.value, fileName: '' })}
+  placeholder="Link Untuk Update"
+  aria-label={`Version ${index + 1} download URL or file name`}
+/>
                                   <button type="button" onClick={() => index === 0 ? addonFileInputRef.current?.click() : versionFileInputRefs.current[index]?.click()} disabled={index === 0 ? fileUploadProgress !== null : versionUploadProgress[index] !== null} title={`Upload version ${index + 1} file`} aria-label={`Upload version ${index + 1} file`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition hover:bg-terracotta-text active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
                                     {index === 0 && fileUploadProgress !== null || index > 0 && versionUploadProgress[index] !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} aria-hidden="true" />}
                                   </button>
-                                  {index === 0 ? <input type="file" ref={addonFileInputRef} onChange={handleAddonFileSelected} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip,.jar" className="hidden" /> : <input type="file" ref={element => { versionFileInputRefs.current[index] = element; }} onChange={event => handleVersionFileSelected(event, index)} accept=".mcaddon,.mcpack,.mcworld,.mctemplate,.zip,.jar" className="hidden" />}
+                                  {index === 0 ? <input type="file" ref={addonFileInputRef} onChange={handleAddonFileSelected} accept={ADDON_FILE_ACCEPT} className="hidden" /> : <input type="file" ref={element => { versionFileInputRefs.current[index] = element; }} onChange={event => handleVersionFileSelected(event, index)} accept={ADDON_FILE_ACCEPT} className="hidden" />}
                                 </div>
                               </div>
                               {(version.fileName || index === 0 && uploadedFileName) && <p className="mt-2 flex items-center gap-2 truncate text-xs font-bold text-success"><Check size={13} aria-hidden="true" />{version.fileName || uploadedFileName}</p>}
@@ -1010,6 +902,7 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
                         required
                         value={formData.description}
                         onChange={val => setFormData({ ...formData, description: val })}
+                        onUploadImage={file => uploadCoverImage(file, () => {}, formData.title)}
                         placeholder="Write a clear description of your add-on..."
                       />
                     </div>

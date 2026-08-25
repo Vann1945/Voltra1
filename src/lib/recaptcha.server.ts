@@ -1,4 +1,4 @@
-import { getEncryptedEnv } from './secretsEncryption.js';
+import { getEncryptedEnv } from './secretsEncryption';
 
 export async function verifyRecaptcha(token: string | undefined | null, remoteIp?: string): Promise<boolean> {
   if (!token) return false;

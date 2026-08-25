@@ -8,9 +8,9 @@ import {
   Upload,
   Users,
   Zap,
-} from 'lucide-react';
-import { ViewState } from '../App';
-import { getButtonClasses } from '../lib/designSystem';
+} from '@/components/icons/animated';
+import { ViewState } from '@/types';
+import { getButtonClasses } from '@/lib/designSystem';
 
 interface LandingPageProps {
   onNavigate: (view: ViewState) => void;

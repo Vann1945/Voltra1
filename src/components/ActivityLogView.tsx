@@ -1,8 +1,10 @@
+'use client';
+
 import { useMemo } from 'react';
 import * as m from 'motion/react-m';
-import { Activity } from 'lucide-react';
-import { getLocalYYYYMMDD, getWeekdayLabel } from '../utils/dateUtils';
-import type { ActivityLog } from '../utils/safeStorage';
+import { Activity } from '@/components/icons/animated';
+import { getLocalYYYYMMDD, getWeekdayLabel } from '@/utils/dateUtils';
+import type { ActivityLog } from '@/utils/safeStorage';
 
 interface ActivityLogViewProps {
   activityLog: ActivityLog;

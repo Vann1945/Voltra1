@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check } from '@/components/icons/animated';
 
 export interface CustomSelectOption { value: string; label: string; }
 

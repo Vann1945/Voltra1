@@ -1,12 +1,14 @@
+'use client';
+
 import React, { useState } from 'react';
-import { MessageSquare, Star, Trash2, X } from 'lucide-react';
+import { MessageSquare, Star, Trash2, X } from '@/components/icons/animated';
 import { createPortal } from 'react-dom';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { Review } from '../types';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { Review } from '@/types';
 import { ProfileAvatar } from './borderEffects';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 
 interface ReviewSectionProps {
   addonId: string;

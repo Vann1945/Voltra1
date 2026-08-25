@@ -1,10 +1,12 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle2, User as UserIcon } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { cn } from '../lib/utils';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { Mail, Lock, ArrowRight, AlertCircle, CheckCircle2, User as UserIcon } from '@/components/icons/animated';
+import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 import { motion, AnimatePresence } from 'motion/react';
-import { loadRecaptcha } from '../lib/recaptcha.client';
+import { loadRecaptcha } from '@/lib/recaptcha.client';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'unverified';
 
@@ -25,9 +27,9 @@ function RecaptchaWidget({ onChange }: { onChange: (token: string | null) => voi
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (!siteKey) {
-      console.warn('VITE_RECAPTCHA_SITE_KEY belum diset — reCAPTCHA tidak akan tampil.');
+      console.warn('NEXT_PUBLIC_RECAPTCHA_SITE_KEY belum diset — reCAPTCHA tidak akan tampil.');
       setStatus('error');
       return;
     }

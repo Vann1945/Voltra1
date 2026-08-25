@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { query, queryOne } from './db.js';
+import { query, queryOne } from './db';
 
 export type DbUser = {
   id: string;

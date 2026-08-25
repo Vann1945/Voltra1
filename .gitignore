@@ -4,6 +4,7 @@ Database/
 Instruction/
 node_modules/
 vendor/
+backup/
 .vscode/
 .idea/
 dist/

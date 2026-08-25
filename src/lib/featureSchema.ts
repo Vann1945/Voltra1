@@ -1,4 +1,4 @@
-import { getPool } from './db.js';
+import { getPool } from './db';
 
 let schemaPromise: Promise<void> | null = null;
 

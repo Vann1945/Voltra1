@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from '@/components/icons/animated';
 import { Skeleton } from './Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '../lib/utils';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { cn } from '@/lib/utils';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 
 interface ResetPasswordPageProps {
   token: string;

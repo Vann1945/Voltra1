@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, X } from 'lucide-react';
-import { TOAST_DURATION_MS, ToastState } from '../hooks/useToast';
+import { CheckCircle2, XCircle, X } from '@/components/icons/animated';
+import { TOAST_DURATION_MS, ToastState } from '@/hooks/useToast';
 
 interface ToastProps {
   toast: ToastState | null;

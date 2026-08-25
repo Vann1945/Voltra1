@@ -1,11 +1,13 @@
+'use client';
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { AddonCard } from './AddonCard';
-import { getButtonClasses } from '../lib/designSystem';
-import { Addon } from '../types';
-import { Package, Heart, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { ViewState } from '../App';
+import { getButtonClasses } from '@/lib/designSystem';
+import { Addon } from '@/types';
+import { Package, Heart, ArrowLeft } from '@/components/icons/animated';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { ViewState } from '@/types';
 import { motion } from 'motion/react';
 import { SkeletonCard, Skeleton, PageSkeletonCards } from './Skeleton';
 import { ProfileAvatar } from './borderEffects';

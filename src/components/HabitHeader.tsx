@@ -1,8 +1,10 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { Target, PenLine, Check } from 'lucide-react';
-import { sanitizeHabitName } from '../utils/safeStorage';
+import { Target, PenLine, Check } from '@/components/icons/animated';
+import { sanitizeHabitName } from '@/utils/safeStorage';
 
 const MAX_NAME_LENGTH = 80;
 

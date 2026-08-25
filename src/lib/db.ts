@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import { getEncryptedEnv } from './secretsEncryption.js';
+import { getEncryptedEnv } from './secretsEncryption';
 
 let pool: mysql.Pool | undefined;
 

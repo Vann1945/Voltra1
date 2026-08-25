@@ -1,8 +1,10 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { RotateCcw } from 'lucide-react';
-import { getButtonClasses } from '../lib/designSystem';
+import { RotateCcw } from '@/components/icons/animated';
+import { getButtonClasses } from '@/lib/designSystem';
 
 interface ResetModalProps {
   isOpen: boolean;

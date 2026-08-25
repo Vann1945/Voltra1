@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check } from '@/components/icons/animated';
 import { FadeImage } from './FadeImage';
 
 export interface BorderEffect {

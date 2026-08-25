@@ -1,6 +1,8 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
-import { getFirebaseAuth } from '../firebase';
-import { User } from '../types';
+import { getFirebaseAuth } from '@/firebase';
+import { User } from '@/types';
 
 type AuthJsSession = {
   user?: { uid: string; email: string; name: string; image?: string; role?: string };

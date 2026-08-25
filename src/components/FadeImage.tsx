@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
-import { ImageOff } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { ImageOff } from '@/components/icons/animated';
+import { cn } from '@/lib/utils';
 import { Skeleton } from './Skeleton';
 
 interface FadeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -61,6 +63,7 @@ export function FadeImage({ className, containerClassName, src, alt, fallback, f
         </div>
       ) : (
         <img
+          loading="lazy"
           {...props}
           src={activeSrc}
           alt={alt || ''}

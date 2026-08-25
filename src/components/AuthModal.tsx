@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X } from '@/components/icons/animated';
 import { AuthCard } from './AuthCard';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 interface AuthModalProps {
   isOpen: boolean;

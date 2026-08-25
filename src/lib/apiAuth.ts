@@ -1,7 +1,7 @@
-import type { VercelRequest } from '@vercel/node';
-import { safeLogError } from './safeLog.js';
+import type { MinimalVercelRequest as VercelRequest } from '@/lib/vercelAdapter';
+import { safeLogError } from './safeLog';
 import { getToken } from '@auth/core/jwt';
-import { getEncryptedEnv } from './secretsEncryption.js';
+import { getEncryptedEnv } from './secretsEncryption';
 
 export type SessionUser = { uid: string; email: string; name: string; image?: string; role?: string };
 

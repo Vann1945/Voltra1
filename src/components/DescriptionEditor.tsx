@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   Bold, Italic, Underline, Strikethrough, Link as LinkIcon,
@@ -5,10 +7,11 @@ import {
   Indent, Outdent, Image as ImageIcon, Code, Quote, Minus,
   Code2, X, Undo2, Redo2, ChevronDown, Baseline, Highlighter, Ban, Palette, Check,
   Video, Lock, Unlock, UploadCloud, Table as TableIcon
-} from 'lucide-react';
+} from '@/components/icons/animated';
 import { CustomSelect } from './CustomSelect';
 import { sanitizeHtml } from './RichTextContent';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { uploadImageToImageKit } from '@/lib/imageUpload';
 
 export { RichTextContent } from './RichTextContent';
 
@@ -328,24 +331,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
   };
 
   const uploadToImgbb = async (file: File): Promise<string> => {
-    const imageBase64: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('Failed to read image file.'));
-      reader.readAsDataURL(file);
-    });
-
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64 }),
-    });
-    const data = await res.json();
-    if (!res.ok || !data?.url) {
-      throw new Error(data?.error || 'Image upload failed.');
-    }
-    return data.url as string;
+    return uploadImageToImageKit(file, 'addon');
   };
 
   const handleImageFile = async (file: File) => {
@@ -854,7 +840,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           <div className="w-80 rounded-2xl bg-parchment-raised p-4 shadow-card">
             <div className="flex items-center justify-between border-b border-ink-900 pb-2 mb-3">
               <h4 className="text-xs font-semibold text-ink-900 font-bold">{customColorTarget === 'bg' ? 'Background Color' : 'Color Picker'}</h4>
-              <button type="button" onClick={closeModal} className="text-ink-900/50 hover:text-ink-900"><X size={16} /></button>
+              <button type="button" onClick={closeModal} aria-label="Close" className="text-ink-900/50 hover:text-ink-900"><X size={16} /></button>
             </div>
             <div className="flex gap-3 mb-4">
               <input
@@ -971,7 +957,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           <div className="relative w-full max-w-lg rounded-lg bg-parchment-raised shadow-card overflow-hidden">
             <div className="flex items-center justify-between border-b border-ink-900 px-5 py-3.5">
               <h4 className="text-sm font-semibold text-ink-900">Insert/Edit Image</h4>
-              <button type="button" onClick={closeModal} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
+              <button type="button" onClick={closeModal} aria-label="Close" className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
             </div>
             <div className="flex">
               <div className="w-28 shrink-0 border-r border-ink-900 py-3">
@@ -1078,7 +1064,7 @@ export function DescriptionEditor({ value, onChange, onUploadImage,  placeholder
           <div className="relative w-full max-w-lg rounded-lg bg-parchment-raised shadow-card overflow-hidden">
             <div className="flex items-center justify-between border-b border-ink-900 px-5 py-3.5">
               <h4 className="text-sm font-semibold text-ink-900">Insert/Edit Media</h4>
-              <button type="button" onClick={closeModal} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
+              <button type="button" onClick={closeModal} aria-label="Close" className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
             </div>
             <div className="flex">
               <div className="w-28 shrink-0 border-r border-ink-900 py-3">
@@ -1239,7 +1225,7 @@ function EditorModal({ title, onClose, onSave, children }: { title: string; onCl
       <div className="relative w-full max-w-md rounded-lg bg-parchment-raised p-5 shadow-card">
         <div className="flex items-center justify-between mb-4 border-b border-ink-900 pb-3">
           <h4 className="text-sm font-semibold text-ink-900">{title}</h4>
-          <button type="button" onClick={onClose} className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-ink-900/40 hover:text-ink-900"><X size={18} /></button>
         </div>
         {children}
         <div className="mt-5 flex justify-end gap-2 border-t border-ink-900 pt-3">

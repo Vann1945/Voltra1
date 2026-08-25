@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight } from '@/components/icons/animated';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
 

@@ -1,8 +1,10 @@
+'use client';
+
 import { useMemo } from 'react';
 import * as m from 'motion/react-m';
-import { CalendarDays } from 'lucide-react';
-import { getMonthGrid, MONTH_LABEL } from '../utils/dateUtils';
-import type { ActivityLog } from '../utils/safeStorage';
+import { CalendarDays } from '@/components/icons/animated';
+import { getMonthGrid, MONTH_LABEL } from '@/utils/dateUtils';
+import type { ActivityLog } from '@/utils/safeStorage';
 
 interface MonthCalendarProps {
   activityLog: ActivityLog;

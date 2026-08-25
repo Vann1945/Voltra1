@@ -1,11 +1,13 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import { X, AlertTriangle, ChevronDown, Check } from 'lucide-react';
+import { X, AlertTriangle, ChevronDown, Check } from '@/components/icons/animated';
 import { Skeleton } from './Skeleton';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { motion, AnimatePresence } from 'motion/react';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -93,6 +95,7 @@ export function ReportModal({ isOpen, onClose, addonId }: ReportModalProps) {
               </h2>
               <button
                 onClick={onClose}
+                aria-label="Close"
                 className={getButtonClasses('secondary', 'sm')}
               >
                 <X size={18} />

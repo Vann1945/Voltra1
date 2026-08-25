@@ -92,3 +92,32 @@ export interface Report {
   status: 'pending' | 'resolved';
   createdAt: string;
 }
+
+export type ViewState =
+  | 'landing'
+  | 'streak'
+  | 'home'
+  | 'profile'
+  | 'bookmarks'
+  | 'library'
+  | 'settings'
+  | 'admin'
+  | { type: 'addon', id: string }
+  | { type: 'author', id: string }
+  | { type: 'reset-password', token: string, uid: string };
+
+export const slugify = (text: string) =>
+  text.toString().toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+
+export const categoryToSlug = (category?: string): string => {
+  if (!category) return 'add-ons';
+  const normalized = category.trim().toLowerCase().replace(/\s+/g, '-');
+  if (normalized === 'add-on' || normalized === 'addon' || normalized === 'add-ons') return 'add-ons';
+  if (normalized === 'resource-pack' || normalized === 'resource-packs' || normalized === 'texture-pack' || normalized === 'texture-packs') return 'texture-pack';
+  return slugify(category) || 'add-ons';
+};

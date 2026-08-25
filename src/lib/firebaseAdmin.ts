@@ -1,7 +1,7 @@
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { getEncryptedEnv } from './secretsEncryption.js';
+import { getEncryptedEnv } from './secretsEncryption';
 
 let adminApp: App;
 

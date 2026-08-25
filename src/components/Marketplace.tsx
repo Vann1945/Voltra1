@@ -1,11 +1,13 @@
+'use client';
+
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, X } from '@/components/icons/animated';
 import { AddonCard } from './AddonCard';
-import { Addon } from '../types';
+import { Addon } from '@/types';
 import { Skeleton, SkeletonCard } from './Skeleton';
-import { ViewState } from '../App';
+import { ViewState } from '@/types';
 import { CustomSelect } from './CustomSelect';
-import { getButtonClasses, getInputClasses } from '../lib/designSystem';
+import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
 import { FadeImage } from './FadeImage';
 
 interface MarketplaceProps { addons: Addon[]; loading: boolean; userLikes: Set<string>; userBookmarks: Set<string>; onToggleLike: (addonId: string, isLiked: boolean) => void; onToggleBookmark: (addonId: string, isBookmarked: boolean) => void; onRequireAuth: () => void; onNavigate: (view: ViewState) => void; layoutMode?: 'grid' | 'list'; }

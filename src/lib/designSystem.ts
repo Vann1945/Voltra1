@@ -1,4 +1,3 @@
-// Shared UI tokens keep spacing, motion, and component states predictable.
 export const SPACING = {
   xs: '8px',
   sm: '16px',
@@ -51,7 +50,7 @@ export const getButtonClasses = (
     lg: 'min-h-12 px-5 text-sm',
   };
   const variants = {
-    primary: 'bg-terracotta text-paper shadow-sm hover:bg-terracotta-text hover:shadow-card-hover',
+    primary: 'bg-terracotta-text text-paper shadow-sm hover:bg-terracotta hover:shadow-card-hover',
     secondary: 'border border-parchment-border bg-parchment-raised text-ink-900 hover:border-terracotta/60 hover:bg-ink-900/[0.03] shadow-sm',
     ghost: 'text-ink-900/70 hover:bg-ink-900/[0.05] hover:text-ink-900',
     danger: 'border border-danger/25 bg-danger/[0.08] text-danger hover:bg-danger hover:text-white',

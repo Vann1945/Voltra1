@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useEffect, useMemo, useState } from 'react';
-import { Plus, Search, Trash2, UserRound, X } from 'lucide-react';
-import { AddonCollaborator } from '../types';
-import { ViewState } from '../App';
+import { Plus, Search, Trash2, UserRound, X } from '@/components/icons/animated';
+import { AddonCollaborator } from '@/types';
+import { ViewState } from '@/types';
 import { ProfileAvatar } from './borderEffects';
-import { useToast } from '../hooks/useToast';
+import { useToast } from '@/hooks/useToast';
 
 type Person = AddonCollaborator & { isCreator?: boolean };
 

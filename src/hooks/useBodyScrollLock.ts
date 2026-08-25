@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 
 // Bug UX yang ada di semua modal (Auth, Upload, Report, dll): background

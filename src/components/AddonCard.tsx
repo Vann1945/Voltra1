@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
-import { ArrowDownToLine, Bookmark, Check, Clock, Download, Heart, Info, Star } from 'lucide-react';
-import { Addon } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { ViewState } from '../App';
+import { ArrowDownToLine, Bookmark, Check, Clock, Download, Heart, Info, Star } from '@/components/icons/animated';
+import { Addon } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { ViewState } from '@/types';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
 import { AddonPeople } from './AddonPeople';

@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useCallback, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ImageOff, MoveHorizontal, RotateCcw, Scan } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageOff, MoveHorizontal, RotateCcw, Scan } from '@/components/icons/animated';
 
 interface PanoramaViewerProps {
   src: string;

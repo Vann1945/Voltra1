@@ -1,18 +1,20 @@
+'use client';
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Addon, AddonVersion, Review } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, ChevronDown, Download, ExternalLink, Heart, History, MessageSquare, Star } from 'lucide-react';
-import { ViewState } from '../App';
+import { Addon, AddonVersion, Review, ViewState } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, FileArchive, ChevronDown, Download, ExternalLink, Heart, History, MessageSquare, Star } from '@/components/icons/animated';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
 import { FadeImage } from './FadeImage';
 import { ProfileAvatar } from './borderEffects';
 import { AddonPeople } from './AddonPeople';
 import { RichTextContent } from './RichTextContent';
-import { getButtonClasses } from '../lib/designSystem';
+import { getButtonClasses } from '@/lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { PanoramaViewer } from './PanoramaViewer';
+import { uploadAddonFile, ADDON_FILE_ACCEPT } from '@/lib/addonFileUpload';
 
 function VersionDropdown({ versions, selectedVersionId, onChange }: { versions: AddonVersion[]; selectedVersionId: string | null; onChange: (id: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -84,6 +86,9 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const [isVersionEditorOpen, setIsVersionEditorOpen] = useState(false);
   const [isVersionSaving, setIsVersionSaving] = useState(false);
   const [versionDraft, setVersionDraft] = useState({ version: '', downloadUrl: '', changelog: '', compatibilityNotes: '' });
+  const [versionFileName, setVersionFileName] = useState('');
+  const [versionFileUploadProgress, setVersionFileUploadProgress] = useState<number | null>(null);
+  const versionFileInputRef = useRef<HTMLInputElement>(null);
 
   const addon = addons.find(a => a.id === addonId);
   const isLiked = userLikes.has(addonId);
@@ -345,6 +350,24 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     showToast(isBookmarked ? 'Removed from Saved.' : 'Saved for later.', 'success');
   };
 
+  const handleVersionFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    setVersionFileUploadProgress(0);
+    try {
+      const downloadUrl = await uploadAddonFile(file, pct => setVersionFileUploadProgress(Math.round(pct)));
+      setVersionDraft(prev => ({ ...prev, downloadUrl }));
+      setVersionFileName(file.name);
+      showToast('Update file uploaded successfully.', 'success');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to upload update file.', 'error');
+    } finally {
+      setVersionFileUploadProgress(null);
+    }
+  };
+
   const handleSaveVersion = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!user || (user.uid !== addon.authorId && user.role !== 'admin')) return;
@@ -357,6 +380,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
       setVersions(prev => [created, ...prev]);
       setSelectedVersionId(created.id);
       setVersionDraft({ version: '', downloadUrl: '', changelog: '', compatibilityNotes: '' });
+      setVersionFileName('');
       setIsVersionEditorOpen(false);
       showToast('New version added.', 'success');
     } catch (error) {
@@ -495,7 +519,13 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
               {(user?.uid === addon.authorId || user?.role === 'admin') && versions.length < 2 && <button type="button" onClick={() => setIsVersionEditorOpen(value => !value)} className={getButtonClasses('secondary', 'sm')}>{isVersionEditorOpen ? 'Close editor' : 'Add version'}</button>}
             </div>
             {versions.length > 0 ? <div className="mt-5 grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]"><div className="space-y-2">{versions.map(version => <button key={version.id} type="button" onClick={() => setSelectedVersionId(version.id)} className={`w-full rounded-xl border px-4 py-3 text-left transition-colors ${activeVersion?.id === version.id ? 'border-terracotta bg-terracotta/10' : 'border-parchment-border bg-parchment-raised hover:border-terracotta/60'}`}><span className="block text-sm font-bold text-ink-900">{version.version}</span><span className="mt-1 block text-xs text-ink-900/50">{new Date(version.createdAt).toLocaleDateString()}</span></button>)}</div><div className="min-h-32 rounded-xl bg-parchment-raised p-4"><p className="text-xs font-bold uppercase tracking-widest text-terracotta-text">{activeVersion?.version || 'Latest release'}</p><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink-900/70">{activeVersion?.changelog || 'No changelog was provided for this release.'}</p>{activeVersion?.compatibilityNotes && <p className="mt-4 border-t border-parchment-border pt-3 text-xs font-semibold text-ink-900/55">Compatibility: {activeVersion.compatibilityNotes}</p>}</div></div> : <p className="mt-5 rounded-xl bg-parchment-raised p-4 text-sm text-ink-900/55">No version history has been published yet.</p>}
-            {isVersionEditorOpen && <form onSubmit={handleSaveVersion} className="mt-5 grid gap-3 border-t border-parchment-border pt-5 sm:grid-cols-2"><input required value={versionDraft.version} onChange={event => setVersionDraft(prev => ({ ...prev, version: event.target.value }))} placeholder="Version e.g. 1.1.0" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><input required type="url" value={versionDraft.downloadUrl} onChange={event => setVersionDraft(prev => ({ ...prev, downloadUrl: event.target.value }))} placeholder="Download URL" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><textarea value={versionDraft.changelog} onChange={event => setVersionDraft(prev => ({ ...prev, changelog: event.target.value }))} rows={3} placeholder="What changed in this release?" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 sm:col-span-2" /><input value={versionDraft.compatibilityNotes} onChange={event => setVersionDraft(prev => ({ ...prev, compatibilityNotes: event.target.value }))} placeholder="Compatibility notes (optional)" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex justify-end sm:col-span-2"><button type="submit" disabled={isVersionSaving} className={`${getButtonClasses('primary', 'sm')} disabled:opacity-50`}>{isVersionSaving ? 'Saving…' : 'Publish version'}</button></div></form>}
+            {isVersionEditorOpen && <form onSubmit={handleSaveVersion} className="mt-5 grid gap-3 border-t border-parchment-border pt-5 sm:grid-cols-2"><input required value={versionDraft.version} onChange={event => setVersionDraft(prev => ({ ...prev, version: event.target.value }))} placeholder="Version e.g. 1.1.0" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex min-w-0 gap-2">
+  <input required type="text" value={versionFileName || versionDraft.downloadUrl} onChange={event => { setVersionFileName(''); setVersionDraft(prev => ({ ...prev, downloadUrl: event.target.value })); }} placeholder="Link Untuk Update" className="min-w-0 flex-1 rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" aria-label="Link Untuk Update atau nama file" />
+  <button type="button" onClick={() => versionFileInputRef.current?.click()} disabled={versionFileUploadProgress !== null} title="Upload file update" aria-label="Upload file update" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition hover:bg-terracotta-text active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+    {versionFileUploadProgress !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} aria-hidden="true" />}
+  </button>
+  <input ref={versionFileInputRef} type="file" onChange={handleVersionFileSelected} accept={ADDON_FILE_ACCEPT} className="hidden" />
+</div><textarea value={versionDraft.changelog} onChange={event => setVersionDraft(prev => ({ ...prev, changelog: event.target.value }))} rows={3} placeholder="What changed in this release?" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 sm:col-span-2" /><input value={versionDraft.compatibilityNotes} onChange={event => setVersionDraft(prev => ({ ...prev, compatibilityNotes: event.target.value }))} placeholder="Compatibility notes (optional)" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex justify-end sm:col-span-2"><button type="submit" disabled={isVersionSaving} className={`${getButtonClasses('primary', 'sm')} disabled:opacity-50`}>{isVersionSaving ? 'Saving…' : 'Publish version'}</button></div></form>}
           </section>
 
         </div>

@@ -1,14 +1,16 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { Addon, Report, User } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../hooks/useToast';
-import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles } from 'lucide-react';
-import { ViewState } from '../App';
+import { Addon, Report, User } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles } from '@/components/icons/animated';
+import { ViewState } from '@/types';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { FadeImage } from './FadeImage';
 import { Skeleton, SkeletonCard } from './Skeleton';
-import { getButtonClasses } from '../lib/designSystem';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { getButtonClasses } from '@/lib/designSystem';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 const EXCLUDED_ADMIN_EMAILS = ['unknownfeed76@gmail.com', 'kanzakbarraihanriyanto86@gmail.com'];
 

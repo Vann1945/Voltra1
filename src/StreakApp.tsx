@@ -1,5 +1,6 @@
+'use client';
+
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
-import './index.css';
 import { getLocalYYYYMMDD } from './utils/dateUtils';
 import { readActivityLog, sanitizeHabitName, safeGetItem, safeSetItem, type ActivityLog } from './utils/safeStorage';
 import { useToast } from './hooks/useToast';
@@ -12,7 +13,7 @@ import * as m from 'motion/react-m';
 import {
   Activity, RotateCcw, Flame, Star, Award, Trophy, Medal, Crown, Gem, Sparkles,
   TrendingUp, CalendarCheck, Percent, Lock,
-} from 'lucide-react';
+} from '@/components/icons/animated';
 import { Skeleton } from './components/Skeleton';
 
 const MonthCalendar = lazy(() => import('./components/MonthCalendar').then(m => ({ default: m.MonthCalendar })));

@@ -1,9 +1,11 @@
+'use client';
+
 import { useMemo } from 'react';
 import * as m from 'motion/react-m';
-import { Calendar, Flame } from 'lucide-react';
+import { Calendar, Flame } from '@/components/icons/animated';
 import { ProgressRing } from './ProgressRing';
-import { getLocalYYYYMMDD } from '../utils/dateUtils';
-import type { ActivityLog } from '../utils/safeStorage';
+import { getLocalYYYYMMDD } from '@/utils/dateUtils';
+import type { ActivityLog } from '@/utils/safeStorage';
 
 interface MonthlyOverviewProps {
   activityLog: ActivityLog;

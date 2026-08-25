@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { getEncryptedEnv } from './secretsEncryption.js';
+import { getEncryptedEnv } from './secretsEncryption';
 
 function getTransporter() {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER } = process.env;
