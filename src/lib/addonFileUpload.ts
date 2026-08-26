@@ -7,6 +7,14 @@ export function hasAllowedExtension(fileName: string): boolean {
   return ALLOWED_ADDON_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
+/**
+ * Cloudinary assigns a random public_id to signed uploads unless one is
+ * explicitly signed server-side. Rather than requiring a backend change,
+ * we tag the delivery URL with Cloudinary's `fl_attachment:<name>` flag so
+ * the browser downloads the file using a clean, human-readable filename
+ * instead of the random Cloudinary id. This only affects how the file is
+ * delivered/downloaded — it doesn't require re-signing the upload.
+ */
 function withAttachmentFilename(secureUrl: string, desiredFileName: string): string {
   const uploadMarker = '/upload/';
   const markerIndex = secureUrl.indexOf(uploadMarker);
@@ -22,6 +30,15 @@ function withAttachmentFilename(secureUrl: string, desiredFileName: string): str
   return `${secureUrl.slice(0, insertAt)}fl_attachment:${encodeURIComponent(safeName)}/${secureUrl.slice(insertAt)}`;
 }
 
+/**
+ * Uploads a Minecraft add-on release file (.mcaddon/.zip/etc.) to Cloudinary
+ * and returns a download URL that keeps a clean, readable filename.
+ *
+ * @param preferredName Name to use for the file on download (e.g. the
+ *   project title). Falls back to the raw uploaded file's name if omitted —
+ *   export tools often give files generic/auto-generated names that aren't
+ *   meaningful to end users.
+ */
 export function uploadAddonFile(file: File, onProgress: (pct: number) => void, preferredName?: string): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!hasAllowedExtension(file.name)) {

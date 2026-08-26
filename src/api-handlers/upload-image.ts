@@ -47,6 +47,18 @@ async function handleUploadSign(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json({ cloudName, apiKey, timestamp, folder, signature });
 }
 
+/**
+ * Sign params untuk upload LANGSUNG dari browser ke ImageKit (tanpa lewat
+ * server kita sebagai proxy). Ini menghindari hard limit ukuran body request
+ * di Vercel Serverless/Route Handler (~4.5MB, tidak bisa dikonfigurasi untuk
+ * Route Handler) yang sebelumnya bikin upload gambar berkualitas
+ * tinggi/cover image gagal diam-diam: gambar webp ~4MB di-base64 jadi ~5.3MB
+ * lalu dibungkus JSON, lewat dari limit Vercel sebelum sempat sampai ke kode
+ * handler ini sama sekali.
+ *
+ * Folder tujuan tetap ditentukan di server (bukan dikirim client) supaya
+ * client tidak bisa menyuruh ImageKit menyimpan file di folder sembarangan.
+ */
 async function handleImageKitSign(req: VercelRequest, res: VercelResponse) {
   const user = await requireUser(req);
 
@@ -73,6 +85,8 @@ async function handleImageKitSign(req: VercelRequest, res: VercelResponse) {
   const safeFolderName = typeof folderName === 'string' && folderName.trim() ? folderName.trim() : (user.name || user.uid);
   const folder = safeContext === 'avatar' ? userFolderPath(safeFolderName) : addonFolderPath(safeFolderName);
 
+  // Token unik per request supaya signature tidak bisa dipakai ulang untuk
+  // upload lain (ImageKit menolak token yang sudah pernah dipakai).
   const token = crypto.randomUUID();
   const { signature, expire } = imagekit.getAuthenticationParameters(token);
 
@@ -111,6 +125,10 @@ async function handleUploadImage(req: VercelRequest, res: VercelResponse) {
     return res.status(503).json({ error: 'File hosting is not configured on the server.' });
   }
 
+  // Folder ditentukan dari context + folderName yang dikirim client:
+  //  - context "avatar" -> /users/<nama>      (folderName = display name user)
+  //  - context "addon"  -> /add-ons/<judul>   (folderName = judul add-on)
+  // Fallback ke folder lama kalau client belum kirim context (jaga-jaga).
   const safeContext = context === 'avatar' ? 'avatar' : 'addon';
   const safeFolderName = typeof folderName === 'string' && folderName.trim() ? folderName.trim() : (user.name || user.uid);
   const folder = safeContext === 'avatar' ? userFolderPath(safeFolderName) : addonFolderPath(safeFolderName);

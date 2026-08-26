@@ -4,6 +4,11 @@ const RESERVED_TOP_SEGMENTS = new Set([
   'home', 'landing', 'streak', 'profile', 'bookmarks', 'library', 'settings', 'admin', 'reset-password', 'author',
 ]);
 
+/**
+ * Kebalikan dari `viewToPath` (lihat useAppNavigate.ts) — dipakai supaya
+ * Navbar tahu tab mana yang lagi aktif berdasarkan pathname App Router saat ini.
+ * Ini menggantikan `getInitialView`/`normalizeAppPath` dari App.tsx versi Vite.
+ */
 export function pathToViewState(pathname: string): ViewState {
   const path = pathname.replace(/\/+$/, '') || '/';
   if (path === '/' || path === '/home') return 'home';

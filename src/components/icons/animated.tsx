@@ -1,13 +1,40 @@
 'use client';
 
+/**
+ * Drop-in replacement untuk 'lucide-react' — nama export & prop API
+ * (size, className, strokeWidth, dst.) sama persis, jadi tinggal ganti
+ * sumber import-nya tanpa perlu ubah JSX pemakaiannya sama sekali.
+ * Setiap icon otomatis animasi saat di-hover (desktop) atau di-tap (HP) —
+ * lihat AnimatedIcon.tsx untuk engine-nya (CSS-based, ringan) dan
+ * globals.css untuk daftar keyframe `.icon-anim-*`.
+ *
+ * Preset dipilih per "keluarga" icon supaya masing-masing kerasa beda
+ * karakternya, bukan cuma variasi arah dari gerakan yang sama:
+ *  - tick/spin-once/spin-ccw → benda muter (jam, refresh, undo/redo)
+ *  - tilt/swing/wiggle       → benda "digoyang" (gantungan, gembok, pensil)
+ *  - slide-*                 → arah masuk/keluar/navigasi
+ *  - pop-clean                → tap ringan tanpa overshoot (netral, dipakai
+ *                                 buat icon UI generik)
+ *  - squeeze                  → benda dikompres (zip, garis, slider)
+ *  - draw                     → stroke digambar ulang (checkmark, bintang)
+ *  - glow-pulse/flicker       → cahaya (api, listrik, sparkle)
+ *  - ring-expand               → radar/scan/proteksi
+ *  - blur-focus                → kamera fokus (search, code)
+ *  - fade-flip/corner-peek     → benda dibalik/dibuka
+ */
 import React from 'react';
 import * as Lucide from 'lucide-react';
 import type { LucideIcon, LucideProps } from 'lucide-react';
 import { AnimatedIcon, type AnimationPreset } from './AnimatedIcon';
+import { ZapMotion } from './ZapMotion';
+import { SparklesMotion } from './SparklesMotion';
 
 type WrappedIconProps = LucideProps & { preset?: AnimationPreset };
 
 function wrap(icon: LucideIcon, defaultPreset: AnimationPreset) {
+  // `preset` di props (kalau dikasih di titik pemakaian) menang atas default,
+  // jadi icon yang sama bisa dipakai dengan "rasa" animasi berbeda di tempat
+  // berbeda (mis. Bookmark di bottom nav vs Bookmark di kartu add-on).
   const Wrapped = React.forwardRef<SVGSVGElement, WrappedIconProps>(({ preset, ...props }, ref) => (
     <AnimatedIcon icon={icon} preset={preset ?? defaultPreset} {...props} />
   ));
@@ -59,10 +86,18 @@ export const Plus = wrap(Lucide.Plus, 'pop-clean');
 export const RotateCcw = wrap(Lucide.RotateCcw, 'spin-ccw');
 export const Scan = wrap(Lucide.Scan, 'ring-expand');
 export const Search = wrap(Lucide.Search, 'blur-focus');
+export const Send = wrap(Lucide.Send, 'launch');
 export const Settings = wrap(Lucide.Settings, 'spin-once');
 export const Shield = wrap(Lucide.Shield, 'ring-expand');
 export const SlidersHorizontal = wrap(Lucide.SlidersHorizontal, 'squeeze');
-export const Sparkles = wrap(Lucide.Sparkles, 'glow-pulse');
+// Zap & Sparkles sengaja TIDAK lewat `wrap()` (engine CSS generik) — dua
+// icon ini direbuild 1:1 dari lucide-animated.com (motion path draw untuk
+// Zap, sparkle-bounce + star-blink untuk Sparkles). Lihat ZapMotion.tsx dan
+// SparklesMotion.tsx untuk detailnya. Beda dari icon lain di file ini, dua
+// export ini TIDAK menerima prop `preset` (tipe-nya LucideProps polos) —
+// animasinya sudah fix sesuai sumber asli, jadi kalau ada titik pemakaian
+// yang butuh preset custom, jangan dikasih ke Zap/Sparkles.
+export const Sparkles = SparklesMotion;
 export const Star = wrap(Lucide.Star, 'draw');
 export const SunMedium = wrap(Lucide.SunMedium, 'glow-pulse');
 export const Target = wrap(Lucide.Target, 'ring-expand');
@@ -74,7 +109,9 @@ export const UserX = wrap(Lucide.UserX, 'shake');
 export const Users = wrap(Lucide.Users, 'swing');
 export const X = wrap(Lucide.X, 'fade-flip');
 export const XCircle = wrap(Lucide.XCircle, 'fade-flip');
-export const Zap = wrap(Lucide.Zap, 'flicker');
+export const Zap = ZapMotion;
+
+// Icon tambahan (kelewat di scan pertama karena ada di import multi-baris)
 export const Award = wrap(Lucide.Award, 'ring-expand');
 export const Trophy = wrap(Lucide.Trophy, 'tilt');
 export const Medal = wrap(Lucide.Medal, 'swing');

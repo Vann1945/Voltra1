@@ -52,10 +52,31 @@ async function getCsrfToken(): Promise<string> {
   }
 }
 
-function navigateToOAuthProvider(provider: 'google' | 'github') {
-  const callbackUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
-  const params = new URLSearchParams({ callbackUrl });
-  window.location.assign(`/api/auth/signin/${provider}?${params.toString()}`);
+// PENTING: @auth/core (>=0.37, termasuk 0.41.3 yang dipakai proyek ini) TIDAK LAGI
+// mendukung request GET langsung ke /api/auth/signin/:provider — itu akan selalu
+// dilempar sebagai "UnknownAction: Unsupported action." di server (lihat
+// https://github.com/nextauthjs/next-auth/issues/13269). Satu-satunya cara yang
+// didukung adalah POST dengan csrfToken. Karena itu fallback di bawah ini memakai
+// submit <form method="POST"> asli (bukan window.location.assign ke URL GET),
+// supaya tetap jalan sebagai navigasi browser biasa walau fetch/JSON di atas gagal.
+function navigateToOAuthProvider(provider: 'google' | 'github', csrfToken: string) {
+  const callbackUrl = window.location.href;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = `/api/auth/signin/${provider}`;
+  form.style.display = 'none';
+
+  const fields: Record<string, string> = { csrfToken, callbackUrl };
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 async function startOAuthLogin(provider: 'google' | 'github') {
@@ -81,9 +102,9 @@ async function startOAuthLogin(provider: 'google' | 'github') {
   }
 
   // Auth.js dapat mengembalikan redirect/HTML bila proxy atau cookie belum siap.
-  // Navigasi langsung tetap berada dalam alur provider yang benar dan tidak
-  // mencoba JSON.parse terhadap halaman HTML.
-  navigateToOAuthProvider(provider);
+  // Fallback tetap harus lewat POST (lihat catatan di atas navigateToOAuthProvider),
+  // bukan GET, supaya tidak crash dengan UnknownAction di server.
+  navigateToOAuthProvider(provider, csrfToken);
 }
 
 export function useAuth() {
@@ -135,7 +156,7 @@ export function useAuth() {
       await startOAuthLogin('google');
     } catch (err) {
       console.error('Google login failed:', err);
-      navigateToOAuthProvider('google');
+      navigateToOAuthProvider('google', await getCsrfToken());
     }
   }, []);
 
@@ -144,7 +165,7 @@ export function useAuth() {
       await startOAuthLogin('github');
     } catch (err) {
       console.error('GitHub login failed:', err);
-      navigateToOAuthProvider('github');
+      navigateToOAuthProvider('github', await getCsrfToken());
     }
   }, []);
 
@@ -172,11 +193,22 @@ export function useAuth() {
             RECAPTCHA_FAILED: 'reCAPTCHA verification failed. Please try again.',
             TOO_MANY_ATTEMPTS: 'Too many login attempts. Please wait a few minutes and try again.',
           };
-          throw new Error(messages[error] || 'Login failed. Please try again.');
+          // Ditandai eksplisit sebagai "known auth error" (bukan di-cek lewat
+          // substring teks pesan) supaya catch block di bawah bisa
+          // membedakannya secara andal dari error tak terduga (network/parse
+          // error dst). Sebelumnya ini dicek pakai `.includes('Login failed')`,
+          // yang cuma cocok untuk pesan fallback generik — 4 pesan spesifik di
+          // atas (salah password, email belum diverifikasi, dll) malah selalu
+          // ketiban pesan generik "Authentication server error" di bawah,
+          // termasuk bikin redirect ke tampilan "verify email" di AuthCard ikut
+          // gagal karena pesannya sudah keburu diganti.
+          const knownAuthError = new Error(messages[error] || 'Login failed. Please try again.');
+          (knownAuthError as Error & { isKnownAuthError?: boolean }).isKnownAuthError = true;
+          throw knownAuthError;
         }
         await refreshSession();
       } catch (err: any) {
-        if (err.message && err.message.includes('Login failed')) throw err;
+        if (err?.isKnownAuthError) throw err;
         console.error('Credentials login failed:', err);
         throw new Error('Authentication server error. Please try again later.');
       }

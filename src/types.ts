@@ -93,6 +93,8 @@ export interface Report {
   createdAt: string;
 }
 
+// Navigation types — dipindah dari App.tsx (Vite) supaya bisa dipakai
+// bareng oleh komponen client & App Router pages tanpa import silang.
 export type ViewState =
   | 'landing'
   | 'streak'

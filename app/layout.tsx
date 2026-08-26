@@ -5,6 +5,11 @@ import { ToastProvider } from '@/hooks/useToast';
 import { AppShellProvider } from '@/providers/AppShellProvider';
 import { AppChrome } from '@/providers/AppChrome';
 
+// Self-hosted lewat next/font: nggak ada request render-blocking ke
+// fonts.googleapis.com lagi (itu yang paling makan waktu di LCP mobile),
+// filenya di-preload otomatis dan di-subset cuma huruf latin.
+// Nama variable-nya sengaja beda dari --font-mono (token Tailwind di
+// globals.css) supaya nggak circular waktu di-reference di sana.
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],

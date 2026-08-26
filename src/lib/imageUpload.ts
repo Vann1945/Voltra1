@@ -1,3 +1,21 @@
+/**
+ * Upload gambar LANGSUNG dari browser ke ImageKit (bukan lewat server kita).
+ *
+ * Kenapa: sebelumnya semua upload gambar (avatar, cover add-on, gambar di
+ * description editor) di-base64-kan lalu dikirim sebagai JSON body ke API
+ * route kita, yang jadi proxy ke ImageKit. Vercel Route Handler punya hard
+ * limit ukuran body request (~4.5MB, tidak bisa dikonfigurasi via
+ * next.config), sementara gambar webp hasil kompresi bisa sampai ~4MB —
+ * setelah di-base64 (+33%) jadi ~5.3MB dan lewat dari limit Vercel SEBELUM
+ * request sampai ke kode kita. Hasilnya: upload gagal tanpa pesan error yang
+ * jelas dari aplikasi kita sendiri.
+ *
+ * Fix-nya: server hanya menandatangani (sign) request upload — file-nya
+ * sendiri dikirim langsung dari browser ke ImageKit sebagai multipart, jadi
+ * tidak pernah lewat body-size limit server kita sama sekali. Pola ini sama
+ * seperti upload file add-on ke Cloudinary di `addonFileUpload.ts`.
+ */
+
 export type ImageUploadContext = 'avatar' | 'addon';
 
 interface ImageKitSignResponse {
@@ -21,6 +39,17 @@ async function getImageKitSignParams(context: ImageUploadContext, folderName?: s
   return data as ImageKitSignResponse;
 }
 
+/**
+ * Upload satu file gambar ke ImageKit dan mengembalikan URL publiknya.
+ *
+ * @param file File gambar (idealnya sudah dikompres/convert ke webp di
+ *   pemanggil, seperti sebelumnya — helper ini tidak melakukan kompresi).
+ * @param context "avatar" untuk foto profil, "addon" untuk cover/gambar add-on.
+ * @param folderName Nama yang dipakai untuk membentuk folder ImageKit
+ *   (nama user untuk avatar, judul add-on untuk cover). Folder tetap
+ *   divalidasi & dibentuk di server, bukan dipercaya mentah dari client.
+ * @param onProgress Callback progress 0-100 (opsional).
+ */
 export function uploadImageToImageKit(
   file: File,
   context: ImageUploadContext,
@@ -40,6 +69,8 @@ export function uploadImageToImageKit(
       body.append('token', token);
 
       const xhr = new XMLHttpRequest();
+      // Endpoint upload ImageKit selalu domain ini, terlepas dari urlEndpoint
+      // (yang dipakai untuk sisi delivery/pembacaan gambar, bukan upload).
       xhr.open('POST', 'https://upload.imagekit.io/api/v1/files/upload');
 
       xhr.upload.onprogress = event => {

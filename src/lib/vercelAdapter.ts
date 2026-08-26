@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Adapter kompatibilitas: kode API asli (folder /api di project Vite lama)
+ * ditulis dengan gaya Vercel Serverless Function `(req: VercelRequest, res: VercelResponse)`.
+ * Daripada menulis ulang logika bisnis di setiap handler (resiko bug tinggi & rawan salah),
+ * adapter ini membungkus handler lama supaya bisa langsung dipakai sebagai
+ * Next.js App Router Route Handler (`export const GET/POST/...`).
+ *
+ * Handler asli tetap dipertahankan apa adanya di `src/api-handlers/*.ts`
+ * (hanya path import yang disesuaikan), dipanggil lewat `adaptVercelHandler(handler)`.
+ */
+
 type QueryValue = string | string[] | undefined;
 
 export interface MinimalVercelRequest {

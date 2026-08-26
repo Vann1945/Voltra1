@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const verifyToken = crypto.randomBytes(32).toString('hex');
-    const verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000;
+    const verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 jam
     const uid = crypto.randomUUID();
     const role = isAdminEmail(email) ? 'admin' : 'user';
 
@@ -51,6 +51,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         [uid, email, name, role, passwordHash, verifyToken, verifyTokenExpires]
       );
     } catch (err: any) {
+      // ER_DUP_ENTRY dari UNIQUE(email) — race condition dua request register
+      // bersamaan, atau memang sudah terdaftar. Baik dari OAuth maupun manual.
       if (err?.code === 'ER_DUP_ENTRY') {
         return res.status(409).json({ error: 'Email is already registered.' });
       }

@@ -1,8 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Redirect path lama/alias supaya URL tetap konsisten (dulu ditangani lewat
-  // rewrites SPA-fallback di vercel.json karena semuanya cuma satu index.html).
   async redirects() {
     return [
       { source: '/home', destination: '/', permanent: false },
@@ -30,10 +28,7 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              // https://upload.imagekit.io ditambahkan supaya browser boleh upload gambar
-              // LANGSUNG ke ImageKit (lihat handleImageKitSign di upload-image.ts) —
-              // tanpa ini, CSP akan mem-block fetch/XHR ke domain tsb walau kode JS-nya benar.
-              "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.cloudinary.com https://upload.imagekit.io https://www.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; frame-src https://www.google.com https://www.youtube-nocookie.com https://www.youtube.com https://visualize-void.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self';",
+              "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.cloudinary.com https://upload.imagekit.io https://www.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com; frame-src https://www.google.com https://www.youtube-nocookie.com https://www.youtube.com https://visualize-void.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },

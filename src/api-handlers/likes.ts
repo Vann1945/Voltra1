@@ -26,6 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await conn.beginTransaction();
         if (isLiked) {
           const [delResult] = await conn.execute('DELETE FROM likes WHERE id = ?', [likeId]);
+          // Hanya kurangi counter kalau baris like memang benar-benar ada &
+          // terhapus — mencegah counter drift kalau request di-retry/dobel-klik.
           if ((delResult as any).affectedRows > 0) {
             await conn.execute('UPDATE addons SET likes_count = GREATEST(likes_count - 1, 0) WHERE id = ?', [addonId]);
           }
@@ -34,6 +36,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             'INSERT IGNORE INTO likes (id, user_id, addon_id) VALUES (?, ?, ?)',
             [likeId, user.uid, addonId]
           );
+          // INSERT IGNORE akan no-op (affectedRows = 0) kalau like ini sudah
+          // ada sebelumnya (mis. double-click atau request diulang). Counter
+          // hanya boleh naik saat baris baru benar-benar dibuat.
           if ((insResult as any).affectedRows > 0) {
             await conn.execute('UPDATE addons SET likes_count = likes_count + 1 WHERE id = ?', [addonId]);
           }

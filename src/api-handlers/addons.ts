@@ -352,6 +352,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         values.push(id);
         await query(`UPDATE addons SET ${fields.join(', ')} WHERE id = ?`, values);
 
+        // Judul berubah -> folder gambar ImageKit lama (dinamai pakai judul lama)
+        // dihapus. Upload gambar berikutnya otomatis bikin folder baru sesuai
+        // judul baru. Kegagalan hapus folder tidak menggagalkan request utama.
         const newTitle = typeof body.title === 'string' ? body.title.trim() : null;
         if (newTitle && newTitle !== addon.title) {
           await deleteImageKitFolder(addonFolderPath(addon.title));
@@ -375,6 +378,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         await query('DELETE FROM addons WHERE id = ?', [id]);
 
+        // Add-on dihapus -> seluruh folder gambarnya di ImageKit ikut dihapus.
         await deleteImageKitFolder(addonFolderPath(addon.title));
 
         return res.status(200).json({ ok: true });
@@ -389,6 +393,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
+    // Marketplace publik tetap render empty state saat environment DB belum
+    // tersedia (misalnya preview lokal), bukan mengembalikan blank/error page.
     if (!process.env.TIDB_HOST) return res.status(200).json({ addons: [] });
 
     try {

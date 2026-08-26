@@ -44,6 +44,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (typeof addonId !== 'string' || !addonId) {
         return res.status(400).json({ error: 'addonId is required.' });
       }
+      // Rating harus integer 1-5 yang sesungguhnya, bukan sekadar lolos
+      // perbandingan numerik (string non-angka bisa lolos `< 1 || > 5` karena
+      // hasil NaN comparison JS yang selalu false).
       if (typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Rating must be a whole number from 1 to 5.' });
       }
@@ -51,6 +54,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Comment must be at most 1000 characters.' });
       }
 
+      // Pastikan addonId benar-benar merujuk ke addon yang sudah disetujui —
+      // tanpa ini, siapa pun bisa POST review ke ID sembarangan (termasuk
+      // addon yang belum di-approve atau bahkan ID yang tidak ada sama
+      // sekali), mengotori tabel reviews dengan data yatim/tidak valid.
       const addon = await queryOne<{ status: string }>('SELECT status FROM addons WHERE id = ?', [addonId]);
       if (!addon || addon.status !== 'approved') {
         return res.status(404).json({ error: 'Add-on not found.' });

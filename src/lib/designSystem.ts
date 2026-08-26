@@ -1,3 +1,4 @@
+// Shared UI tokens keep spacing, motion, and component states predictable.
 export const SPACING = {
   xs: '8px',
   sm: '16px',
@@ -50,6 +51,11 @@ export const getButtonClasses = (
     lg: 'min-h-12 px-5 text-sm',
   };
   const variants = {
+    // Default primary sengaja pakai tone terracotta yang lebih gelap
+    // (sebelumnya bg-terracotta + text-paper cuma ~3.15:1 — gagal AA yang
+    // butuh 4.5:1 buat teks bold 14px). terracotta-text sudah dipakai di
+    // tempat lain sebagai warna teks/hover jadi masih konsisten sama brand,
+    // dan di atas text-paper kontrasnya ~4.6:1.
     primary: 'bg-terracotta-text text-paper shadow-sm hover:bg-terracotta hover:shadow-card-hover',
     secondary: 'border border-parchment-border bg-parchment-raised text-ink-900 hover:border-terracotta/60 hover:bg-ink-900/[0.03] shadow-sm',
     ghost: 'text-ink-900/70 hover:bg-ink-900/[0.05] hover:text-ink-900',
