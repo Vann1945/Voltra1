@@ -1,5 +1,4 @@
 import type { MinimalVercelRequest as VercelRequest, MinimalVercelResponse as VercelResponse } from '@/lib/vercelAdapter';
-import crypto from 'crypto';
 import { query, queryOne } from '@/lib/db';
 import { requireUser, requireAdmin } from '@/lib/apiAuth';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -48,108 +47,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       safeLogError('[api/users search] error:', err);
       const status = err?.statusCode || 500;
       return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to search users.' });
-    }
-  }
-
-  if (scope === 'habit') {
-    try {
-      const user = await requireUser(req);
-
-      if (req.method === 'GET') {
-        const rows = await query<any>(
-          `SELECT h.name, h.journey_start_date, l.log_date, l.status
-           FROM habits h LEFT JOIN habit_logs l ON l.habit_id = h.id
-           WHERE h.user_id = ?`,
-          [user.uid]
-        );
-
-        if (rows.length === 0) {
-          return res.status(200).json({ name: null, journeyStartDate: null, log: {} });
-        }
-
-        const log: Record<string, string> = {};
-        for (const r of rows) {
-          if (r.log_date && r.status) {
-            const dateStr = r.log_date instanceof Date ? r.log_date.toISOString().slice(0, 10) : String(r.log_date).slice(0, 10);
-            log[dateStr] = r.status;
-          }
-        }
-        const journeyStartDate = rows[0].journey_start_date
-          ? (rows[0].journey_start_date instanceof Date
-              ? (rows[0].journey_start_date as Date).toISOString().slice(0, 10)
-              : String(rows[0].journey_start_date).slice(0, 10))
-          : null;
-
-        return res.status(200).json({ name: rows[0].name, journeyStartDate, log });
-      }
-
-      if (req.method === 'PUT') {
-        const { name } = req.body || {};
-        if (typeof name !== 'string' || name.trim().length < 1 || name.length > 80) {
-          return res.status(400).json({ error: 'Habit name must be 1-80 characters.' });
-        }
-        const allowed = await checkRateLimit(`habit-update:${user.uid}`, 30, 60_000);
-        if (!allowed) return res.status(429).json({ error: 'Too many requests. Please slow down.' });
-
-        await query(
-          `INSERT INTO habits (id, user_id, name) VALUES (?, ?, ?)
-           ON DUPLICATE KEY UPDATE name = VALUES(name)`,
-          [crypto.randomUUID(), user.uid, name]
-        );
-        return res.status(200).json({ ok: true });
-      }
-
-      if (req.method === 'DELETE') {
-        await query('DELETE FROM habits WHERE user_id = ?', [user.uid]);
-        return res.status(200).json({ ok: true });
-      }
-
-      return res.status(405).json({ error: 'Method not allowed' });
-    } catch (err: any) {
-      safeLogError('[api/users habit] error:', err);
-      const status = err?.statusCode || 500;
-      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process habit.' });
-    }
-  }
-
-  if (scope === 'habit-log') {
-    if (req.method !== 'PUT') return res.status(405).json({ error: 'Method not allowed' });
-    try {
-      const user = await requireUser(req);
-
-      const { date, status } = req.body || {};
-      if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        return res.status(400).json({ error: 'Invalid date.' });
-      }
-      if (status !== 'active' && status !== 'rest') {
-        return res.status(400).json({ error: 'Invalid status.' });
-      }
-
-      const allowed = await checkRateLimit(`habit-log:${user.uid}`, 60, 60_000);
-      if (!allowed) return res.status(429).json({ error: 'Too many requests. Please slow down.' });
-
-      // Make sure a habit row exists for this user before logging against it
-      // (a brand new user may log a day before ever setting a habit name).
-      await query(
-        `INSERT INTO habits (id, user_id) VALUES (?, ?)
-         ON DUPLICATE KEY UPDATE user_id = user_id`,
-        [crypto.randomUUID(), user.uid]
-      );
-      const habit = await queryOne<{ id: string }>('SELECT id FROM habits WHERE user_id = ?', [user.uid]);
-      if (!habit) return res.status(500).json({ error: 'Failed to process log entry.' });
-
-      await query('UPDATE habits SET journey_start_date = COALESCE(journey_start_date, ?) WHERE id = ?', [date, habit.id]);
-      await query(
-        `INSERT INTO habit_logs (id, habit_id, log_date, status) VALUES (?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE status = VALUES(status)`,
-        [crypto.randomUUID(), habit.id, date, status]
-      );
-
-      return res.status(200).json({ ok: true });
-    } catch (err: any) {
-      safeLogError('[api/users habit-log] error:', err);
-      const status = err?.statusCode || 500;
-      return res.status(status).json({ error: status === 401 ? 'You must log in.' : 'Failed to process log entry.' });
     }
   }
 

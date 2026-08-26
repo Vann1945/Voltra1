@@ -1,7 +1,7 @@
 import type { ViewState } from '@/types';
 
 const RESERVED_TOP_SEGMENTS = new Set([
-  'home', 'landing', 'streak', 'profile', 'bookmarks', 'library', 'settings', 'admin', 'reset-password', 'author',
+  'home', 'landing', 'profile', 'bookmarks', 'library', 'settings', 'admin', 'creator', 'reset-password', 'author',
 ]);
 
 /**
@@ -13,11 +13,11 @@ export function pathToViewState(pathname: string): ViewState {
   const path = pathname.replace(/\/+$/, '') || '/';
   if (path === '/' || path === '/home') return 'home';
   if (path === '/landing') return 'landing';
-  if (path === '/streak') return 'streak';
   if (path === '/profile') return 'profile';
   if (path === '/bookmarks' || path === '/library') return 'library';
   if (path === '/settings') return 'settings';
   if (path === '/admin') return 'admin';
+  if (path === '/creator') return 'creator';
   if (path === '/reset-password') return { type: 'reset-password', token: '', uid: '' };
 
   const segments = path.split('/').filter(Boolean);

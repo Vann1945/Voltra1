@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AddonCard } from './AddonCard';
 import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
-import { Addon, Report } from '@/types';
+import { Addon, Channel, Report } from '@/types';
 import { PROFILE_UPDATED_EVENT, useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { Package, Heart, Edit2, Check, X, AlertTriangle, Trash2, Settings, Upload } from '@/components/icons/animated';
@@ -79,6 +79,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
 
   const [reports, setReports] = useState<Report[]>([]);
   const [loadingReports, setLoadingReports] = useState(false);
+  const [profileChannels, setProfileChannels] = useState<Channel[]>([]);
 
   const [addonToDelete, setAddonToDelete] = useState<string | null>(null);
   const [deletingAddon, setDeletingAddon] = useState(false);
@@ -135,6 +136,10 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
         }
       };
       fetchReports();
+      fetch(`/api/channels?ownerId=${encodeURIComponent(user.uid)}`, { credentials: 'include', cache: 'no-store' })
+        .then(response => response.ok ? response.json() : { channels: [] })
+        .then(data => setProfileChannels(Array.isArray(data.channels) ? data.channels : []))
+        .catch(() => setProfileChannels([]));
     }
   }, [user]);
 
@@ -367,6 +372,7 @@ export function UserProfile({ addons, loading, userLikes, userBookmarks, onToggl
               </div>
               <p className="mt-2 text-sm font-bold text-ink-900/60">{user.email}</p>
               {user.bio && <p className="mt-4 text-sm font-medium text-ink-900/80 max-w-2xl leading-relaxed">{user.bio}</p>}
+              {profileChannels.length > 0 && <div className="mt-4 flex flex-wrap gap-2" aria-label="Public channels"><span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-terracotta-text">Channels</span>{profileChannels.filter(channel => channel.status === 'published').map(channel => <a key={channel.id} href={channel.url} className="inline-flex items-center rounded-full border border-terracotta/30 bg-terracotta/10 px-3 py-1.5 text-xs font-bold text-terracotta-text transition hover:bg-terracotta/20 focus-visible:ring-2 focus-visible:ring-terracotta">{channel.name}</a>)}</div>}
               <div className="mt-6 flex items-center gap-3 text-sm font-bold text-ink-900">
                 <span className="flex items-center gap-2 rounded-xl border border-parchment-border bg-parchment-raised px-4 py-2 shadow-card"><Package size={14} className="text-terracotta-text" /> {myUploads.length} Uploads</span>
                 <span className="flex items-center gap-2 rounded-xl border border-parchment-border bg-parchment-raised px-4 py-2 shadow-card"><Heart size={14} className="text-terracotta-text" /> {myLikes.length} Likes</span>

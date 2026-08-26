@@ -18,7 +18,6 @@ import { categoryToSlug, slugify } from '@/types';
 export function viewToPath(view: ViewState, addons: Addon[]): string {
   if (view === 'home') return '/';
   if (view === 'landing') return '/landing';
-  if (view === 'streak') return '/streak';
   if (view === 'profile') return '/profile';
   if (view === 'bookmarks' || view === 'library') return '/library';
   if (view === 'settings') return '/settings';

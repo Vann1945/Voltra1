@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Addon, Report, User } from '@/types';
+import { Addon, Channel, Report, User } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles } from '@/components/icons/animated';
+import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles, Search, Activity } from '@/components/icons/animated';
 import { ViewState } from '@/types';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { FadeImage } from './FadeImage';
@@ -34,7 +34,10 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   const [loadingReports, setLoadingReports] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [activeTab, setActiveTab] = useState<'addons' | 'users' | 'reports'>('addons');
+  const [activeTab, setActiveTab] = useState<'overview' | 'addons' | 'users' | 'reports' | 'channels'>('overview');
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [loadingChannels, setLoadingChannels] = useState(false);
+  const [channelSearch, setChannelSearch] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [confirmDeleteAddonId, setConfirmDeleteAddonId] = useState<string | null>(null);
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
@@ -74,8 +77,24 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
         };
         fetchUsers();
       }
+      if (activeTab === 'channels') {
+        const fetchChannels = async () => {
+          setLoadingChannels(true);
+          try {
+            const params = new URLSearchParams({ scope: 'admin' });
+            if (channelSearch.trim()) params.set('q', channelSearch.trim());
+            const res = await fetch(`/api/channels?${params.toString()}`, { credentials: 'include', cache: 'no-store' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Failed to load channels.');
+            setChannels(Array.isArray(data.channels) ? data.channels : []);
+          } catch (error) {
+            showToast(error instanceof Error ? error.message : 'Failed to load channels.', 'error');
+          } finally { setLoadingChannels(false); }
+        };
+        fetchChannels();
+      }
     }
-  }, [user, activeTab, reports.length, users.length]);
+  }, [user, activeTab, reports.length, users.length, channelSearch]);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -310,7 +329,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
       {/* Tabs */}
  <div className="mb-10 flex rounded-lg bg-parchment-raised w-fit shadow-card neumorph glass">
-        {(['addons', 'users', 'reports'] as const).map(tab => (
+        {(['overview', 'addons', 'users', 'reports', 'channels'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -318,12 +337,29 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
               activeTab === tab ? 'bg-terracotta text-ink-900' : 'bg-parchment-raised text-ink-900/40 hover:text-ink-900'
             }`}
           >
-            {tab}
+            {tab === 'overview' ? 'Overview' : tab === 'channels' ? 'Channels' : tab}
           </button>
         ))}
       </div>
 
       <div className="space-y-16">
+        {activeTab === 'overview' && (
+          <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card">
+              <div className="flex items-start gap-3"><Activity size={20} className="mt-0.5 text-terracotta-text" /><div><h2 className="text-xl font-bold text-ink-900">Operations overview</h2><p className="mt-1 text-sm text-ink-900/55">A quick view of the work that needs attention.</p></div></div>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => setActiveTab('addons')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Pending content</span><span className="mt-2 block text-2xl font-bold text-ink-900">{pendingAddons.length}</span><span className="mt-1 block text-xs text-ink-900/55">Open moderation queue</span></button><button type="button" onClick={() => setActiveTab('channels')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Channels</span><span className="mt-2 block text-2xl font-bold text-ink-900">{channels.length || '—'}</span><span className="mt-1 block text-xs text-ink-900/55">Review public community feeds</span></button></div>
+            </div>
+            <div className="rounded-2xl border border-parchment-border bg-ink-900 p-6 text-paper shadow-card"><p className="text-xs font-bold uppercase tracking-widest text-terracotta">Quality guardrails</p><h2 className="mt-2 text-xl font-bold">Keep the marketplace healthy</h2><p className="mt-3 text-sm leading-6 text-paper/70">Use moderation decisions consistently, review storage errors, and record provider errors before release.</p><div className="mt-6 rounded-xl bg-paper/10 p-4 text-sm text-paper/80">Admin access is enforced server-side for every mutation.</div></div>
+          </section>
+        )}
+
+        {activeTab === 'channels' && (
+          <section>
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="flex items-center gap-3 text-xl font-bold uppercase tracking-tight text-ink-900"><Users className="text-terracotta-text" size={22} /> Channel management</h2><p className="mt-1 text-sm text-ink-900/55">Review channel visibility and owner activity.</p></div><label className="relative block sm:w-72"><span className="sr-only">Search channels</span><Search size={16} className="absolute left-3 top-3 text-ink-900/40" /><input value={channelSearch} onChange={event => setChannelSearch(event.target.value)} placeholder="Search channels" className="min-h-11 w-full rounded-xl border border-parchment-border bg-parchment-raised pl-9 pr-3 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /></label></div>
+            {loadingChannels ? <div className="h-32 animate-pulse rounded-2xl bg-ink-900/[0.05]" /> : channels.length === 0 ? <div className="rounded-2xl border border-dashed border-parchment-border bg-parchment-raised p-10 text-center"><p className="text-sm font-bold text-ink-900">No channels found</p><p className="mt-1 text-xs text-ink-900/55">Creator channels will appear here when they are created.</p></div> : <div className="grid gap-4">{channels.map(channel => <article key={channel.id} className="flex flex-col gap-4 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:flex-row sm:items-center sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-ink-900">{channel.name}</h3><span className="rounded-full bg-terracotta/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-terracotta-text">{channel.status}</span></div><p className="mt-1 text-sm text-ink-900/55">/{channel.slug} · {channel.updateCount || 0} public updates · owner {channel.ownerId}</p></div>{channel.status !== 'suspended' && <ActionButton onClick={async () => { setProcessingId(channel.id); try { const res = await fetch(`/api/channels?id=${channel.id}`, { method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'suspended' }) }); if (!res.ok) throw new Error('failed'); setChannels(current => current.map(item => item.id === channel.id ? { ...item, status: 'suspended' } : item)); showToast('Channel suspended.', 'success'); } catch { showToast('Failed to update channel.', 'error'); } finally { setProcessingId(null); } }} disabled={processingId === channel.id} tone="danger" icon={<Ban size={14} />} label="Suspend" />}</article>)}</div>}
+          </section>
+        )}
+
         {activeTab === 'addons' && (
           <>
             {/* Pending Add-ons */}

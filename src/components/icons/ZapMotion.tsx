@@ -21,8 +21,8 @@
  * supaya tipe-nya identik dengan `LucideIcon` biasa
  * (ForwardRefExoticComponent<Omit<LucideProps,"ref"> & RefAttributes<SVGSVGElement>>)
  * — dibutuhkan karena project ini di beberapa tempat menyimpan komponen icon
- * di variable bertipe `typeof Flame` (mis. `Milestone.icon` di StreakApp.tsx),
- * jadi Zap harus tetap bisa "drop-in" di situ tanpa ubah kode pemakaiannya.
+ * di variable bertipe `typeof Flame`, jadi Zap harus tetap bisa "drop-in"
+ * di situ tanpa ubah kode pemakaiannya.
  */
 import type { Variants } from 'motion/react';
 import { motion, useAnimation } from 'motion/react';

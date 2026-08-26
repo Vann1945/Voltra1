@@ -22,8 +22,8 @@
  * supaya tipe-nya identik dengan `LucideIcon` biasa
  * (ForwardRefExoticComponent<Omit<LucideProps,"ref"> & RefAttributes<SVGSVGElement>>)
  * — project ini di beberapa tempat menyimpan komponen icon di variable
- * bertipe `typeof Flame` (mis. `Milestone.icon` di StreakApp.tsx), jadi
- * Sparkles harus tetap "drop-in" di situ tanpa ubah kode pemakaiannya.
+ * bertipe komponen icon biasa, jadi Sparkles tetap bisa dipakai sebagai
+ * ikon drop-in tanpa mengubah kode pemakaiannya.
  */
 import type { Variants } from 'motion/react';
 import { motion, useAnimation } from 'motion/react';

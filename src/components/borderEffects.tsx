@@ -399,13 +399,13 @@ export function BorderEffectStyles() {
       }
       .profile-firefly { animation: fireflyDrift 3s ease-in-out infinite; }
 
-      @keyframes meteorStreak {
+      @keyframes meteorTrail {
         0% { transform: translate(-160%, -160%) rotate(45deg); opacity: 0; }
         8% { opacity: 1; }
         30% { transform: translate(140%, 140%) rotate(45deg); opacity: 0; }
         100% { opacity: 0; }
       }
-      .profile-meteor { animation: meteorStreak 3.2s linear infinite; }
+      .profile-meteor { animation: meteorTrail 3.2s linear infinite; }
     `}</style>
   );
 }

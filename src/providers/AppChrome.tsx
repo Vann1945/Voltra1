@@ -20,11 +20,6 @@ const FAVICONS = {
     dark: '/favicon/icon-dark.svg',
     oled: '/favicon/icon-oled.svg',
   },
-  streak: {
-    light: '/favicon/streak-light.svg',
-    dark: '/favicon/streak-dark.svg',
-    oled: '/favicon/streak-oled.svg',
-  },
 } as const;
 
 /**
@@ -120,7 +115,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       link.rel = 'icon';
       document.head.appendChild(link);
     }
-    const set = currentView === 'streak' ? FAVICONS.streak : FAVICONS.default;
+    const set = FAVICONS.default;
     link.type = 'image/svg+xml';
     link.href = set[theme];
   }, [currentView, theme]);

@@ -6,6 +6,7 @@ import type { Addon } from '@/types';
 
 export type Theme = 'light' | 'dark' | 'oled';
 export type LayoutMode = 'grid' | 'list';
+export type Language = 'id' | 'en';
 
 interface AppShellContextValue {
   // data addons (dulu di-fetch di dalam AppShell App.tsx, sekarang dipindah ke sini
@@ -31,6 +32,8 @@ interface AppShellContextValue {
   setBookmarksLayoutMode: (mode: LayoutMode) => void;
   profileLayoutMode: LayoutMode;
   setProfileLayoutMode: (mode: LayoutMode) => void;
+  language: Language;
+  setLanguage: (language: Language) => void;
 
   // modal global (Upload & Auth) — dulu useState lokal di AppShell
   isUploadOpen: boolean;
@@ -68,6 +71,10 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return 'grid';
     const v = window.localStorage.getItem('voltra-layout-profile');
     return v === 'list' ? 'list' : 'grid';
+  });
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window === 'undefined') return 'id';
+    return window.localStorage.getItem('voltra-language') === 'en' ? 'en' : 'id';
   });
 
   const themeRef = useRef(theme);
@@ -118,6 +125,11 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem('voltra-layout-profile', profileLayoutMode);
   }, [profileLayoutMode]);
 
+  useEffect(() => {
+    window.localStorage.setItem('voltra-language', language);
+    document.documentElement.lang = language;
+  }, [language]);
+
   const isDarkMode = theme === 'dark' || theme === 'oled';
 
   const value: AppShellContextValue = {
@@ -140,6 +152,8 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
     setBookmarksLayoutMode: setBookmarksLayoutModeState,
     profileLayoutMode,
     setProfileLayoutMode: setProfileLayoutModeState,
+    language,
+    setLanguage: setLanguageState,
     isUploadOpen,
     openUpload: () => setIsUploadOpen(true),
     closeUpload: () => setIsUploadOpen(false),

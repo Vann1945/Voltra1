@@ -1,5 +1,6 @@
 import { ArrowLeft, Check, LayoutGrid, List, MoonStar, Settings as SettingsIcon, SunMedium } from '@/components/icons/animated';
 import { ViewState } from '@/types';
+import type { Language } from '@/providers/AppShellProvider';
 
 interface SettingsPageProps {
   theme: 'light' | 'dark' | 'oled';
@@ -10,6 +11,8 @@ interface SettingsPageProps {
   onSetBookmarksLayoutMode: (mode: 'grid' | 'list') => void;
   profileLayoutMode: 'grid' | 'list';
   onSetProfileLayoutMode: (mode: 'grid' | 'list') => void;
+  language: Language;
+  onSetLanguage: (language: Language) => void;
   onNavigate: (view: ViewState) => void;
 }
 
@@ -60,7 +63,7 @@ function LayoutOptionCard({ headingId, title, description, value, onChange }: { 
   );
 }
 
-export function SettingsPage({ theme, layoutMode, onSetTheme, onSetLayoutMode, bookmarksLayoutMode, onSetBookmarksLayoutMode, profileLayoutMode, onSetProfileLayoutMode, onNavigate }: SettingsPageProps) {
+export function SettingsPage({ theme, layoutMode, onSetTheme, onSetLayoutMode, bookmarksLayoutMode, onSetBookmarksLayoutMode, profileLayoutMode, onSetProfileLayoutMode, language, onSetLanguage, onNavigate }: SettingsPageProps) {
   return (
     <section className="min-h-[calc(100dvh-64px)] bg-parchment pb-32" aria-labelledby="settings-heading">
       <div className="border-b border-parchment-border bg-parchment-raised">
@@ -86,6 +89,22 @@ export function SettingsPage({ theme, layoutMode, onSetTheme, onSetLayoutMode, b
       </div>
 
       <div className="mx-auto grid max-w-4xl gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-labelledby="language-heading">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 text-lg" aria-hidden="true">文</span>
+            <div>
+              <h2 id="language-heading" className="text-lg font-bold text-ink-900">Language / Bahasa</h2>
+              <p className="mt-1 text-sm leading-6 text-ink-900/55">Pilih bahasa untuk label dan pesan antarmuka Voltra.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Language">
+            {([{ value: 'id' as const, label: 'Bahasa Indonesia', description: 'Gunakan bahasa Indonesia' }, { value: 'en' as const, label: 'English', description: 'Use English for the interface' }]).map(option => {
+              const selected = language === option.value;
+              return <button key={option.value} type="button" role="radio" aria-checked={selected} onClick={() => onSetLanguage(option.value)} className={`flex min-h-20 items-center justify-between gap-3 rounded-xl border p-4 text-left transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta active:translate-y-px ${selected ? 'border-terracotta bg-terracotta/10' : 'border-parchment-border bg-parchment hover:border-terracotta/60'}`}><span><span className="block text-sm font-bold text-ink-900">{option.label}</span><span className="mt-1 block text-xs text-ink-900/55">{option.description}</span></span>{selected && <Check size={17} className="shrink-0 text-terracotta-text" aria-hidden="true" />}</button>;
+            })}
+          </div>
+        </section>
+
         <LayoutOptionCard
           headingId="layout-heading"
           title="Marketplace layout"

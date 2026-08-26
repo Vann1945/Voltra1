@@ -15,6 +15,8 @@ export default function SettingsRoute() {
     setBookmarksLayoutMode,
     profileLayoutMode,
     setProfileLayoutMode,
+    language,
+    setLanguage,
   } = useAppShell();
   const navigate = useAppNavigate(addons);
 
@@ -28,6 +30,8 @@ export default function SettingsRoute() {
       onSetBookmarksLayoutMode={setBookmarksLayoutMode}
       profileLayoutMode={profileLayoutMode}
       onSetProfileLayoutMode={setProfileLayoutMode}
+      language={language}
+      onSetLanguage={setLanguage}
       onNavigate={navigate}
     />
   );

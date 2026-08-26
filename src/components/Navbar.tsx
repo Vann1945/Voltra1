@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Bookmark, ChevronDown, Flame, LogIn, LogOut, Menu, Settings as SettingsIcon, Shield, Upload, UserRound, X, Zap } from '@/components/icons/animated';
+import { Bookmark, ChevronDown, LogIn, LogOut, Menu, Settings as SettingsIcon, Shield, Upload, UserRound, X, Zap, TrendingUp } from '@/components/icons/animated';
 import { useAuth } from '@/hooks/useAuth';
 import { ViewState } from '@/types';
 import { ProfileAvatar } from './borderEffects';
@@ -41,9 +41,9 @@ function MobileBottomNav({ user, currentView, onNavigate, onOpenAuth, onOpenUplo
         <ProfileAvatar photoURL={user.photoURL ?? null} displayName={user.displayName || 'User'} borderValue={user.profileBorder ?? 'none'} sizeClassName="h-10 w-10" textSizeClassName="text-sm" />
         <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{user.displayName}</span><span className="block text-xs text-ink-900/55">Open profile</span></span><ChevronDown size={15} className="-rotate-90 text-ink-900/40" />
       </button> : <button type="button" onClick={() => closeAnd(onOpenAuth)} className={`${getButtonClasses('primary', 'md')} w-full`}><LogIn size={16} /> Sign in</button>}
-      {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish an add-on</button>}
-      <button type="button" onClick={() => closeAnd(() => onNavigate('streak'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><Flame size={16} /> Streak</button>
       <button type="button" onClick={() => closeAnd(() => onNavigate('settings'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><SettingsIcon size={16} /> Settings</button>
+      {user && <button type="button" onClick={() => closeAnd(() => onNavigate('creator'))} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.04]"><TrendingUp size={16} /> Creator Dashboard</button>}
+      {user && <button type="button" onClick={() => closeAnd(onOpenUpload)} className={`${getButtonClasses('secondary', 'md')} w-full`}><Upload size={16} /> Publish an add-on</button>}
       {user?.role === 'admin' && <button type="button" onClick={() => closeAnd(() => onNavigate('admin'))} className={`${getButtonClasses('secondary', 'md')} w-full`}><Shield size={16} /> Admin</button>}
       {user && <button type="button" onClick={() => closeAnd(onLogout)} className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={14} />Log out</button>}
     </div>
@@ -60,7 +60,6 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const isHome = currentView === 'home';
-  const isStreak = currentView === 'streak';
   const isLibrary = currentView === 'library' || currentView === 'bookmarks';
   const isSettings = currentView === 'settings';
 
@@ -82,7 +81,6 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
         <div className="hidden items-center gap-1 rounded-2xl border border-parchment-border bg-parchment px-1.5 py-1.5 sm:flex">
           <button type="button" onClick={() => onNavigate('home')} aria-current={isHome ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isHome ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}>Explore</button>
           <button type="button" onClick={() => onNavigate('library')} aria-current={isLibrary ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isLibrary ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Bookmark size={15} />Bookmark</span></button>
-          <button type="button" onClick={() => onNavigate('streak')} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isStreak ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><Flame size={15} />Streak</span></button>
           <button type="button" onClick={() => onNavigate('settings')} aria-current={isSettings ? 'page' : undefined} className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-colors ${isSettings ? 'bg-ink-900 text-paper' : 'text-ink-900/65 hover:bg-ink-900/[0.05]'}`}><span className="inline-flex items-center gap-2"><SettingsIcon size={15} />Settings</span></button>
         </div>
         <div className="hidden items-center gap-2 sm:flex">
@@ -99,8 +97,8 @@ export function Navbar({ onOpenUpload, onOpenAuth, onNavigate, currentView }: Na
                   <button type="button" role="menuitem" onClick={() => goFromProfile('profile')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><UserRound size={16} />View profile</button>
                   <button type="button" role="menuitem" onClick={() => { HAPTIC_PATTERNS.light(); onOpenUpload(); setProfileMenuOpen(false); }} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Upload size={16} />Publish an add-on</button>
                   <button type="button" role="menuitem" onClick={() => goFromProfile('library')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Bookmark size={16} />Bookmark <span className="ml-auto text-xs font-medium text-ink-900/45">Bookmarks + liked</span></button>
-                  <button type="button" role="menuitem" onClick={() => goFromProfile('streak')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Flame size={16} />Streak</button>
                   <button type="button" role="menuitem" onClick={() => goFromProfile('settings')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><SettingsIcon size={16} />Settings</button>
+                  <button type="button" role="menuitem" onClick={() => goFromProfile('creator')} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><TrendingUp size={16} />Creator Dashboard</button>
                 </div>
                 {user.role === 'admin' && <button type="button" role="menuitem" onClick={() => goFromProfile('admin')} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-ink-900/[0.05]"><Shield size={16} />Admin</button>}
                 <button type="button" role="menuitem" onClick={() => { logout(); setProfileMenuOpen(false); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold text-danger hover:bg-danger/[0.07]"><LogOut size={16} />Log out</button>

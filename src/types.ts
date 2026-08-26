@@ -40,7 +40,6 @@ export interface Addon {
   additionalCategory?: string;
   imageUrl: string;
   imageUrls?: string[];
-  panoramaUrl: string;
   downloadUrl: string;
   demoUrl?: string;
   authorId: string;
@@ -93,17 +92,44 @@ export interface Report {
   createdAt: string;
 }
 
+export interface Channel {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  avatarUrl?: string | null;
+  coverUrl?: string | null;
+  ownerId: string;
+  status: 'draft' | 'published' | 'suspended';
+  createdAt: string;
+  updatedAt?: string;
+  updateCount?: number;
+  url: string;
+}
+
+export interface ChannelUpdate {
+  id: string;
+  channel_id: string;
+  title: string;
+  body: string;
+  media_url?: string | null;
+  publish_at?: string | null;
+  status: 'draft' | 'published' | 'archived';
+  created_at: string;
+  updated_at?: string;
+}
+
 // Navigation types — dipindah dari App.tsx (Vite) supaya bisa dipakai
 // bareng oleh komponen client & App Router pages tanpa import silang.
 export type ViewState =
   | 'landing'
-  | 'streak'
   | 'home'
   | 'profile'
   | 'bookmarks'
   | 'library'
   | 'settings'
   | 'admin'
+  | 'creator'
   | { type: 'addon', id: string }
   | { type: 'author', id: string }
   | { type: 'reset-password', token: string, uid: string };

@@ -13,7 +13,6 @@ import { AddonPeople } from './AddonPeople';
 import { RichTextContent } from './RichTextContent';
 import { getButtonClasses } from '@/lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
-import { PanoramaViewer } from './PanoramaViewer';
 import { uploadAddonFile, ADDON_FILE_ACCEPT } from '@/lib/addonFileUpload';
 
 function VersionDropdown({ versions, selectedVersionId, onChange }: { versions: AddonVersion[]; selectedVersionId: string | null; onChange: (id: string) => void }) {
@@ -537,7 +536,6 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
         <button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 text-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />Downloading {downloadProgress}%</> : downloadSuccess ? <><Check size={18} />Downloaded!</> : <><Download size={18} />Download {activeVersion?.version || 'add-on'}</>}</button>
       </section>
 
-      {addon.panoramaUrl && <div className="mt-8"><PanoramaViewer src={addon.panoramaUrl} alt={`${addon.title} panorama`} /></div>}
 
       <section className="mt-8 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-8" aria-label="Comments and reviews"><div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-terracotta-text"><MessageSquare size={14} /> Community feedback</div><ReviewSection addonId={addon.id} reviews={reviews} onReviewSubmitted={review => setReviews(prev => [review, ...prev])} onReviewDeleted={reviewId => setReviews(prev => prev.filter(review => review.id !== reviewId))} onRequireAuth={onRequireAuth} /></section>
 

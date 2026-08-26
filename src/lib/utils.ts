@@ -38,7 +38,6 @@ export interface AddonUploadInput {
   tagsInput: string;
   imageUrl: string;
   imageUrls: string[];
-  panoramaUrl: string;
   downloadUrl: string;
   versions?: AddonVersionInput[];
   changelog?: string;
@@ -84,9 +83,6 @@ export function validateAddonPatch(body: Record<string, unknown>, isAdmin: boole
   if ('downloadUrl' in body && !isSafeUrl(body.downloadUrl)) {
     return 'Invalid download URL.';
   }
-  if ('panoramaUrl' in body && !isSafeUrl(body.panoramaUrl)) {
-    return 'Invalid panorama URL.';
-  }
   if ('demoUrl' in body && body.demoUrl !== '' && !isSafeUrl(body.demoUrl)) {
     return 'Invalid demo URL.';
   }
@@ -106,7 +102,6 @@ export function buildAddonPayload(
     category: input.mainCategory,
     imageUrl: input.imageUrl,
     imageUrls: input.imageUrls.length > 0 ? input.imageUrls : [input.imageUrl].filter(Boolean),
-    panoramaUrl: input.panoramaUrl,
     downloadUrl: input.downloadUrl,
     versions: input.versions || [{ version: '1.0.0', downloadUrl: input.downloadUrl, changelog: input.changelog || '', compatibilityNotes: input.compatibilityNotes || '' }],
     changelog: input.changelog || '',

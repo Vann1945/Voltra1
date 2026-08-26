@@ -309,14 +309,7 @@ body {
 .theme-shell section,
 .theme-shell article,
 .theme-shell .glass,
-.theme-shell .neumorph,
-.streak-wrapper,
-.streak-wrapper main,
-.streak-wrapper header,
-.streak-wrapper section,
-.streak-wrapper article,
-.streak-wrapper .glass,
-.streak-wrapper .neumorph {
+.theme-shell .neumorph {
   transition-property: background-color, color, border-color;
   transition-duration: 160ms;
   transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -324,8 +317,7 @@ body {
 
 /* Keep motion classes in charge of transform/opacity. Overriding them globally
    makes rapid theme changes compete with Framer Motion and causes visible jumps. */
-.theme-shell,
-.streak-wrapper {
+.theme-shell {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -347,75 +339,6 @@ body {
   100% { transform: translateX(100%); }
 }
 
-.streak-root.oled .bg-paper { background: #0b0705; color: #fff3e8; }
-
-.streak-wrapper {
-  --sa-bg: var(--color-paper);
-  --sa-card: var(--color-parchment-raised);
-  --sa-card-2: var(--color-paper-soft);
-  --sa-border: var(--color-parchment-border);
-  --sa-text: var(--color-ink-900);
-  --sa-text-soft: var(--color-ink-700);
-  --sa-text-muted: var(--color-stone-500);
-  --sa-accent: var(--color-terracotta);
-  --sa-accent-soft: color-mix(in srgb, var(--color-terracotta) 15%, transparent);
-  --sa-accent-border: color-mix(in srgb, var(--color-terracotta) 30%, transparent);
-  --sa-conquer-bg: #e8753b;
-  --sa-conquer-text: #241208;
-  --sa-conquer-text-soft: rgba(36, 18, 8, 0.82);
-  --sa-conquer-tint: rgba(36, 18, 8, 0.12);
-  --sa-conquer-tint-hover: rgba(36, 18, 8, 0.20);
-  --sa-cta-text: var(--color-paper);
-  --sa-cta-text-soft: var(--sa-conquer-text-soft);
-  --sa-cta-tint: var(--sa-conquer-tint);
-  --sa-cta-tint-hover: var(--sa-conquer-tint-hover);
-  background-color: var(--sa-bg);
-  transition: background-color 180ms linear;
-}
-
-.streak-wrapper.dark {
-  --sa-bg: var(--color-paper-soft);
-  --sa-card: var(--color-paper);
-  --sa-card-2: var(--color-parchment-border);
-  --sa-border: rgba(255, 175, 123, 0.16);
-  --sa-text: var(--color-ink);
-  --sa-text-soft: var(--color-ink-700);
-  --sa-text-muted: var(--color-olive-600);
-  --sa-accent: var(--color-terracotta-text);
-  --sa-accent-soft: color-mix(in srgb, var(--color-terracotta-text) 15%, transparent);
-  --sa-accent-border: color-mix(in srgb, var(--color-terracotta-text) 30%, transparent);
-  --sa-conquer-bg: #f2a65a;
-  --sa-conquer-text: var(--color-paper);
-  --sa-conquer-text-soft: color-mix(in srgb, var(--color-paper) 85%, transparent);
-  --sa-conquer-tint: rgba(53, 23, 13, 0.12);
-  --sa-conquer-tint-hover: rgba(53, 23, 13, 0.20);
-  --sa-cta-text: var(--color-paper);
-  --sa-cta-text-soft: var(--sa-conquer-text-soft);
-  --sa-cta-tint: var(--sa-conquer-tint);
-  --sa-cta-tint-hover: var(--sa-conquer-tint-hover);
-}
-
-.streak-wrapper.oled {
-  --sa-bg: #000000;
-  --sa-card: #0b0705;
-  --sa-card-2: #120a07;
-  --sa-border: rgba(255, 138, 69, 0.22);
-  --sa-text: var(--color-ink);
-  --sa-text-soft: var(--color-ink-700);
-  --sa-text-muted: var(--color-olive-600);
-  --sa-accent: var(--color-terracotta-text);
-  --sa-accent-soft: rgba(255, 138, 69, 0.16);
-  --sa-accent-border: rgba(255, 138, 69, 0.34);
-  --sa-conquer-bg: #ff6b35;
-  --sa-conquer-text: var(--color-paper);
-  --sa-conquer-text-soft: color-mix(in srgb, var(--color-paper) 85%, transparent);
-  --sa-conquer-tint: rgba(7, 26, 18, 0.12);
-  --sa-conquer-tint-hover: rgba(7, 26, 18, 0.20);
-  --sa-cta-text: var(--color-paper);
-  --sa-cta-text-soft: var(--sa-conquer-text-soft);
-  --sa-cta-tint: var(--sa-conquer-tint);
-  --sa-cta-tint-hover: var(--sa-conquer-tint-hover);
-}
 
 @media (prefers-reduced-motion: reduce) {
   .animate-cell-in { animation: none; }

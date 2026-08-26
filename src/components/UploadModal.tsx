@@ -49,7 +49,7 @@ type DraftVersion = {
 const ADDON_CATEGORIES = ['Bukkit Plugins', 'Modpack', 'Customization', 'Add-Ons', 'Shaders', 'Mods', 'Resource Packs', 'Data Pack', 'World', 'Skin Pack'];
 const createInitialFormData = () => ({
   title: '', description: '', projectClass: 'Modpack', mainCategory: 'Add-Ons', additionalCategory: '', tagsInput: '',
-  imageUrl: '', imageUrls: [] as string[], panoramaUrl: '', downloadUrl: '', demoUrl: '', license: 'All Rights Reserved',
+  imageUrl: '', imageUrls: [] as string[], downloadUrl: '', demoUrl: '', license: 'All Rights Reserved',
   distributionPref: 'Allow distribution to 3rd party', unlisted: false, allowComments: true,
   socials: [] as { platform: string; url: string }[],
 });
@@ -64,7 +64,6 @@ function getAddonPayloadError(data: Record<string, unknown>): string {
   if (typeof data.category !== 'string' || !ADDON_CATEGORIES.includes(data.category)) return 'Main Category is not a valid option — please reselect it.';
   if (!isUrl(data.imageUrl)) return 'Cover image URL is missing or invalid.';
   if (data.imageUrls && !(Array.isArray(data.imageUrls) && data.imageUrls.length <= 30)) return 'Too many cover images (max 30).';
-  if (data.panoramaUrl && !isUrl(data.panoramaUrl)) return 'Panorama image URL is invalid.';
   if (!isUrl(data.downloadUrl)) return 'Download URL is missing or invalid.';
   if (!isStr(data.authorName, 1, 100)) return 'Your account is missing a display name — please set one in your profile before publishing.';
   if (!Array.isArray(data.tags) || data.tags.length > 20) return 'Tags are invalid (max 20).';
@@ -190,21 +189,6 @@ async function readImageDimensions(file: File): Promise<{ width: number; height:
   return dims;
 }
 
-async function validatePanoramaFile(file: File): Promise<string> {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  const maxBytes = 20 * 1024 * 1024;
-  if (!allowedTypes.includes(file.type)) return 'Panorama must be a JPG, PNG, or WebP image.';
-  if (file.size > maxBytes) return 'Panorama must be smaller than 20 MB.';
-  try {
-    const { width, height } = await readImageDimensions(file);
-    if (width < 1200) return 'Panorama must be at least 1,200 px wide.';
-    if (width / height < 1.6) return 'Choose a wide panorama with an aspect ratio of at least 16:10.';
-  } catch (error) {
-    return error instanceof Error ? error.message : 'The selected file is not a readable image.';
-  }
-  return '';
-}
-
 function uploadCoverImage(file: File, onProgress: (pct: number) => void, folderName?: string): Promise<string> {
   return uploadImageToImageKit(file, 'addon', folderName || 'untitled', onProgress);
 }
@@ -218,7 +202,6 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [isImageDragActive, setIsImageDragActive] = useState(false);
   const [isAddonDragActive, setIsAddonDragActive] = useState(false);
-  const [isPanoramaDragActive, setIsPanoramaDragActive] = useState(false);
   const [formData, setFormData] = useState(createInitialFormData);
 
   const [versions, setVersions] = useState<DraftVersion[]>([
@@ -235,21 +218,18 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
   const hasAutoAdvancedGeneralRef = useRef(false);
   const hasAutoAdvancedDescriptionRef = useRef(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const panoramaInputRef = useRef<HTMLInputElement>(null);
 
   const [imageUploadProgress, setImageUploadProgress] = useState<number | null>(null);
-  const [panoramaUploadProgress, setPanoramaUploadProgress] = useState<number | null>(null);
 
   const [fileUploadProgress, setFileUploadProgress] = useState<number | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
 
   const handleClose = () => {
-    if (loading || imageUploadProgress !== null || panoramaUploadProgress !== null || fileUploadProgress !== null) return;
+    if (loading || imageUploadProgress !== null || fileUploadProgress !== null) return;
     setFormData(createInitialFormData());
     setVersions([{ version: '1.0.0', downloadUrl: '', changelog: '', compatibilityNotes: '' }]);
     setVersionUploadProgress({});
     setImageUploadProgress(null);
-    setPanoramaUploadProgress(null);
     setFileUploadProgress(null);
     setUploadedFileName('');
     setStep('general');
@@ -337,44 +317,6 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
     if (imageUploadProgress !== null) return;
     const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
     if (files.length > 0) await uploadCoverFiles(files);
-  };
-
-  const uploadPanoramaFile = async (file: File) => {
-    const validationError = await validatePanoramaFile(file);
-    if (validationError) {
-      showToast(validationError, 'error');
-      return;
-    }
-
-    setPanoramaUploadProgress(0);
-    try {
-        const webpFile = await convertToWebp(file, 1800, 0.76);
-      const url = await uploadCoverImage(webpFile, pct => setPanoramaUploadProgress(pct), formData.title);
-      setFormData(prev => ({ ...prev, panoramaUrl: url }));
-      showToast('Panorama image uploaded successfully.', 'success');
-    } catch (err: unknown) {
-      showToast((err as Error)?.message || 'Panorama upload failed. Please try again.', 'error');
-    } finally {
-      setPanoramaUploadProgress(null);
-    }
-  };
-
-  const handlePanoramaSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (file) await uploadPanoramaFile(file);
-  };
-
-  const handlePanoramaDrop = async (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsPanoramaDragActive(false);
-    if (panoramaUploadProgress !== null) return;
-    const file = event.dataTransfer.files?.[0];
-    if (file) await uploadPanoramaFile(file);
-  };
-
-  const removePanorama = () => {
-    setFormData(prev => ({ ...prev, panoramaUrl: '' }));
   };
 
   const uploadPrimaryAddonFile = async (file: File) => {
@@ -483,7 +425,6 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
         if (!version.downloadUrl.trim() || !isValidHttpUrl(version.downloadUrl)) return `Version ${index + 1} needs a valid download URL.`;
         if (version.changelog.length > 10000) return `Version ${index + 1} changelog is too long.`;
       }
-      if (formData.panoramaUrl.trim() && !isValidHttpUrl(formData.panoramaUrl)) return 'Panorama URL must start with http:// or https://.';
     }
     if (s === 'description') {
       if (!formData.description.trim()) return 'Description is mandatory.';
@@ -555,7 +496,6 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
         tags: parseTags(formData.tagsInput),
         imageUrl: formData.imageUrl,
         imageUrls: formData.imageUrls.length > 0 ? formData.imageUrls : [formData.imageUrl].filter(Boolean),
-        panoramaUrl: formData.panoramaUrl,
         downloadUrl: formData.downloadUrl,
         versions: versions.map(({ fileName, ...version }) => version),
         demoUrl: formData.demoUrl || '',
@@ -595,8 +535,7 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
           tagsInput: formData.tagsInput,
           imageUrl: formData.imageUrl,
           imageUrls: formData.imageUrls,
-          panoramaUrl: formData.panoramaUrl,
-          downloadUrl: formData.downloadUrl,
+            downloadUrl: formData.downloadUrl,
           versions: versions.map(({ fileName, ...version }) => version),
           demoUrl: formData.demoUrl,
           license: formData.license,
@@ -811,13 +750,6 @@ export function UploadModal({ isOpen, onClose, onPublished }: UploadModalProps) 
                         </div>
                         <input type="file" ref={imageInputRef} onChange={handleImagesSelected} accept={IMAGE_ACCEPT} multiple className="hidden" />
                         {imageUploadProgress !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-900/10" aria-label={`Uploading ${Math.round(imageUploadProgress)} percent`}><div className="h-full rounded-full bg-terracotta transition-[width] duration-200" style={{ width: `${imageUploadProgress}%` }} /></div>}
-                      </section>
-
-                      <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
-                        <div className="mb-3 flex items-center justify-between gap-3"><div><p className="voltra-section-label">Header media</p><h3 className="mt-1 text-base font-bold text-ink-900">Add a panorama <span className="text-xs font-medium text-ink-900/45">(optional)</span></h3></div>{formData.panoramaUrl && <button type="button" onClick={removePanorama} className="rounded-lg p-2 text-danger hover:bg-danger/[0.08]" aria-label="Remove panorama image"><Trash2 size={15} aria-hidden="true" /></button>}</div>
-                        {formData.panoramaUrl ? <div className="relative aspect-[21/9] overflow-hidden rounded-xl border border-parchment-border"><FadeImage src={formData.panoramaUrl} alt="Panorama preview" className="h-full w-full object-cover" referrerPolicy="no-referrer" /></div> : <div role="button" tabIndex={0} onClick={() => panoramaInputRef.current?.click()} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); panoramaInputRef.current?.click(); } }} onDragEnter={event => { event.preventDefault(); setIsPanoramaDragActive(true); }} onDragOver={event => event.preventDefault()} onDragLeave={() => setIsPanoramaDragActive(false)} onDrop={handlePanoramaDrop} aria-label="Add panorama image" className={`flex min-h-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed px-4 py-3 text-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta ${isPanoramaDragActive ? 'border-terracotta bg-terracotta/10' : 'border-ink-900/20 bg-parchment hover:border-terracotta/60 hover:bg-terracotta/[0.04]'}`}>{panoramaUploadProgress !== null ? <span className="text-sm font-bold text-terracotta-text" aria-live="polite">Uploading {Math.round(panoramaUploadProgress)}%</span> : <><span className="flex items-center gap-2 text-sm font-bold text-ink-900"><ImagePlus size={16} className="text-terracotta-text" aria-hidden="true" /> Drop or choose panorama</span><span className="text-xs font-medium text-ink-900/45">JPG, PNG, WebP · at least 1,200 px wide · 16:10+</span></>}</div>}
-                        <input id="upload-panorama" type="file" ref={panoramaInputRef} onChange={handlePanoramaSelected} accept={IMAGE_ACCEPT} className="hidden" />
-                        {panoramaUploadProgress !== null && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-900/10" aria-label={`Uploading ${Math.round(panoramaUploadProgress)} percent`}><div className="h-full rounded-full bg-terracotta transition-[width] duration-200" style={{ width: `${panoramaUploadProgress}%` }} /></div>}
                       </section>
 
                       <section className="rounded-2xl border border-parchment-border bg-parchment-raised p-4 shadow-sm sm:p-5">
