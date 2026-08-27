@@ -21,27 +21,45 @@ hljs.registerLanguage('java', java);
 hljs.registerLanguage('bash', bash);
 
 const DANGEROUS_CSS_PATTERN = /url\s*\(|expression\s*\(|behavior\s*:|@import|javascript\s*:|-moz-binding/i;
+let purifierConfigured = false;
 
-DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
-  if (data.attrName === 'style' && DANGEROUS_CSS_PATTERN.test(data.attrValue)) {
-    data.keepAttr = false;
-  }
-});
+/**
+ * DOMPurify is a browser-first package. Next can still evaluate a client
+ * module while preparing a server route, where the default export is the
+ * factory object rather than a sanitizer instance. Configure hooks lazily so
+ * route initialization never crashes, and fail closed until the browser is
+ * ready to sanitize.
+ */
+function getPurifier() {
+  if (typeof window === 'undefined' || typeof (DOMPurify as any)?.sanitize !== 'function') return null;
 
-// Konten ini berasal dari deskripsi yang ditulis user lain (creator add-on),
-// jadi setiap <a> harus dianggap tidak tepercaya. Tanpa rel="noopener
-// noreferrer", link yang dibuka di tab baru bisa memanipulasi window.opener
-// milik halaman asal (reverse tabnabbing) — celah phishing klasik.
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-  if (node.tagName === 'A') {
-    node.setAttribute('target', '_blank');
-    node.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+  if (!purifierConfigured) {
+    DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+      if (data.attrName === 'style' && DANGEROUS_CSS_PATTERN.test(data.attrValue)) {
+        data.keepAttr = false;
+      }
+    });
+
+    // Konten ini berasal dari deskripsi yang ditulis user lain (creator
+    // add-on), jadi setiap <a> harus dianggap tidak tepercaya. Tanpa
+    // rel="noopener noreferrer", link baru bisa memanipulasi window.opener.
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A') {
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+      }
+    });
+    purifierConfigured = true;
   }
-});
+
+  return DOMPurify;
+}
 
 export function sanitizeHtml(html: string): string {
   if (!html) return '';
-  return DOMPurify.sanitize(html, {
+  const purifier = getPurifier();
+  if (!purifier) return '';
+  return purifier.sanitize(html, {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'a', 'span', 'div',
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
