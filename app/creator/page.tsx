@@ -5,7 +5,7 @@ import { useAppShell } from '@/providers/AppShellProvider';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 export default function CreatorRoute() {
-  const { addons, openUpload } = useAppShell();
+  const { addons, openUpload, refetchAddons } = useAppShell();
   const navigate = useAppNavigate(addons);
-  return <CreatorDashboard addons={addons} onNavigate={view => navigate(view)} onOpenUpload={openUpload} />;
+  return <CreatorDashboard addons={addons} onNavigate={view => navigate(view)} onOpenUpload={openUpload} onAddonsChanged={refetchAddons} />;
 }

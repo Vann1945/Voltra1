@@ -148,3 +148,23 @@ export const UploadCloud = wrap(Lucide.UploadCloud, 'slide-up');
 export const Table = wrap(Lucide.Table, 'pop-clean');
 export const Blocks = wrap(Lucide.Blocks, 'corner-peek');
 export const ShieldCheck = wrap(Lucide.ShieldCheck, 'ring-expand');
+
+// Icon tambahan — dipakai di Creator Dashboard & Admin Panel yang di-remake
+// (analytics, notifikasi, earnings, bulk actions, filter channel/laporan).
+export const Bell = wrap(Lucide.Bell, 'heartbeat');
+export const BellRing = wrap(Lucide.BellRing, 'heartbeat');
+export const DollarSign = wrap(Lucide.DollarSign, 'bounce-pop');
+export const Wallet = wrap(Lucide.Wallet, 'bounce-pop');
+export const BarChart3 = wrap(Lucide.BarChart3, 'count-flip');
+export const PieChart = wrap(Lucide.PieChart, 'orbit-spin');
+export const Filter = wrap(Lucide.Filter, 'squeeze');
+export const CheckSquare = wrap(Lucide.CheckSquare, 'elastic-pop');
+export const Square = wrap(Lucide.Square, 'pop-clean');
+export const Eye = wrap(Lucide.Eye, 'blur-focus');
+export const EyeOff = wrap(Lucide.EyeOff, 'fade-flip');
+export const MoreVertical = wrap(Lucide.MoreVertical, 'pop-clean');
+export const FolderOpen = wrap(Lucide.FolderOpen, 'corner-peek');
+export const KeyRound = wrap(Lucide.KeyRound, 'swing');
+export const ShieldAlert = wrap(Lucide.ShieldAlert, 'shake');
+export const Layers = wrap(Lucide.Layers, 'orbit-spin');
+export const Inbox = wrap(Lucide.Inbox, 'bounce-pop');

@@ -172,6 +172,21 @@
   .icon-anim-tap-glow { animation: icon-tap-glow 0.42s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-tap-fold { animation: icon-tap-fold 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-tap-spin { animation: icon-tap-spin 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /* 5 preset baru — dipakai di Creator Dashboard & Admin Panel (analytics,
+     notifikasi, earnings) supaya icon di area itu kerasa lebih "hidup" dan
+     punya karakter gerak sendiri, konsisten sama filosofi motion existing
+     (CSS keyframe murni, tanpa overshoot ganda). */
+  .icon-anim-bounce-pop { animation: icon-bounce-pop 0.56s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .icon-anim-heartbeat { animation: icon-heartbeat 0.6s ease-in-out; }
+  .icon-anim-orbit-spin { position: relative; animation: icon-orbit-spin-self 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  .icon-anim-orbit-spin::after {
+    content: ''; position: absolute; inset: -5px; border-radius: 999px;
+    border: 1.5px dashed currentColor; opacity: 0;
+    animation: icon-orbit-spin-ring 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .icon-anim-elastic-pop { animation: icon-elastic-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .icon-anim-count-flip { animation: icon-count-flip 0.45s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: center; }
 }
 
 @keyframes icon-spin-once { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -204,6 +219,14 @@
 @keyframes icon-tap-glow { 0% { transform: translateY(0) scale(1); } 40% { transform: translateY(-3px) scale(1.15); } 100% { transform: translateY(0) scale(1); } }
 @keyframes icon-tap-fold { 0% { transform: scaleY(1) translateY(0); } 35% { transform: scaleY(0.72) translateY(2px); } 70% { transform: scaleY(1.08) translateY(-1px); } 100% { transform: scaleY(1) translateY(0); } }
 @keyframes icon-tap-spin { from { transform: rotate(0deg) scale(1); } 50% { transform: scale(1.15); } to { transform: rotate(180deg) scale(1); } }
+
+/* --- 5 preset baru (lihat blok .icon-anim-* di atas) --- */
+@keyframes icon-bounce-pop { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-22%) scale(1.06); } 60% { transform: translateY(0) scale(0.98); } 100% { transform: translateY(0) scale(1); } }
+@keyframes icon-heartbeat { 0%, 100% { transform: scale(1); } 20% { transform: scale(1.22); } 35% { transform: scale(1); } 50% { transform: scale(1.14); } 70% { transform: scale(1); } }
+@keyframes icon-orbit-spin-self { from { transform: rotate(0deg); } to { transform: rotate(300deg); } }
+@keyframes icon-orbit-spin-ring { 0% { opacity: 0; transform: scale(0.85) rotate(0deg); } 40% { opacity: 0.7; } 100% { opacity: 0; transform: scale(1.25) rotate(220deg); } }
+@keyframes icon-elastic-pop { 0% { transform: scale(1); } 40% { transform: scale(1.28); } 65% { transform: scale(0.92); } 100% { transform: scale(1); } }
+@keyframes icon-count-flip { 0% { transform: rotateX(0deg); } 50% { transform: rotateX(100deg); opacity: 0.5; } 100% { transform: rotateX(0deg); opacity: 1; } }
 
 .dark .glass {
   background: var(--color-parchment-raised);

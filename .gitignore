@@ -3,6 +3,8 @@
 Database/
 Instruction/
 node_modules/
+.next/
+tsconfig.tsbuildinfo
 vendor/
 backup/
 .vscode/

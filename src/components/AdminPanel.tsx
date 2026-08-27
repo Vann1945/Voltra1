@@ -4,13 +4,36 @@ import React, { useState, useEffect } from 'react';
 import { Addon, Channel, Report, User } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles, Search, Activity } from '@/components/icons/animated';
+import { Shield, Check, X, AlertTriangle, Trash2, ArrowLeft, Users, LayoutGrid, Edit2, Ban, UserX, Sparkles, Search, Activity, BarChart3, PieChart, Filter, CheckSquare, Square } from '@/components/icons/animated';
 import { ViewState } from '@/types';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { FadeImage } from './FadeImage';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { getButtonClasses } from '@/lib/designSystem';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { BarChart, DonutChart, LineChart } from '@/components/AnalyticsChart';
+
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat('id-ID').format(value);
+}
+
+function buildDailyTrend<T extends { createdAt: string }>(items: T[], numDays = 14) {
+  const buckets = new Map<string, number>();
+  const now = new Date();
+  for (let i = numDays - 1; i >= 0; i -= 1) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    buckets.set(d.toISOString().slice(0, 10), 0);
+  }
+  for (const item of items) {
+    const key = new Date(item.createdAt).toISOString().slice(0, 10);
+    if (buckets.has(key)) buckets.set(key, (buckets.get(key) || 0) + 1);
+  }
+  return Array.from(buckets.entries()).map(([key, value]) => ({
+    label: new Date(key).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+    value,
+  }));
+}
 
 const EXCLUDED_ADMIN_EMAILS = ['unknownfeed76@gmail.com', 'kanzakbarraihanriyanto86@gmail.com'];
 
@@ -38,10 +61,14 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
   const [channelSearch, setChannelSearch] = useState('');
+  const [channelStatusFilter, setChannelStatusFilter] = useState<'all' | 'draft' | 'published' | 'suspended'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [confirmDeleteAddonId, setConfirmDeleteAddonId] = useState<string | null>(null);
   const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
   const [editingAddon, setEditingAddon] = useState<Addon | null>(null);
+  const [selectedPendingIds, setSelectedPendingIds] = useState<Set<string>>(new Set());
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
   useBodyScrollLock(!!confirmDeleteAddonId || !!confirmDeleteUserId || !!editingAddon);
 
   useEffect(() => {
@@ -83,6 +110,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
           try {
             const params = new URLSearchParams({ scope: 'admin' });
             if (channelSearch.trim()) params.set('q', channelSearch.trim());
+            if (channelStatusFilter !== 'all') params.set('status', channelStatusFilter);
             const res = await fetch(`/api/channels?${params.toString()}`, { credentials: 'include', cache: 'no-store' });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || 'Failed to load channels.');
@@ -94,7 +122,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
         fetchChannels();
       }
     }
-  }, [user, activeTab, reports.length, users.length, channelSearch]);
+  }, [user, activeTab, reports.length, users.length, channelSearch, channelStatusFilter]);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -120,6 +148,11 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     );
   }
 
+  const filteredUsers = users.filter(u => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return true;
+    return u.displayName?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
+  });
   const pendingAddons = addons.filter(a => a.status === 'pending');
   const approvedAddons = addons.filter(a => a.status === 'approved');
   const rejectedAddons = addons.filter(a => a.status === 'rejected');
@@ -140,6 +173,39 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       showToast('Failed to update status.', 'error');
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const togglePendingSelection = (addonId: string) => {
+    setSelectedPendingIds(prev => {
+      const next = new Set(prev);
+      if (next.has(addonId)) next.delete(addonId); else next.add(addonId);
+      return next;
+    });
+  };
+
+  const toggleSelectAllPending = () => {
+    setSelectedPendingIds(prev => (prev.size === pendingAddons.length ? new Set() : new Set(pendingAddons.map(a => a.id))));
+  };
+
+  const handleBulkStatusChange = async (newStatus: 'approved' | 'rejected') => {
+    if (selectedPendingIds.size === 0) return;
+    setBulkProcessing(true);
+    const ids = Array.from(selectedPendingIds);
+    try {
+      const results = await Promise.allSettled(ids.map(addonId => fetch(`/api/addons?id=${addonId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })));
+      const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok)).length;
+      if (failed > 0) showToast(`${ids.length - failed}/${ids.length} add-ons updated. ${failed} failed.`, failed === ids.length ? 'error' : 'success');
+      else showToast(`${ids.length} add-ons ${newStatus} successfully.`, 'success');
+      setSelectedPendingIds(new Set());
+      onAddonsChanged();
+    } finally {
+      setBulkProcessing(false);
     }
   };
 
@@ -344,18 +410,45 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
       <div className="space-y-16">
         {activeTab === 'overview' && (
-          <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card">
-              <div className="flex items-start gap-3"><Activity size={20} className="mt-0.5 text-terracotta-text" /><div><h2 className="text-xl font-bold text-ink-900">Operations overview</h2><p className="mt-1 text-sm text-ink-900/55">A quick view of the work that needs attention.</p></div></div>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => setActiveTab('addons')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Pending content</span><span className="mt-2 block text-2xl font-bold text-ink-900">{pendingAddons.length}</span><span className="mt-1 block text-xs text-ink-900/55">Open moderation queue</span></button><button type="button" onClick={() => setActiveTab('channels')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Channels</span><span className="mt-2 block text-2xl font-bold text-ink-900">{channels.length || '—'}</span><span className="mt-1 block text-xs text-ink-900/55">Review public community feeds</span></button></div>
+          <section className="space-y-6">
+            <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card">
+                <div className="flex items-start gap-3"><Activity size={20} className="mt-0.5 text-terracotta-text" /><div><h2 className="text-xl font-bold text-ink-900">Operations overview</h2><p className="mt-1 text-sm text-ink-900/55">A quick view of the work that needs attention.</p></div></div>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" onClick={() => setActiveTab('addons')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Pending content</span><span className="mt-2 block text-2xl font-bold text-ink-900">{pendingAddons.length}</span><span className="mt-1 block text-xs text-ink-900/55">Open moderation queue</span></button><button type="button" onClick={() => setActiveTab('channels')} className="rounded-xl border border-parchment-border bg-parchment p-4 text-left hover:border-terracotta"><span className="block text-xs font-bold uppercase tracking-widest text-ink-900/50">Channels</span><span className="mt-2 block text-2xl font-bold text-ink-900">{channels.length || '—'}</span><span className="mt-1 block text-xs text-ink-900/55">Review public community feeds</span></button></div>
+              </div>
+              <div className="rounded-2xl border border-parchment-border bg-ink-900 p-6 text-paper shadow-card"><p className="text-xs font-bold uppercase tracking-widest text-terracotta">Quality guardrails</p><h2 className="mt-2 text-xl font-bold">Keep the marketplace healthy</h2><p className="mt-3 text-sm leading-6 text-paper/70">Use moderation decisions consistently, review storage errors, and record provider errors before release.</p><div className="mt-6 rounded-xl bg-paper/10 p-4 text-sm text-paper/80">Admin access is enforced server-side for every mutation.</div></div>
             </div>
-            <div className="rounded-2xl border border-parchment-border bg-ink-900 p-6 text-paper shadow-card"><p className="text-xs font-bold uppercase tracking-widest text-terracotta">Quality guardrails</p><h2 className="mt-2 text-xl font-bold">Keep the marketplace healthy</h2><p className="mt-3 text-sm leading-6 text-paper/70">Use moderation decisions consistently, review storage errors, and record provider errors before release.</p><div className="mt-6 rounded-xl bg-paper/10 p-4 text-sm text-paper/80">Admin access is enforced server-side for every mutation.</div></div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6">
+                <div className="flex items-center gap-2"><BarChart3 size={18} className="text-terracotta-text" /><h2 className="text-lg font-bold text-ink-900">Add-on baru per hari (14 hari terakhir)</h2></div>
+                <div className="mt-6"><LineChart data={buildDailyTrend(addons)} height={170} /></div>
+              </div>
+              <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6">
+                <div className="flex items-center gap-2"><PieChart size={18} className="text-terracotta-text" /><h2 className="text-lg font-bold text-ink-900">Distribusi status add-on</h2></div>
+                <div className="mt-6">
+                  <DonutChart data={[
+                    { label: 'Approved', value: approvedAddons.length, tone: 'success' },
+                    { label: 'Pending', value: pendingAddons.length, tone: 'terracotta' },
+                    { label: 'Rejected', value: rejectedAddons.length, tone: 'danger' },
+                  ]} />
+                </div>
+              </div>
+              <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6 lg:col-span-2">
+                <div className="flex items-center gap-2"><Users size={18} className="text-terracotta-text" /><h2 className="text-lg font-bold text-ink-900">Top add-on berdasarkan download</h2></div>
+                <div className="mt-6">
+                  {addons.length === 0 ? <p className="text-sm text-ink-900/50">Belum ada data.</p> : (
+                    <BarChart data={[...addons].sort((a, b) => (b.downloadsCount || 0) - (a.downloadsCount || 0)).slice(0, 8).map(a => ({ label: a.title.length > 10 ? `${a.title.slice(0, 9)}…` : a.title, value: a.downloadsCount || 0 }))} valueFormatter={formatNumber} />
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
         {activeTab === 'channels' && (
           <section>
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="flex items-center gap-3 text-xl font-bold uppercase tracking-tight text-ink-900"><Users className="text-terracotta-text" size={22} /> Channel management</h2><p className="mt-1 text-sm text-ink-900/55">Review channel visibility and owner activity.</p></div><label className="relative block sm:w-72"><span className="sr-only">Search channels</span><Search size={16} className="absolute left-3 top-3 text-ink-900/40" /><input value={channelSearch} onChange={event => setChannelSearch(event.target.value)} placeholder="Search channels" className="min-h-11 w-full rounded-xl border border-parchment-border bg-parchment-raised pl-9 pr-3 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /></label></div>
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="flex items-center gap-3 text-xl font-bold uppercase tracking-tight text-ink-900"><Users className="text-terracotta-text" size={22} /> Channel management</h2><p className="mt-1 text-sm text-ink-900/55">Review channel visibility and owner activity.</p></div><div className="flex flex-wrap gap-2"><label className="relative block sm:w-64"><span className="sr-only">Search channels</span><Search size={16} className="absolute left-3 top-3 text-ink-900/40" /><input value={channelSearch} onChange={event => setChannelSearch(event.target.value)} placeholder="Search channels" className="min-h-11 w-full rounded-xl border border-parchment-border bg-parchment-raised pl-9 pr-3 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /></label><div className="relative"><Filter size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-900/40" /><select value={channelStatusFilter} onChange={event => setChannelStatusFilter(event.target.value as any)} className="min-h-11 appearance-none rounded-xl border border-parchment-border bg-parchment-raised pl-8 pr-8 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"><option value="all">All status</option><option value="draft">Draft</option><option value="published">Published</option><option value="suspended">Suspended</option></select></div></div></div>
             {loadingChannels ? <div className="h-32 animate-pulse rounded-2xl bg-ink-900/[0.05]" /> : channels.length === 0 ? <div className="rounded-2xl border border-dashed border-parchment-border bg-parchment-raised p-10 text-center"><p className="text-sm font-bold text-ink-900">No channels found</p><p className="mt-1 text-xs text-ink-900/55">Creator channels will appear here when they are created.</p></div> : <div className="grid gap-4">{channels.map(channel => <article key={channel.id} className="flex flex-col gap-4 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:flex-row sm:items-center sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-ink-900">{channel.name}</h3><span className="rounded-full bg-terracotta/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-terracotta-text">{channel.status}</span></div><p className="mt-1 text-sm text-ink-900/55">/{channel.slug} · {channel.updateCount || 0} public updates · owner {channel.ownerId}</p></div>{channel.status !== 'suspended' && <ActionButton onClick={async () => { setProcessingId(channel.id); try { const res = await fetch(`/api/channels?id=${channel.id}`, { method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'suspended' }) }); if (!res.ok) throw new Error('failed'); setChannels(current => current.map(item => item.id === channel.id ? { ...item, status: 'suspended' } : item)); showToast('Channel suspended.', 'success'); } catch { showToast('Failed to update channel.', 'error'); } finally { setProcessingId(null); } }} disabled={processingId === channel.id} tone="danger" icon={<Ban size={14} />} label="Suspend" />}</article>)}</div>}
           </section>
         )}
@@ -364,9 +457,21 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
           <>
             {/* Pending Add-ons */}
             <section>
-              <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
-                <AlertTriangle className="text-ink-900" size={22} /> Pending Approval ({pendingAddons.length})
-              </h2>
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
+                  <AlertTriangle className="text-ink-900" size={22} /> Pending Approval ({pendingAddons.length})
+                </h2>
+                {pendingAddons.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" onClick={toggleSelectAllPending} className={getButtonClasses('secondary', 'sm')}>
+                      {selectedPendingIds.size === pendingAddons.length ? <CheckSquare size={14} /> : <Square size={14} />}
+                      {selectedPendingIds.size === pendingAddons.length ? 'Batalkan semua' : 'Pilih semua'}
+                    </button>
+                    <button type="button" disabled={selectedPendingIds.size === 0 || bulkProcessing} onClick={() => handleBulkStatusChange('approved')} className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('primary', 'sm')}`}><Check size={14} /> Approve ({selectedPendingIds.size})</button>
+                    <button type="button" disabled={selectedPendingIds.size === 0 || bulkProcessing} onClick={() => handleBulkStatusChange('rejected')} className={`disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('danger', 'sm')}`}><X size={14} /> Reject ({selectedPendingIds.size})</button>
+                  </div>
+                )}
+              </div>
               {pendingAddons.length === 0 ? (
                 <p className="text-ink-900/50 font-bold bg-parchment-raised border border-parchment-border rounded-lg p-8 text-center">No pending add-ons.</p>
               ) : (
@@ -378,6 +483,9 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-parchment-raised rounded-lg shadow-card neumorph p-5 glass"
                     >
                       <div className="flex items-center gap-5">
+                        <button type="button" onClick={() => togglePendingSelection(addon.id)} className="shrink-0 text-terracotta-text" aria-label={`Select ${addon.title}`}>
+                          {selectedPendingIds.has(addon.id) ? <CheckSquare size={20} /> : <Square size={20} className="text-ink-900/30" />}
+                        </button>
                         <FadeImage src={addon.imageUrl} alt={addon.title} className="w-20 h-20 object-cover bg-ink-900 border border-parchment-border rounded-lg" referrerPolicy="no-referrer" />
                         <div>
                           <h3 className="font-bold text-ink-900 text-lg">{addon.title}</h3>
@@ -554,22 +662,25 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
         {activeTab === 'users' && (
           <section>
-            <h2 className="mb-6 text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
-              <Users className="text-terracotta-text" size={22} /> User Management
-            </h2>
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <h2 className="text-xl font-bold text-ink-900 uppercase tracking-tight flex items-center gap-3">
+                <Users className="text-terracotta-text" size={22} /> User Management
+              </h2>
+              <label className="relative block sm:w-72"><span className="sr-only">Search users</span><Search size={16} className="absolute left-3 top-3 text-ink-900/40" /><input value={userSearch} onChange={event => setUserSearch(event.target.value)} placeholder="Search by name or email" className="min-h-11 w-full rounded-xl border border-parchment-border bg-parchment-raised pl-9 pr-3 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /></label>
+            </div>
             {loadingUsers ? (
               <div className="space-y-4">
                 {[...Array(4)].map((_, i) => <div key={i} className="h-20 border border-parchment-border rounded-lg bg-ink-900/5" />)}
               </div>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <div className="rounded-lg bg-parchment-raised p-12 text-center shadow-card">
                 <Users size={28} className="mx-auto mb-3 text-ink-900/30" />
                 <p className="text-sm font-bold text-ink-900">No users found</p>
-                <p className="mt-1 text-xs font-normal text-ink-900/60">Registered accounts will appear here.</p>
+                <p className="mt-1 text-xs font-normal text-ink-900/60">{userSearch ? 'Try a different search term.' : 'Registered accounts will appear here.'}</p>
               </div>
             ) : (
               <motion.div initial="hidden" animate="visible" variants={listVariants} className="grid grid-cols-1 gap-4">
-                {users.map(u => (
+                {filteredUsers.map(u => (
                   <motion.div
                     key={u.uid}
                     variants={itemVariants}

@@ -22,6 +22,7 @@ export function viewToPath(view: ViewState, addons: Addon[]): string {
   if (view === 'bookmarks' || view === 'library') return '/library';
   if (view === 'settings') return '/settings';
   if (view === 'admin') return '/admin';
+  if (view === 'creator') return '/creator';
   if (typeof view === 'object' && view.type === 'addon') {
     const addon = addons.find((a) => a.id === view.id);
     const prefix = categoryToSlug(addon?.category);

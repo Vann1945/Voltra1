@@ -35,7 +35,9 @@ export type AnimationPreset =
   | 'flicker' | 'ring-expand' | 'blur-focus' | 'corner-peek' | 'fade-flip'
   // 3 preset khusus bottom nav mobile (dipakai lewat prop `preset` di titik
   // pemakaian, lihat Navbar.tsx)
-  | 'tap-glow' | 'tap-fold' | 'tap-spin';
+  | 'tap-glow' | 'tap-fold' | 'tap-spin'
+  // 5 preset baru — dashboard creator/admin (analytics, notifikasi, earnings)
+  | 'bounce-pop' | 'heartbeat' | 'orbit-spin' | 'elastic-pop' | 'count-flip';
 
 interface AnimatedIconProps extends LucideProps {
   icon: LucideIcon;
