@@ -1,129 +1,478 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { ArrowDownToLine, Bookmark, Check, Clock, Download, Heart, Info, Star } from '@/components/icons/animated';
+import React, { useEffect, useState, memo } from 'react';
+import { Bookmark, Check, Download, Heart } from '@/components/icons/animated';
 import { Addon } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { ViewState } from '@/types';
 import { FadeImage } from './FadeImage';
-import { ProfileAvatar } from './borderEffects';
-import { AddonPeople } from './AddonPeople';
+import {
+  toggleToolcoinBookmark,
+  getToolcoinBookmarks,
+} from '@/lib/toolcoinLocal';
+
+function isProceduralSvg(url?: string | null): boolean {
+  const s = (url || '').trim();
+  if (!s) return true;
+  return /\/api\/thumbnail\//i.test(s) || /thumbnail\/[^/]+\.svg/i.test(s);
+}
 
 function getFirstImage(value: unknown, fallback?: string): string | undefined {
-  if (Array.isArray(value)) return value.find((item): item is string => typeof item === 'string' && Boolean(item.trim())) || fallback;
-  if (typeof value === 'string' && value.trim()) return value.trim();
-  return fallback?.trim() || undefined;
+  const candidates: string[] = [];
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === 'string' && item.trim()) candidates.push(item.trim());
+    }
+  } else if (typeof value === 'string' && value.trim()) {
+    candidates.push(value.trim());
+  }
+  if (fallback?.trim()) candidates.push(fallback.trim());
+  const real = candidates.find((u) => !isProceduralSvg(u));
+  return real || candidates[0];
 }
 
-function stripHtml(html: string): string {
-  return (html || '').replace(/<(br|\/p|\/div|\/li)>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+function categoryIcon(category?: string, tags?: string[]): string {
+  const c = (category || '').toLowerCase();
+  const tagStr = (tags || []).join(' ').toLowerCase();
+  if (c.includes('world') || tagStr.includes('world')) return '/icon/world.png';
+  if (c.includes('resource') || c.includes('texture') || tagStr.includes('texture')) return '/icon/texture.png';
+  if (c.includes('skin') || tagStr.includes('skin')) return '/icon/skin.png';
+  if (c.includes('mash') || c.includes('custom') || tagStr.includes('mashup')) return '/icon/mashup.png';
+  if (c.includes('behavior')) return '/icon/addon.png';
+  return '/icon/addon.png';
 }
 
-function formatCount(value: number): string {
-  if (!value) return '0';
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
-  if (value >= 10_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
-  return value.toLocaleString('en-US');
+function isAvailable(addon: Addon): boolean {
+  const extra = addon as Addon & { available?: boolean | number };
+  if (typeof extra.available === 'boolean') return extra.available;
+  if (typeof extra.available === 'number') return extra.available !== 0;
+  const status = String((addon as { status?: unknown }).status ?? '');
+  if (status === 'unavailable' || status === 'pending') return false;
+  if (addon.source === 'toolcoin') return true;
+  return true;
 }
 
-function formatRelativeTime(input: string): string {
-  const date = new Date(input);
-  if (Number.isNaN(date.getTime())) return '';
-  const days = Math.floor((Date.now() - date.getTime()) / 86_400_000);
-  if (days < 1) return 'today';
-  if (days === 1) return 'yesterday';
-  if (days < 30) return `${days} days ago`;
-  return `${Math.floor(days / 30)} mo ago`;
+/** Human tags for chips — skip garbage / UUID */
+function displayTags(addon: Addon, max = 5): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (raw?: string) => {
+    const t = (raw || '').trim();
+    if (!t || t.length > 28) return;
+    const low = t.toLowerCase();
+    if (seen.has(low)) return;
+    if (/^[0-9a-f]{8}-/i.test(t) || /^[0-9a-f-]{16,}$/i.test(t)) return;
+    if (['official', 'marketplace', 'addon', 'add-on'].includes(low)) return;
+    seen.add(low);
+    out.push(t);
+  };
+  // Category first so chips appear even before tags hydrate
+  if (addon.category) push(addon.category);
+  for (const t of addon.tags || []) {
+    if (out.length >= max) break;
+    push(String(t));
+  }
+  return out;
+}
+
+function initials(name?: string): string {
+  const n = (name || '?').trim();
+  const parts = n.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return n.slice(0, 2).toUpperCase();
+}
+
+function CreatorAvatar({
+  name,
+  photo,
+  size = 28,
+}: {
+  name?: string;
+  photo?: string | null;
+  size?: number;
+}) {
+  const [failed, setFailed] = useState(false);
+  const src = photo && !failed ? photo : null;
+  return (
+    <span
+      className="relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink-900/10 ring-1 ring-parchment-border text-ink-900/70 dark:bg-white/10 dark:text-paper/80"
+      style={{ width: size, height: size }}
+      title={name || 'Creator'}
+    >
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span className="text-[10px] font-bold leading-none">{initials(name)}</span>
+      )}
+    </span>
+  );
+}
+
+function formatCount(n?: number): string {
+  const v = Number(n) || 0;
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
+  return String(v);
 }
 
 interface AddonCardProps {
   addon: Addon;
-  isLiked: boolean;
+  isLiked?: boolean;
   isBookmarked?: boolean;
-  onToggleLike: (addonId: string, isLiked: boolean) => void;
-  onToggleBookmark?: (addonId: string, isBookmarked: boolean) => void;
+  onToggleLike?: (id: string, liked: boolean) => void;
+  onToggleBookmark?: (id: string, bookmarked: boolean) => void;
   onRequireAuth?: () => void;
-  onNavigate?: (view: ViewState) => void;
+  onNavigate: (view: ViewState) => void;
   priority?: boolean;
+  shelf?: boolean;
   compact?: boolean;
+  layoutMode?: 'grid' | 'list';
 }
 
-export const AddonCard = React.memo(function AddonCard({ addon, isLiked, isBookmarked = false, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate, priority = false, compact = false }: AddonCardProps) {
+export const AddonCard = memo(function AddonCard({
+  addon,
+  isLiked = false,
+  isBookmarked = false,
+  onToggleLike,
+  onToggleBookmark,
+  onRequireAuth,
+  onNavigate,
+  priority = false,
+  shelf = false,
+  compact = false,
+  layoutMode = 'grid',
+}: AddonCardProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [authorPhoto, setAuthorPhoto] = useState<string | null>(addon.authorPhoto ?? null);
-  const [authorBorder, setAuthorBorder] = useState(addon.authorBorder ?? 'none');
-  const [collaborators, setCollaborators] = useState(addon.collaborators ?? []);
+  const [localBm, setLocalBm] = useState(false);
 
   useEffect(() => {
-    setAuthorPhoto(addon.authorPhoto ?? null);
-    setAuthorBorder(addon.authorBorder ?? 'none');
-    setCollaborators(addon.collaborators ?? []);
-  }, [addon.authorPhoto, addon.authorBorder, addon.collaborators]);
+    if (addon.source === 'toolcoin') {
+      setLocalBm(getToolcoinBookmarks().has(addon.id));
+    }
+  }, [addon.id, addon.source, isBookmarked]);
 
+  const effectiveBookmarked = addon.source === 'toolcoin' ? localBm : isBookmarked;
   const coverImage = getFirstImage(addon.imageUrls, addon.imageUrl);
-  const stop = (event: React.MouseEvent) => event.stopPropagation();
-  const handleCardClick = () => onNavigate?.({ type: 'addon', id: addon.id });
-  const handleAuthorClick = (event: React.MouseEvent) => { stop(event); onNavigate?.({ type: 'author', id: addon.authorId }); };
-  const handleLikeClick = (event: React.MouseEvent) => {
-    stop(event);
-    if (!user) { onRequireAuth?.(); return; }
-    onToggleLike(addon.id, isLiked);
-  };
-  const handleBookmarkClick = (event: React.MouseEvent) => {
-    stop(event);
-    if (!user) { onRequireAuth?.(); return; }
-    onToggleBookmark?.(addon.id, isBookmarked);
-    showToast(isBookmarked ? 'Bookmark removed.' : 'Bookmark saved.', 'success');
-  };
-  const handleDownloadClick = async (event: React.MouseEvent) => {
-    stop(event);
-    if (isDownloading || downloadSuccess) return;
-    const downloadWindow = window.open('', '_blank');
-    if (!downloadWindow) { showToast('Pop-up blocked. Allow pop-ups for this site and try again.', 'error'); return; }
-    downloadWindow.opener = null;
-    downloadWindow.location.href = addon.downloadUrl;
-    // Tutup otomatis tab kosong itu jika memang cuma trigger file download
-    // (tab tetap "about:blank"). Kalau ternyata dialihkan ke halaman
-    // pihak ketiga, .location.href akan melempar error cross-origin dan
-    // kita biarkan tab tersebut terbuka untuk user.
-    window.setTimeout(() => {
-      try {
-        if (!downloadWindow.closed && downloadWindow.location.href === 'about:blank') {
-          downloadWindow.close();
-        }
-      } catch {
-        // Cross-origin: tab benar-benar berpindah ke halaman lain, biarkan terbuka.
-      }
-    }, 1500);
-    setIsDownloading(true);
-    fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' }).catch(() => undefined);
-    await new Promise(resolve => window.setTimeout(resolve, 900));
-    setIsDownloading(false);
-    setDownloadSuccess(true);
-    window.setTimeout(() => setDownloadSuccess(false), 1800);
+  const available = isAvailable(addon);
+  const iconSrc = categoryIcon(addon.category, addon.tags);
+  const tags = displayTags(addon, layoutMode === 'list' || compact ? 6 : 4);
+  const desc = (addon.description || '').replace(/<[^>]+>/g, '').trim();
+
+  const openDetail = () => {
+    onNavigate({ type: 'addon', id: addon.id } as ViewState);
   };
 
-  if (compact) {
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      onRequireAuth?.();
+      return;
+    }
+    onToggleLike?.(addon.id, isLiked);
+  };
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (addon.source === 'toolcoin') {
+      const nowOn = toggleToolcoinBookmark(addon.id);
+      setLocalBm(nowOn);
+      onToggleBookmark?.(addon.id, !nowOn);
+      showToast(nowOn ? 'Saved.' : 'Removed from bookmarks.', 'success');
+      return;
+    }
+    if (!user) {
+      onRequireAuth?.();
+      return;
+    }
+    onToggleBookmark?.(addon.id, isBookmarked);
+  };
+
+  const handleDownloadClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!available || isDownloading) return;
+    const url = addon.downloadUrl;
+    if (!url) {
+      showToast('Download not available for this pack.', 'error');
+      return;
+    }
+    setIsDownloading(true);
+    try {
+      const res = await fetch(url, { credentials: 'omit' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      if (!blob || blob.size < 32) throw new Error('Empty file');
+      const cd = res.headers.get('Content-Disposition') || '';
+      const m = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(cd);
+      const filename = (m?.[1] || `${addon.title || 'pack'}.mcaddon`).replace(/[^\w.\- ]+/g, '_');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      setDownloadSuccess(true);
+      window.setTimeout(() => setDownloadSuccess(false), 2500);
+    } catch {
+      // fallback: open same-origin proxy in new tab
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const AvailabilityMark = () =>
+    available ? (
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/90 text-white shadow-sm">
+        <Check size={12} />
+      </span>
+    ) : (
+      <span className="inline-flex h-5 w-5 rounded-md border border-white/30 bg-ink-900/40" />
+    );
+
+  // ── Shelf (home rows) ──
+  if (shelf) {
     return (
-      <article onClick={handleCardClick} className="group flex w-full cursor-pointer items-center gap-4 border-b border-parchment-border bg-parchment-raised px-4 py-4 transition-colors hover:bg-ink-900/[0.025] focus-within:bg-ink-900/[0.025]">
-        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-ink-900"><FadeImage src={coverImage} fallbackSrc={addon.imageUrl} alt={addon.title} containerClassName="h-full w-full" className="h-full w-full object-cover" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'auto'} /></div>
-        <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><h3 className="truncate text-sm font-bold text-ink-900">{addon.title}</h3>{addon.status === 'pending' && <span className="shrink-0 rounded-full bg-terracotta/15 px-2 py-0.5 text-[10px] font-bold text-terracotta-text">Pending</span>}{addon.unlisted && <span className="rounded-full bg-ink-900/[0.06] px-2 py-0.5 text-[10px] font-bold text-ink-900/55">Unlisted</span>}</div><p className="mt-1 truncate text-xs text-ink-900/55">{stripHtml(addon.description)}</p><p className="mt-2 text-xs font-semibold text-ink-900/55">{addon.authorName} · {formatRelativeTime(addon.createdAt)}</p></div>
-        <div className="flex shrink-0 items-center gap-1"><button type="button" onClick={handleBookmarkClick} aria-label={`${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}: ${addon.title}`} className={`rounded-lg p-2 transition-colors hover:bg-terracotta/10 ${isBookmarked ? 'text-terracotta-text' : 'text-ink-900/45'}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} /></button><button type="button" onClick={handleLikeClick} aria-label={`${isLiked ? 'Unlike' : 'Like'} ${addon.title}`} className={`flex items-center gap-1 rounded-lg px-2 py-2 transition-colors hover:bg-terracotta/10 ${isLiked ? 'text-terracotta-text' : 'text-ink-900/55'}`}><Heart size={14} className={isLiked ? 'fill-current' : ''} />{formatCount(addon.likesCount)}</button></div>
+      <div className="group flex h-full w-full flex-col text-left">
+        <button
+          type="button"
+          onClick={openDetail}
+          className="relative aspect-square w-full overflow-hidden rounded-2xl bg-ink-900/90 ring-1 ring-parchment-border"
+        >
+          <FadeImage
+            src={coverImage}
+            fallbackSrc={addon.imageUrl || '/icon/pack_fallback.svg'}
+            alt={addon.title}
+            containerClassName="absolute inset-0"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            loading={priority ? 'eager' : 'lazy'}
+          />
+          <div className="absolute left-2 top-2 pointer-events-none">
+            <AvailabilityMark />
+          </div>
+        </button>
+        <div className="mt-2 min-w-0 px-0.5">
+          <button type="button" onClick={openDetail} className="flex w-full items-start gap-1.5 text-left">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-bold leading-snug text-ink-900 dark:text-paper">
+                {addon.title}
+              </p>
+              <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px] text-ink-900/50 dark:text-paper/50">
+                <CreatorAvatar name={addon.authorName} photo={addon.authorPhoto} size={14} />
+                <span className="truncate">{addon.authorName || 'Marketplace'}</span>
+              </p>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={iconSrc} alt="" className="mt-0.5 h-4 w-4 shrink-0 object-contain opacity-75" />
+          </button>
+          {tags.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="max-w-[7rem] truncate rounded-md bg-ink-900/[0.06] px-1.5 py-0.5 text-[9px] font-semibold text-ink-900/50 dark:bg-white/10 dark:text-paper/55"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="mt-1.5 flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={handleLikeClick}
+              className={`rounded-md p-1 transition ${isLiked ? 'text-terracotta' : 'text-ink-900/35 hover:text-ink-900/60 dark:text-paper/40'}`}
+            >
+              <Heart size={13} className={isLiked ? 'fill-current' : ''} />
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadClick}
+              disabled={!available || isDownloading}
+              className="rounded-md p-1 text-ink-900/35 transition hover:text-ink-900/60 disabled:opacity-35 dark:text-paper/40"
+            >
+              {downloadSuccess ? <Check size={13} /> : <Download size={13} />}
+            </button>
+            <button
+              type="button"
+              onClick={handleBookmarkClick}
+              className={`rounded-md p-1 transition ${effectiveBookmarked ? 'text-terracotta' : 'text-ink-900/35 hover:text-ink-900/60 dark:text-paper/40'}`}
+            >
+              <Bookmark size={13} className={effectiveBookmarked ? 'fill-current' : ''} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── List (Modrinth-style row) ──
+  if (layoutMode === 'list' || compact) {
+    return (
+      <article
+        className="group flex w-full gap-3 rounded-2xl border border-parchment-border bg-parchment-raised p-3 shadow-sm transition hover:border-ink-900/20 hover:shadow-card dark:border-white/10 dark:bg-ink-900/40 sm:gap-4 sm:p-4"
+        onClick={openDetail}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDetail();
+          }
+        }}
+      >
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-ink-900/80 ring-1 ring-parchment-border sm:h-20 sm:w-20">
+          <FadeImage
+            src={coverImage}
+            fallbackSrc={addon.imageUrl || '/icon/pack_fallback.svg'}
+            alt={addon.title}
+            containerClassName="absolute inset-0"
+            className="h-full w-full object-cover"
+            loading={priority ? 'eager' : 'lazy'}
+          />
+          <div className="absolute left-1 top-1">
+            <AvailabilityMark />
+          </div>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="truncate text-[15px] font-bold leading-snug text-ink-900 dark:text-paper">
+                {addon.title}
+                <span className="ml-1.5 text-[12px] font-medium text-ink-900/45 dark:text-paper/45">
+                  by {addon.authorName || 'Unknown'}
+                </span>
+              </h3>
+              {desc ? (
+                <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-ink-900/55 dark:text-paper/55">
+                  {desc}
+                </p>
+              ) : null}
+            </div>
+            <div className="hidden shrink-0 items-center gap-3 text-[11px] font-semibold text-ink-900/45 dark:text-paper/45 sm:flex">
+              <span className="inline-flex items-center gap-1">
+                <Download size={12} /> {formatCount(addon.downloadsCount)}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Heart size={12} /> {formatCount(addon.likesCount)}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <CreatorAvatar name={addon.authorName} photo={addon.authorPhoto} size={18} />
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center rounded-md border border-parchment-border bg-parchment px-1.5 py-0.5 text-[10px] font-semibold text-ink-900/60 dark:border-white/10 dark:bg-white/5 dark:text-paper/65"
+              >
+                {tag}
+              </span>
+            ))}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={iconSrc} alt="" className="ml-auto h-4 w-4 object-contain opacity-60 sm:ml-0" />
+          </div>
+        </div>
       </article>
     );
   }
 
+  // ── Grid (Modrinth-style card) ──
   return (
-    <article onClick={handleCardClick} className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card-hover focus-within:ring-2 focus-within:ring-terracotta">
-      <div className="relative aspect-[16/10] overflow-hidden bg-ink-900"><FadeImage src={coverImage} fallbackSrc={addon.imageUrl} alt={addon.title} containerClassName="h-full w-full" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'auto'} /><div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3"><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-ink-900/85 px-2.5 py-1 text-[10px] font-bold text-paper">{addon.category}</span>{addon.status === 'pending' && <span className="rounded-full bg-terracotta px-2.5 py-1 text-[10px] font-bold text-ink-900">Pending</span>}</div><button type="button" onClick={handleBookmarkClick} aria-label={`${isBookmarked ? 'Remove bookmark' : 'Add bookmark'}: ${addon.title}`} className={`rounded-xl border border-white/15 bg-ink-900/75 p-2 text-white backdrop-blur-sm transition-[background-color,color,transform] duration-150 hover:bg-ink-900 active:scale-[0.96] ${isBookmarked ? 'text-terracotta' : ''}`}><Bookmark size={16} className={isBookmarked ? 'fill-current' : ''} /></button></div></div>
-      <div className="flex flex-1 flex-col p-5"><div className="flex items-start justify-between gap-3"><h3 className="line-clamp-2 text-lg font-bold leading-6 text-ink-900">{addon.title}</h3>{addon.averageRating ? <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-terracotta/15 px-2 py-1 text-xs font-bold text-terracotta-text"><Star size={12} className="fill-current" />{addon.averageRating.toFixed(1)}</span> : null}</div><p className="mt-3 line-clamp-3 text-sm leading-6 text-ink-900/60">{stripHtml(addon.description)}</p>{addon.tags?.length ? <div className="mt-4 flex flex-wrap gap-2">{addon.tags.slice(0, 3).map(tag => <span key={tag} className="rounded-lg bg-ink-900/[0.05] px-2 py-1 text-[10px] font-semibold text-ink-900/60">{tag}</span>)}</div> : null}
-        {showInfo && <div className="mt-4 rounded-xl bg-parchment p-4 text-xs leading-5 text-ink-900/65">{addon.demoUrl ? <a href={addon.demoUrl} target="_blank" rel="noopener noreferrer" onClick={stop} className="font-bold text-terracotta-text underline underline-offset-2">View demo</a> : <span>No additional add-on details.</span>}</div>}
-        <div className="mt-auto pt-5"><AddonPeople addonId={addon.id} authorId={addon.authorId} authorName={addon.authorName} authorPhoto={authorPhoto} authorBorder={authorBorder} collaborators={collaborators} onNavigate={onNavigate} canManage={Boolean(user && (user.uid === addon.authorId || user.role === 'admin'))} onCollaboratorsChange={setCollaborators} compact /><div className="mb-4 mt-4 flex items-center justify-end gap-3 text-[11px] font-medium text-ink-900/45"><span className="flex items-center gap-1"><Clock size={12} />{formatRelativeTime(addon.createdAt)}</span></div><div className="flex items-center justify-between gap-2 border-t border-parchment-border pt-4"><div className="flex items-center gap-1"><button type="button" onClick={(event) => { stop(event); setShowInfo(value => !value); }} aria-label={showInfo ? 'Hide add-on info' : 'Show add-on info'} className="rounded-lg p-2 text-ink-900/50 transition-colors hover:bg-ink-900/[0.05] hover:text-ink-900"><Info size={15} /></button><button type="button" onClick={handleLikeClick} aria-label={`${isLiked ? 'Unlike' : 'Like'} ${addon.title}`} className={`flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-bold transition-colors hover:bg-terracotta/10 ${isLiked ? 'text-terracotta-text' : 'text-ink-900/60'}`}><Heart size={16} className={isLiked ? 'fill-current' : ''} />{formatCount(addon.likesCount)}</button><span className="hidden items-center gap-1 text-xs text-ink-900/45 sm:flex"><ArrowDownToLine size={13} />{formatCount(addon.downloadsCount || 0)}</span></div><button type="button" onClick={handleDownloadClick} disabled={isDownloading} className={`inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-[background-color,color,transform] duration-150 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.97] ${downloadSuccess ? 'bg-success/[0.12] text-success' : 'bg-terracotta text-ink-900 hover:bg-terracotta-text hover:text-paper'}`}>{isDownloading ? 'Opening…' : downloadSuccess ? <><Check size={13} />Done</> : <><Download size={13} />Get</>}</button></div></div>
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-sm transition hover:border-ink-900/20 hover:shadow-card dark:border-white/10 dark:bg-ink-900/40">
+      <button
+        type="button"
+        onClick={openDetail}
+        className="relative aspect-[16/10] w-full overflow-hidden bg-ink-900/90 text-left"
+      >
+        <FadeImage
+          src={coverImage}
+          fallbackSrc={addon.imageUrl || '/icon/pack_fallback.svg'}
+          alt={addon.title}
+          containerClassName="absolute inset-0"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          loading={priority ? 'eager' : 'lazy'}
+        />
+        <div className="absolute left-2 top-2">
+          <AvailabilityMark />
+        </div>
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+          <p className="truncate text-[15px] font-bold text-white">{addon.title}</p>
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px] text-white/75">
+            <CreatorAvatar name={addon.authorName} photo={addon.authorPhoto} size={16} />
+            <span className="truncate">by {addon.authorName || 'Marketplace'}</span>
+          </p>
+        </div>
+      </button>
+
+      <div className="flex flex-1 flex-col gap-2 p-3">
+        {desc ? (
+          <p className="line-clamp-2 text-[12px] leading-relaxed text-ink-900/55 dark:text-paper/55">
+            {desc}
+          </p>
+        ) : null}
+
+        <div className="flex flex-wrap gap-1">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-md border border-parchment-border bg-parchment px-1.5 py-0.5 text-[10px] font-semibold text-ink-900/60 dark:border-white/10 dark:bg-white/5 dark:text-paper/65"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-parchment-border pt-2 dark:border-white/10">
+          <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-900/45 dark:text-paper/45">
+            <span className="inline-flex items-center gap-0.5">
+              <Download size={12} /> {formatCount(addon.downloadsCount)}
+            </span>
+            <span className="inline-flex items-center gap-0.5">
+              <Heart size={12} /> {formatCount(addon.likesCount)}
+            </span>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={handleLikeClick}
+              className={`rounded-md p-1.5 transition ${isLiked ? 'text-terracotta' : 'text-ink-900/35 hover:text-ink-900/60 dark:text-paper/40'}`}
+              aria-label="Like"
+            >
+              <Heart size={14} className={isLiked ? 'fill-current' : ''} />
+            </button>
+            <button
+              type="button"
+              onClick={handleBookmarkClick}
+              className={`rounded-md p-1.5 transition ${effectiveBookmarked ? 'text-terracotta' : 'text-ink-900/35 hover:text-ink-900/60 dark:text-paper/40'}`}
+              aria-label="Bookmark"
+            >
+              <Bookmark size={14} className={effectiveBookmarked ? 'fill-current' : ''} />
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadClick}
+              disabled={!available || isDownloading}
+              className="inline-flex h-8 items-center gap-1 rounded-xl bg-terracotta px-2.5 text-[11px] font-bold text-ink-900 transition hover:opacity-90 disabled:opacity-50"
+            >
+              {downloadSuccess ? 'Got it' : isDownloading ? '…' : available ? 'Get' : 'N/A'}
+            </button>
+          </div>
+        </div>
       </div>
     </article>
   );

@@ -51,8 +51,8 @@ function MobileBottomNav({ user, currentView, onNavigate, onOpenAuth, onOpenUplo
     </div>
     <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-[150] flex items-stretch justify-around gap-1 border-t border-parchment-border bg-parchment-raised/95 px-1 shadow-[0_-4px_16px_rgba(23,35,41,0.06)] backdrop-blur sm:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <button type="button" onClick={() => act(() => onNavigate('home'))} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold ${active('home') ? 'text-terracotta-text' : 'text-ink-900/70'}`}><Zap size={18} />{t('nav.explore')}</button>
-      <button type="button" onClick={() => act(() => onNavigate('library'))} aria-current={active('library') ? 'page' : undefined} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/70'}`}><Bookmark size={18} preset="tap-fold" />{t('nav.bookmark')}</button>
-      <button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/70'}`}>{isOpen ? <X size={18} preset="tap-spin" /> : <Menu size={18} preset="tap-spin" />}{t('nav.menu')}</button>
+      <button type="button" onClick={() => act(() => onNavigate('library'))} aria-current={active('library') ? 'page' : undefined} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold ${active('library') ? 'text-terracotta-text' : 'text-ink-900/70'}`}><Bookmark size={18} />{t('nav.bookmark')}</button>
+      <button type="button" onClick={() => act(() => setIsOpen(value => !value))} aria-expanded={isOpen} className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-bold ${isOpen ? 'text-terracotta-text' : 'text-ink-900/70'}`}>{isOpen ? <X size={18} /> : <Menu size={18} />}{t('nav.menu')}</button>
     </nav>
   </>;
 }

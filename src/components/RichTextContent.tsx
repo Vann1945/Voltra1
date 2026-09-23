@@ -21,27 +21,34 @@ hljs.registerLanguage('java', java);
 hljs.registerLanguage('bash', bash);
 
 const DANGEROUS_CSS_PATTERN = /url\s*\(|expression\s*\(|behavior\s*:|@import|javascript\s*:|-moz-binding/i;
+let purifierConfigured = false;
 
-DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
-  if (data.attrName === 'style' && DANGEROUS_CSS_PATTERN.test(data.attrValue)) {
-    data.keepAttr = false;
-  }
-});
+function getPurifier() {
+  if (typeof window === 'undefined' || typeof (DOMPurify as any)?.sanitize !== 'function') return null;
 
-// Konten ini berasal dari deskripsi yang ditulis user lain (creator add-on),
-// jadi setiap <a> harus dianggap tidak tepercaya. Tanpa rel="noopener
-// noreferrer", link yang dibuka di tab baru bisa memanipulasi window.opener
-// milik halaman asal (reverse tabnabbing) — celah phishing klasik.
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-  if (node.tagName === 'A') {
-    node.setAttribute('target', '_blank');
-    node.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+  if (!purifierConfigured) {
+    DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+      if (data.attrName === 'style' && DANGEROUS_CSS_PATTERN.test(data.attrValue)) {
+        data.keepAttr = false;
+      }
+    });
+    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A') {
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+      }
+    });
+    purifierConfigured = true;
   }
-});
+
+  return DOMPurify;
+}
 
 export function sanitizeHtml(html: string): string {
   if (!html) return '';
-  return DOMPurify.sanitize(html, {
+  const purifier = getPurifier();
+  if (!purifier) return '';
+  return purifier.sanitize(html, {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'a', 'span', 'div',
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code',

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, LockKeyhole, Bookmark } from '@/components/icons/animated';
 import { Addon } from '@/types';
 import { ViewState } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { AddonCard } from './AddonCard';
 import { getButtonClasses } from '@/lib/designSystem';
+import { getToolcoinBookmarks, getToolcoinLikes } from '@/lib/toolcoinLocal';
 
 interface BookmarksPageProps {
   addons: Addon[];
@@ -24,8 +25,14 @@ type CollectionTab = 'saved' | 'liked';
 export function BookmarksPage({ addons, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate, layoutMode = 'grid' }: BookmarksPageProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<CollectionTab>('saved');
-  const savedAddons = addons.filter(addon => userBookmarks.has(addon.id));
-  const likedAddons = addons.filter(addon => userLikes.has(addon.id));
+  const [localBm, setLocalBm] = useState<Set<string>>(new Set());
+  const [localLikes, setLocalLikes] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    setLocalBm(getToolcoinBookmarks());
+    setLocalLikes(getToolcoinLikes());
+  }, [addons, userBookmarks, userLikes]);
+  const savedAddons = addons.filter(addon => userBookmarks.has(addon.id) || localBm.has(addon.id));
+  const likedAddons = addons.filter(addon => userLikes.has(addon.id) || localLikes.has(addon.id));
   const visibleAddons = activeTab === 'saved' ? savedAddons : likedAddons;
   const activeLabel = activeTab === 'saved' ? 'bookmarks' : 'liked add-ons';
 

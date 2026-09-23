@@ -4,16 +4,23 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Addon, AddonVersion, Review, ViewState } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, FileArchive, ChevronDown, Download, ExternalLink, Heart, History, MessageSquare, Star } from '@/components/icons/animated';
+import { AlertTriangle, ArrowDownToLine, ArrowLeft, Bookmark, Check, FolderArchive, ChevronDown, ChevronLeft, ChevronRight, Copy, Download, ExternalLink, Heart, History, MessageSquare, MoreVertical, Star, User } from '@/components/icons/animated';
 import { ReportModal } from './ReportModal';
 import { ReviewSection } from './ReviewSection';
 import { FadeImage } from './FadeImage';
+import { FitCover } from './FitCover';
 import { ProfileAvatar } from './borderEffects';
 import { AddonPeople } from './AddonPeople';
 import { RichTextContent } from './RichTextContent';
 import { getButtonClasses } from '@/lib/designSystem';
 import { Skeleton, SkeletonCard } from './Skeleton';
 import { uploadAddonFile, ADDON_FILE_ACCEPT } from '@/lib/addonFileUpload';
+import { PanoramaViewer } from './PanoramaViewer';
+
+/** Menu icons (SVG) — same style as lucide, no emoji */
+
+import { fetchToolcoinCatalogItem, toolcoinItemToAddon, clientToolcoinBase } from '@/lib/toolcoin';
+import { toggleToolcoinBookmark } from '@/lib/toolcoinLocal';
 
 function VersionDropdown({ versions, selectedVersionId, onChange }: { versions: AddonVersion[]; selectedVersionId: string | null; onChange: (id: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -64,6 +71,41 @@ interface AddonDetailProps {
   isDarkMode: boolean;
 }
 
+
+/** Marketplace descriptions are often plain text or messy HTML — normalize for RichTextContent. */
+function formatMarketplaceDescription(raw: string | null | undefined): string {
+  const text = (raw || '').trim();
+  if (!text) return '';
+  // Already HTML with block tags
+  if (/<(p|div|br|li|ul|ol|h[1-6])\b/i.test(text)) {
+    return text;
+  }
+  // Escape minimal entities then break on newlines / sentences for readability
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const paragraphs = escaped
+    .split(/\n{2,}|\r\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (paragraphs.length > 1) {
+    return paragraphs.map((p) => `<p>${p.replace(/\n/g, '<br/>')}</p>`).join('');
+  }
+  // Single block: soft-wrap long run-on marketplace blurbs at sentence ends
+  const one = paragraphs[0] || escaped;
+  const sentences = one.split(/(?<=[.!?])\s+(?=[A-Z“"])/).filter(Boolean);
+  if (sentences.length >= 3) {
+    // group ~2 sentences per paragraph
+    const chunks: string[] = [];
+    for (let i = 0; i < sentences.length; i += 2) {
+      chunks.push(sentences.slice(i, i + 2).join(' '));
+    }
+    return chunks.map((c) => `<p>${c}</p>`).join('');
+  }
+  return `<p>${one.replace(/\n/g, '<br/>')}</p>`;
+}
+
 export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks, onToggleLike, onToggleBookmark, onRequireAuth, onNavigate, isDarkMode }: AddonDetailProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -73,12 +115,15 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement | null>(null);
   const [authorBorder, setAuthorBorder] = useState<string>('none');
   const [collaborators, setCollaborators] = useState<NonNullable<Addon['collaborators']>>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const gallerySwipeStartXRef = useRef<number | null>(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(() => new Set());
   const [videoActivated, setVideoActivated] = useState(false);
   const [versions, setVersions] = useState<AddonVersion[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
@@ -88,25 +133,180 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   const [versionFileName, setVersionFileName] = useState('');
   const [versionFileUploadProgress, setVersionFileUploadProgress] = useState<number | null>(null);
   const versionFileInputRef = useRef<HTMLInputElement>(null);
+  /** Full ToolCoin item by ID — survives hard refresh / deep link */
+  const [toolcoinAddon, setToolcoinAddon] = useState<Addon | null>(null);
+  const [toolcoinLoading, setToolcoinLoading] = useState(false);
+  const [toolcoinTried, setToolcoinTried] = useState(false);
+  const [toolcoinMedia, setToolcoinMedia] = useState<{
+    imageUrl?: string;
+    imageUrls?: string[];
+    panoramaUrl?: string;
+    description?: string;
+    title?: string;
+    authorName?: string;
+    authorPhoto?: string | null;
+  } | null>(null);
 
-  const addon = addons.find(a => a.id === addonId);
+  const baseAddon = addons.find(a => a.id === addonId) || toolcoinAddon || undefined;
+  const addon = baseAddon
+    ? ({
+        ...baseAddon,
+        ...(toolcoinMedia || {}),
+        imageUrl: toolcoinMedia?.imageUrl || baseAddon.imageUrl,
+        imageUrls: toolcoinMedia?.imageUrls?.length ? toolcoinMedia.imageUrls : baseAddon.imageUrls,
+        description: toolcoinMedia?.description ?? baseAddon.description,
+        title: toolcoinMedia?.title || baseAddon.title,
+        authorName:
+          (toolcoinMedia?.authorName &&
+            toolcoinMedia.authorName.toLowerCase() !== 'marketplace creator'
+              ? toolcoinMedia.authorName
+              : null) || baseAddon.authorName,
+        authorPhoto: toolcoinMedia?.authorPhoto ?? baseAddon.authorPhoto,
+      } as Addon)
+    : undefined;
   const isLiked = userLikes.has(addonId);
   const isBookmarked = userBookmarks.has(addonId);
   const activeVersion = versions.find(version => version.id === selectedVersionId) || versions[0];
-  const activeDownloadUrl = activeVersion?.downloadUrl || addon?.downloadUrl || '';
+  const packIdForDownload = String(addon?.id || '')
+    .replace(/^toolcoin:/i, '')
+    .trim();
+  const activeDownloadUrl = (() => {
+    const raw = (activeVersion?.downloadUrl || addon?.downloadUrl || '').trim();
+    // Never use bare Railway host in the browser
+    if (raw && !/railway\.app/i.test(raw) && !/^https?:\/\//i.test(raw)) return raw;
+    if (raw.startsWith('/api/toolcoin/')) return raw;
+    if (packIdForDownload) {
+      return `/api/toolcoin/media/fetch-pack/${encodeURIComponent(packIdForDownload)}`;
+    }
+    return '';
+  })();
+
   const [fullDescription, setFullDescription] = useState<string | null>(null);
   useEffect(() => {
     setCollaborators(addon?.collaborators ?? []);
   }, [addon?.collaborators]);
 
-  const images = useMemo(
-    () => (addon?.imageUrls && addon.imageUrls.length > 0 ? addon.imageUrls : [addon?.imageUrl || '']),
-    [addon]
-  );
+  // Cover carousel only — never mix panorama into detail hero
+  const images = useMemo(() => {
+    // Stable order: pack_icon (thumb) → cover0 → cover1 → cover2…  (panorama excluded)
+    const panorama = (
+      toolcoinMedia?.panoramaUrl ||
+      (addon as any)?.panoramaUrl ||
+      ''
+    ).trim();
+    const panoKey = panorama ? panorama.split('?')[0] : '';
+
+    const isPano = (s: string) => {
+      if (!s) return true;
+      if (panorama && (s === panorama || s === panoKey || s.startsWith(panoKey))) return true;
+      return /panorama/i.test(s);
+    };
+
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    const add = (u?: string | null) => {
+      const s = (u || '').trim();
+      if (!s || isPano(s) || seen.has(s)) return;
+      seen.add(s);
+      ordered.push(s);
+    };
+
+    // 1 pack icon / thumb
+    add(toolcoinMedia?.imageUrl);
+    add(addon?.imageUrl);
+    // 2 covers in server order
+    for (const u of toolcoinMedia?.imageUrls || []) add(u);
+    for (const u of addon?.imageUrls || []) add(u);
+
+    const real = ordered.filter((s) => !(/\.svg(\?|$)/i.test(s) || s.includes('/api/thumbnail/')));
+    const fallback = ordered.filter((s) => /\.svg(\?|$)/i.test(s) || s.includes('/api/thumbnail/'));
+    return (real.length ? real : fallback).filter((u) => !brokenImages.has(u));
+  }, [addon, toolcoinMedia, brokenImages]);
+
+
+  const panoramaUrl = (
+    toolcoinMedia?.panoramaUrl ||
+    (addon as any)?.panoramaUrl ||
+    ''
+  ).trim();
 
   useEffect(() => {
     setFullDescription(null);
+    setToolcoinMedia(null);
+    setToolcoinAddon(null);
+    setToolcoinTried(false);
+    setBrokenImages(new Set());
+    setCurrentImageIndex(0);
     if (!addonId) return;
+
+    const fromList = addons.find(a => a.id === addonId);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(addonId);
+    const looksToolcoin =
+      fromList?.source === 'toolcoin' ||
+      Boolean(fromList?.authorId?.startsWith('toolcoin:')) ||
+      (!fromList && isUuid);
+
+    // Always resolve ToolCoin by id on refresh / direct link / list navigation
+    if (looksToolcoin || isUuid || fromList?.source === 'toolcoin') {
+      if (fromList?.source === 'toolcoin') {
+        setFullDescription(fromList.description);
+        setCollaborators([]);
+        const resolvedVersions: AddonVersion[] = fromList.downloadUrl
+          ? [{
+              id: `toolcoin-${fromList.id}`,
+              addonId: fromList.id,
+              version: 'Marketplace',
+              downloadUrl: fromList.downloadUrl,
+              changelog: '',
+              compatibilityNotes: fromList.toolcoinType ? `Type: ${fromList.toolcoinType}` : 'Official Minecraft Marketplace',
+              createdAt: fromList.createdAt,
+            }]
+          : [];
+        setVersions(resolvedVersions);
+        setSelectedVersionId(resolvedVersions[0]?.id || null);
+      }
+
+      const ac = new AbortController();
+      setToolcoinLoading(true);
+      fetchToolcoinCatalogItem(addonId, ac.signal)
+        .then((item) => {
+          if (!item) {
+            setToolcoinTried(true);
+            return;
+          }
+          const mapped = toolcoinItemToAddon(item, clientToolcoinBase());
+          setToolcoinAddon(mapped);
+          if (mapped.description) setFullDescription(mapped.description);
+          setToolcoinMedia({
+            imageUrl: mapped.imageUrl || undefined,
+            imageUrls: mapped.imageUrls?.length ? mapped.imageUrls : undefined,
+            panoramaUrl: (mapped as any).panoramaUrl || undefined,
+            description: mapped.description || undefined,
+            title: mapped.title || undefined,
+            authorName: mapped.authorName || undefined,
+            authorPhoto: mapped.authorPhoto ?? undefined,
+          });
+          if (mapped.downloadUrl) {
+            const v: AddonVersion = {
+              id: `toolcoin-${mapped.id}`,
+              addonId: mapped.id,
+              version: 'Marketplace',
+              downloadUrl: mapped.downloadUrl,
+              changelog: '',
+              compatibilityNotes: mapped.toolcoinType ? `Type: ${mapped.toolcoinType}` : 'Official Minecraft Marketplace',
+              createdAt: mapped.createdAt,
+            };
+            setVersions([v]);
+            setSelectedVersionId(v.id);
+          }
+          setCollaborators([]);
+          setToolcoinTried(true);
+        })
+        .catch(() => setToolcoinTried(true))
+        .finally(() => setToolcoinLoading(false));
+      return () => ac.abort();
+    }
+
     let cancelled = false;
     fetch(`/api/addons?id=${addonId}`, { credentials: 'include' })
       .then(res => res.ok ? res.json() : null)
@@ -122,39 +322,17 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [addonId]);
+  }, [addonId, addons]);
 
-  useEffect(() => {
-    const url = images[currentImageIndex];
-    if (!url) { setImageLoaded(false); return; }
-
-    setImageLoaded(false);
-    let cancelled = false;
-    let settleTimer: ReturnType<typeof setTimeout>;
-    const startedAt = Date.now();
-    const MIN_SKELETON_MS = 350;
-
-    const finish = () => {
-      if (cancelled) return;
-      const remaining = Math.max(0, MIN_SKELETON_MS - (Date.now() - startedAt));
-      settleTimer = setTimeout(() => { if (!cancelled) setImageLoaded(true); }, remaining);
-    };
-
-    const img = new Image();
-    img.onload = finish;
-    img.onerror = finish;
-    img.src = url;
-
-    return () => {
-      cancelled = true;
-      clearTimeout(settleTimer);
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [images, currentImageIndex]);
+  // Cover images render with opacity-100 always (imageLoaded gate caused black hero).
 
   useEffect(() => {
     if (!addon) return;
+    if (addon.source === 'toolcoin' || addon.authorId?.startsWith('toolcoin:')) {
+      setAuthorPhoto(addon.authorPhoto ?? null);
+      setAuthorBorder(addon.authorBorder ?? 'none');
+      return;
+    }
     if (addon.authorPhoto !== undefined || addon.authorBorder !== undefined) {
       setAuthorPhoto(addon.authorPhoto ?? null);
       setAuthorBorder(addon.authorBorder ?? 'none');
@@ -227,19 +405,71 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     };
   }, [addonId]);
 
+  useEffect(() => {
+    if (!images.length) return;
+    if (currentImageIndex >= images.length) setCurrentImageIndex(0);
+  }, [images, currentImageIndex]);
+
+  // Auto-advance cover images every 20s
+  useEffect(() => {
+    if (images.length < 2) return;
+    const id = window.setInterval(() => {
+      setCurrentImageIndex((i) => (i + 1) % images.length);
+    }, 20000);
+    return () => window.clearInterval(id);
+  }, [images.length]);
+
+
+
+  // More-menu handlers must stay above any early return (Rules of Hooks)
+  useEffect(() => {
+    if (!moreMenuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setMoreMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, [moreMenuOpen]);
+
+  const packUuid = String((addon?.id || addonId || '')).replace(/^toolcoin:/i, '');
+  const handleCopyUuid = async () => {
+    try {
+      await navigator.clipboard.writeText(packUuid);
+      showToast('UUID copied.', 'success');
+    } catch {
+      showToast('Could not copy UUID.', 'error');
+    }
+    setMoreMenuOpen(false);
+  };
+  const handleOpenMinecraft = () => {
+    const store = `https://www.minecraft.net/en-us/marketplace/pdp?id=${encodeURIComponent(packUuid)}`;
+    window.open(store, '_blank', 'noopener,noreferrer');
+    setMoreMenuOpen(false);
+  };
+  const handleOpenCreator = () => {
+    if (addon?.authorId) {
+      onNavigate({ type: 'author', id: addon.authorId } as unknown as ViewState);
+    }
+    setMoreMenuOpen(false);
+  };
+
   if (!addon) {
-    if (loading) {
+    if (loading || toolcoinLoading || (!toolcoinTried && addonId)) {
       return (
         <div className="mx-auto min-h-[100dvh] max-w-7xl px-4 py-16 text-center">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <SkeletonCard />
           </div>
+          <p className="mt-6 text-sm text-ink-900/50">Loading marketplace item…</p>
         </div>
       );
     }
     return (
       <div className="mx-auto min-h-[100dvh] max-w-7xl px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-ink-900">Add-on not found</h2>
+        <p className="mt-2 text-sm text-ink-900/50">This pack may have been removed or the link is incomplete.</p>
         <button onClick={() => onNavigate('home')} className={`mt-5 ${getButtonClasses('primary', 'md')}`}>
           Return to Marketplace
         </button>
@@ -248,12 +478,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   }
 
   const goNext = () => {
+    if (images.length <= 1) return;
     setIsPaused(true);
-    setCurrentImageIndex(prev => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
   const goPrev = () => {
+    if (images.length <= 1) return;
     setIsPaused(true);
-    setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
   const goTo = (idx: number) => {
     setIsPaused(true);
@@ -261,8 +493,15 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
   };
   const handleGalleryPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+    // Don't capture when clicking nav buttons / dots
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.('button')) return;
     gallerySwipeStartXRef.current = event.clientX;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
   };
   const handleGalleryPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     const startX = gallerySwipeStartXRef.current;
@@ -284,57 +523,62 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     e.preventDefault();
     if (isDownloading || downloadSuccess || !addon) return;
 
-    if (!activeDownloadUrl) {
+    let url = (activeDownloadUrl || '').trim();
+    if (!url && packIdForDownload) {
+      url = `/api/toolcoin/media/fetch-pack/${encodeURIComponent(packIdForDownload)}`;
+    }
+    if (!url) {
       showToast('No download is available for this version.', 'error');
       return;
     }
 
-    // Buka tab download LANGSUNG (masih di dalam user-gesture sinkron dari
-    // klik ini). Menunda window.open() di balik await/setTimeout membuat
-    // browser menganggapnya popup dan memblokirnya.
-    const downloadWindow = window.open('', '_blank');
-    if (downloadWindow) {
-      downloadWindow.opener = null;
-      downloadWindow.location.href = activeDownloadUrl;
-      // File download (Content-Disposition: attachment) tidak benar-benar
-      // menavigasi tab baru itu ke halaman apa pun — tab-nya tetap di
-      // "about:blank" selamanya dan harus ditutup manual. Di sini kita
-      // tutup otomatis SETELAH memberi waktu download mulai, tapi hanya
-      // jika tab itu memang masih blank (murni trigger download). Kalau
-      // downloadUrl ternyata mengarah ke halaman pihak ketiga (mis.
-      // Mediafire/Google Drive), tab itu akan benar-benar bernavigasi ke
-      // origin lain, sehingga membaca .location.href akan melempar error
-      // cross-origin — dalam kasus itu kita biarkan tab tetap terbuka agar
-      // user bisa berinteraksi dengan halaman tersebut.
-      window.setTimeout(() => {
-        try {
-          if (!downloadWindow.closed && downloadWindow.location.href === 'about:blank') {
-            downloadWindow.close();
-          }
-        } catch {
-          // Cross-origin: tab benar-benar berpindah ke halaman lain, biarkan terbuka.
-        }
-      }, 1500);
-    } else {
-      showToast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini lalu coba lagi.', 'error');
-    }
-
     setIsDownloading(true);
-    setDownloadProgress(0);
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => { if (prev >= 100) { clearInterval(interval); return 100; } return prev + 10; });
-    }, 200);
+    setDownloadProgress(10);
+
+    const filenameGuess = `${(addon.title || 'pack').replace(/[^\w\- ]+/g, '').trim() || 'pack'}.mcaddon`;
+
     try {
-      fetch(`/api/addons?id=${addon.id}&action=download`, { method: 'POST' }).catch(() => {});
-      await new Promise(resolve => setTimeout(resolve, 900));
+      // 1) Preferred: blob via same-origin proxy (no Railway URL in UI)
+      const res = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setDownloadProgress(60);
+      const blob = await res.blob();
+      if (!blob || blob.size < 32) throw new Error('Empty pack file');
+      const cd = res.headers.get('Content-Disposition') || '';
+      const match = /filename\*?=(?:UTF-8''|")?([^";]+)/i.exec(cd);
+      const filename = match
+        ? decodeURIComponent(match[1].replace(/"/g, '').trim())
+        : filenameGuess;
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      setDownloadProgress(100);
       setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
-    } catch (error) {
-      showToast('Download failed. Please try again.', 'error');
+      window.setTimeout(() => setDownloadSuccess(false), 3000);
+      fetch(`/api/addons?id=${encodeURIComponent(addon.id)}&action=download`, { method: 'POST' }).catch(() => {});
+    } catch (err) {
+      // 2) Fallback: direct <a download> same-origin (still no new tab to Railway)
+      try {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filenameGuess;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setDownloadSuccess(true);
+        window.setTimeout(() => setDownloadSuccess(false), 3000);
+      } catch {
+        showToast('Download failed. Check your connection and try again.', 'error');
+      }
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
-      clearInterval(interval);
     }
   };
 
@@ -345,8 +589,14 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
 
   const handleBookmarkClick = () => {
     if (!user) { onRequireAuth(); return; }
+    if (addon.source === 'toolcoin') {
+      const nowOn = toggleToolcoinBookmark(addon.id);
+      onToggleBookmark(addon.id, !nowOn);
+      showToast(nowOn ? 'Saved to bookmarks.' : 'Removed from bookmarks.', 'success');
+      return;
+    }
     onToggleBookmark(addon.id, isBookmarked);
-    showToast(isBookmarked ? 'Removed from Saved.' : 'Saved for later.', 'success');
+    showToast(isBookmarked ? 'Removed from bookmarks.' : 'Saved to bookmarks.', 'success');
   };
 
   const handleVersionFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -389,18 +639,83 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
     }
   };
 
+
   return (
     <div className="mx-auto min-h-[100dvh] max-w-6xl px-4 pb-32 pt-8 sm:px-6 sm:py-12 lg:px-8">
-      <button
-        onClick={() => onNavigate('home')}
-        className="mb-8 inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-ink-900/65 transition-colors hover:bg-ink-900/[0.04] hover:text-ink-900"
-      >
-        <ArrowLeft size={16} /> Back to Marketplace
-      </button>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => onNavigate('home')}
+          className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-ink-900/65 transition-colors hover:bg-ink-900/[0.04] hover:text-ink-900"
+        >
+          <ArrowLeft size={16} /> Back to Marketplace
+        </button>
+        <div className="relative" ref={moreMenuRef}>
+          <button
+            type="button"
+            aria-label="More actions"
+            aria-expanded={moreMenuOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              setMoreMenuOpen((v) => !v);
+            }}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-parchment-border bg-parchment-raised text-ink-900/70 shadow-sm transition hover:bg-ink-900/[0.04] hover:text-ink-900"
+          >
+            <MoreVertical size={18} />
+          </button>
+          {moreMenuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 z-[80] mt-2 w-56 overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised py-1.5 shadow-card-float"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleCopyUuid}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-ink-900/85 transition hover:bg-ink-900/[0.05]"
+              >
+                <Copy size={16} className="shrink-0 text-ink-900/45" />
+                Copy UUID
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleOpenMinecraft}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-ink-900/85 transition hover:bg-ink-900/[0.05]"
+              >
+                <ExternalLink size={16} className="shrink-0 text-ink-900/45" />
+                Open in Minecraft
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  handleBookmarkClick();
+                  setMoreMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-ink-900/85 transition hover:bg-ink-900/[0.05]"
+              >
+                <Heart size={16} className="shrink-0 text-ink-900/45" />
+                {isBookmarked ? 'Remove favorite' : 'Add to favorites'}
+              </button>
+              <div className="my-1 border-t border-parchment-border" />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleOpenCreator}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-ink-900/85 transition hover:bg-ink-900/[0.05]"
+              >
+                <User size={16} className="shrink-0 text-ink-900/45" />
+                Creator
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
     <article className="overflow-hidden rounded-2xl border border-parchment-border bg-parchment-raised shadow-card">
         <div
-          className="relative aspect-[21/9] w-full overflow-hidden border-b border-parchment-border bg-ink-900"
+          className="group/cover relative w-full overflow-hidden border-b border-parchment-border bg-ink-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onPointerDown={handleGalleryPointerDown}
@@ -408,27 +723,70 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
           onPointerCancel={handleGalleryPointerCancel}
           style={{ touchAction: 'pan-y' }}
         >
-          {!imageLoaded && (
-            <Skeleton className="absolute inset-0 rounded-none border-0 z-10" />
+          {!images[currentImageIndex] && (
+            <Skeleton className="absolute inset-0 z-10 rounded-none border-0" />
           )}
-          <FadeImage
-            src={images[currentImageIndex]}
-            alt={addon.title}
-            className={`h-full w-full object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            loading={currentImageIndex === 0 ? 'eager' : 'lazy'}
-            fetchPriority={currentImageIndex === 0 ? 'high' : 'auto'}
-          />
+          {images[currentImageIndex] ? (
+            <FitCover
+              key={images[currentImageIndex]}
+              src={images[currentImageIndex]}
+              alt={addon.title}
+              className="w-full"
+              matchAspect
+              loading="eager"
+              preferWebp={false}
+              onError={() => {
+                const bad = images[currentImageIndex];
+                if (!bad) return;
+                setBrokenImages((prev) => {
+                  const next = new Set(prev);
+                  next.add(bad);
+                  return next;
+                });
+              }}
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-sm font-bold text-white/50">
+              <span>No cover image</span>
+              {panoramaUrl ? (
+                <span className="text-xs font-medium text-white/35">Scroll down for panorama</span>
+              ) : null}
+            </div>
+          )}
           {images.length > 1 && (
             <>
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 flex">
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); goPrev(); }}
+                aria-label="Previous cover image"
+                className="absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border border-white/15 bg-ink-900/80 text-white shadow-card backdrop-blur-sm transition hover:bg-ink-900"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); goNext(); }}
+                aria-label="Next cover image"
+                className="absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border border-white/15 bg-ink-900/80 text-white shadow-card backdrop-blur-sm transition hover:bg-ink-900"
+              >
+                <ChevronRight size={22} />
+              </button>
+              <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-1 rounded-full bg-ink-900/50 px-2 py-1 backdrop-blur-sm">
                 {images.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => goTo(idx)}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); goTo(idx); }}
                     aria-label={`Go to image ${idx + 1}`}
-                    className="p-2 flex items-center justify-center"
+                    className="p-1.5"
                   >
-                    <span className={`block h-2 border border-ink transition-all ${idx === currentImageIndex ? 'w-6 bg-terracotta' : 'w-2 bg-parchment-raised/70'}`} />
+                    <span
+                      className={`block h-2 rounded-full border border-white/30 transition-all ${
+                        idx === currentImageIndex ? 'w-6 bg-terracotta' : 'w-2 bg-white/50'
+                      }`}
+                    />
                   </button>
                 ))}
               </div>
@@ -439,10 +797,33 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
             <div>
-                              <span className="inline-flex rounded-full bg-terracotta/15 px-3 py-1.5 text-xs font-bold text-terracotta-text">
-
-                {addon.category}
-              </span>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="inline-flex rounded-full bg-terracotta/15 px-3 py-1.5 text-xs font-bold text-terracotta-text">
+                  {addon.category}
+                </span>
+                {addon.source === 'toolcoin' && (
+                  <span className="inline-flex rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-700">
+                    Official Marketplace
+                  </span>
+                )}
+                {(addon.tags || [])
+                  .filter((tag) => {
+                    const s = String(tag || '').trim();
+                    if (!s || s.length > 28) return false;
+                    if (/^[0-9a-f]{8}-/i.test(s) || /^[0-9a-f-]{16,}$/i.test(s)) return false;
+                    const low = s.toLowerCase();
+                    return !['official', 'marketplace', 'addon', 'add-on'].includes(low);
+                  })
+                  .slice(0, 8)
+                  .map((tag) => (
+                    <span
+                      key={String(tag)}
+                      className="inline-flex rounded-full border border-parchment-border bg-parchment px-2.5 py-1 text-[11px] font-semibold text-ink-900/65 dark:border-white/10 dark:bg-white/5 dark:text-paper/70"
+                    >
+                      {String(tag)}
+                    </span>
+                  ))}
+              </div>
               <h1 className="text-3xl font-bold leading-tight tracking-[-0.04em] text-ink-900 sm:text-5xl">{addon.title}</h1>
 
               <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-ink-900/60">
@@ -466,7 +847,12 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
           <div className="grid grid-cols-1 gap-8 border-t border-parchment-border pt-8 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div>
               <h2 className="mb-4 text-lg font-bold text-ink-900">Description</h2>
-              <RichTextContent html={fullDescription ?? addon.description} isDarkMode={isDarkMode}/>
+              <div className="prose prose-sm sm:prose-base max-w-none text-ink-900/80 prose-p:mb-3 prose-p:leading-7 prose-p:text-ink-900/75">
+                <RichTextContent
+                  html={formatMarketplaceDescription(fullDescription ?? addon.description)}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -521,7 +907,7 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
             {isVersionEditorOpen && <form onSubmit={handleSaveVersion} className="mt-5 grid gap-3 border-t border-parchment-border pt-5 sm:grid-cols-2"><input required value={versionDraft.version} onChange={event => setVersionDraft(prev => ({ ...prev, version: event.target.value }))} placeholder="Version e.g. 1.1.0" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex min-w-0 gap-2">
   <input required type="text" value={versionFileName || versionDraft.downloadUrl} onChange={event => { setVersionFileName(''); setVersionDraft(prev => ({ ...prev, downloadUrl: event.target.value })); }} placeholder="Link Untuk Update" className="min-w-0 flex-1 rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" aria-label="Link Untuk Update atau nama file" />
   <button type="button" onClick={() => versionFileInputRef.current?.click()} disabled={versionFileUploadProgress !== null} title="Upload file update" aria-label="Upload file update" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-terracotta text-paper shadow-sm transition hover:bg-terracotta-text active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
-    {versionFileUploadProgress !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FileArchive size={16} aria-hidden="true" />}
+    {versionFileUploadProgress !== null ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/35 border-t-paper" /> : <FolderArchive size={16} aria-hidden="true" />}
   </button>
   <input ref={versionFileInputRef} type="file" onChange={handleVersionFileSelected} accept={ADDON_FILE_ACCEPT} className="hidden" />
 </div><textarea value={versionDraft.changelog} onChange={event => setVersionDraft(prev => ({ ...prev, changelog: event.target.value }))} rows={3} placeholder="What changed in this release?" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 sm:col-span-2" /><input value={versionDraft.compatibilityNotes} onChange={event => setVersionDraft(prev => ({ ...prev, compatibilityNotes: event.target.value }))} placeholder="Compatibility notes (optional)" className="rounded-xl border border-parchment-border bg-parchment-raised px-3 py-2.5 text-sm text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20" /><div className="flex justify-end sm:col-span-2"><button type="submit" disabled={isVersionSaving} className={`${getButtonClasses('primary', 'sm')} disabled:opacity-50`}>{isVersionSaving ? 'Saving…' : 'Publish version'}</button></div></form>}
@@ -529,6 +915,13 @@ export function AddonDetail({ addonId, addons, loading, userLikes, userBookmarks
 
         </div>
       </article>
+
+
+      {panoramaUrl ? (
+        <div className="mt-6">
+          <PanoramaViewer src={panoramaUrl} alt={`${addon.title} panorama`} />
+        </div>
+      ) : null}
 
       <section className="mt-6 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:p-6" aria-label="Add-on actions">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-parchment-border pb-4"><p className="text-sm font-bold text-ink-900">Want to keep this add-on?</p><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => setIsReportModalOpen(true)} className={`${getButtonClasses('secondary', 'sm')} gap-2`}><AlertTriangle size={15} />Report</button><button type="button" onClick={handleLikeClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isLiked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Heart size={15} className={isLiked ? 'fill-current' : ''} />{isLiked ? 'Liked' : 'Like'}</button><button type="button" onClick={handleBookmarkClick} className={`${getButtonClasses('secondary', 'sm')} gap-2 ${isBookmarked ? 'border-terracotta bg-terracotta/10 text-terracotta-text' : ''}`}><Bookmark size={15} className={isBookmarked ? 'fill-current' : ''} />{isBookmarked ? 'Bookmarked' : 'Bookmark'}</button></div></div>

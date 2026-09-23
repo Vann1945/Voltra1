@@ -65,6 +65,7 @@ function rowToAddon(r: any, truncateDescription: boolean) {
     tags: parseJsonArray(r.tags),
     downloadUrl: r.download_url,
     demoUrl: r.demo_url,
+    panoramaUrl: r.panorama_url,
     license: r.license,
     distributionPref: r.distribution_pref,
     socials: parseJsonArray(r.socials),
@@ -342,6 +343,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (typeof body.description === 'string') { fields.push('description = ?'); values.push(body.description); }
         if (typeof body.downloadUrl === 'string') { fields.push('download_url = ?'); values.push(body.downloadUrl); }
         if (typeof body.demoUrl === 'string') { fields.push('demo_url = ?'); values.push(body.demoUrl); }
+        if (typeof body.panoramaUrl === 'string') { fields.push('panorama_url = ?'); values.push(body.panoramaUrl); }
         if (typeof body.unlisted === 'boolean') { fields.push('unlisted = ?'); values.push(body.unlisted); }
         if (typeof body.allowComments === 'boolean') { fields.push('allow_comments = ?'); values.push(body.allowComments); }
 
@@ -465,13 +467,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await conn.execute(
           `INSERT INTO addons
              (id, title, description, category, additional_category, project_class, image_url, image_urls,
-              tags, download_url, demo_url, license, distribution_pref, socials, author_id, author_name,
+              tags, download_url, demo_url, panorama_url, license, distribution_pref, socials, author_id, author_name,
               status, is_featured, unlisted, allow_comments, likes_count, downloads_count, rating_count, average_rating)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)`,
           [
             payload.id, payload.title, payload.description, payload.category, payload.additionalCategory,
             payload.projectClass, payload.imageUrl, JSON.stringify(payload.imageUrls),
-            JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.license, payload.distributionPref,
+            JSON.stringify(payload.tags), payload.downloadUrl, payload.demoUrl, payload.panoramaUrl, payload.license, payload.distributionPref,
             JSON.stringify(payload.socials), payload.authorId, payload.authorName, payload.status,
             payload.isFeatured, payload.unlisted, payload.allowComments,
           ]

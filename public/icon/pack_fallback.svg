@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" width="400" height="250">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121824"/>
+      <stop offset="100%" stop-color="#0a0d14"/>
+    </linearGradient>
+    <linearGradient id="cubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="cubeLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065f46"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="250" fill="url(#bgGrad)"/>
+  <rect width="400" height="250" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.2"/>
+  <circle cx="200" cy="105" r="70" fill="#10b981" fill-opacity="0.06"/>
+  <!-- Isometric Minecraft Grass Cube -->
+  <g transform="translate(200, 105)">
+    <!-- Top Face -->
+    <polygon points="0,-40 46,-17 0,6 -46,-17" fill="url(#cubeTop)" stroke="#34d399" stroke-width="1" stroke-opacity="0.4"/>
+    <!-- Left Face -->
+    <polygon points="-46,-17 0,6 0,56 -46,33" fill="url(#cubeLeft)" stroke="#059669" stroke-width="1" stroke-opacity="0.4"/>
+    <!-- Right Face -->
+    <polygon points="0,6 46,-17 46,33 0,56" fill="url(#cubeRight)" stroke="#047857" stroke-width="1" stroke-opacity="0.4"/>
+  </g>
+  <text x="200" y="195" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="13" letter-spacing="1">MINECRAFT MARKETPLACE</text>
+  <text x="200" y="216" text-anchor="middle" fill="#64748b" font-family="system-ui, -apple-system, sans-serif" font-size="10">Verified DLC Package</text>
+</svg>

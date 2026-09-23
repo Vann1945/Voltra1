@@ -43,6 +43,7 @@ export interface AddonUploadInput {
   changelog?: string;
   compatibilityNotes?: string;
   demoUrl: string;
+  panoramaUrl?: string;
   license: string;
   distributionPref: string;
   unlisted: boolean;
@@ -86,6 +87,9 @@ export function validateAddonPatch(body: Record<string, unknown>, isAdmin: boole
   if ('demoUrl' in body && body.demoUrl !== '' && !isSafeUrl(body.demoUrl)) {
     return 'Invalid demo URL.';
   }
+  if ('panoramaUrl' in body && body.panoramaUrl !== '' && !isSafeUrl(body.panoramaUrl)) {
+    return 'Invalid panorama URL.';
+  }
   return '';
 }
 
@@ -107,6 +111,7 @@ export function buildAddonPayload(
     changelog: input.changelog || '',
     compatibilityNotes: input.compatibilityNotes || '',
     demoUrl: input.demoUrl || '',
+    panoramaUrl: input.panoramaUrl || '',
     authorId,
     authorName,
     createdAt: nowISO(),

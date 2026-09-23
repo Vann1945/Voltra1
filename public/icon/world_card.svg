@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="40%" stop-color="#3b82f6"/>
+      <stop offset="70%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#93c5fd"/>
+    </linearGradient>
+    <linearGradient id="mountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#15803d"/>
+      <stop offset="100%" stop-color="#166534"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="480" height="270" fill="url(#sky)"/>
+  <!-- Sun -->
+  <circle cx="390" cy="65" r="32" fill="url(#sun)" opacity="0.9"/>
+  <!-- Distant Mountains -->
+  <polygon points="40,210 140,110 240,210" fill="#334155" opacity="0.7"/>
+  <polygon points="180,210 290,95 400,210" fill="#475569" opacity="0.8"/>
+  <polygon points="320,210 390,130 460,210" fill="#334155" opacity="0.6"/>
+  <!-- Main Mountain with Snow -->
+  <polygon points="80,220 200,80 320,220" fill="url(#mountain)"/>
+  <polygon points="175,110 200,80 225,110 215,120 200,115 185,120" fill="#f8fafc"/>
+  <!-- Foreground Grass Hills -->
+  <path d="M-20,200 Q80,165 200,195 T420,185 Q460,185 500,205 L500,270 L-20,270 Z" fill="url(#grass)"/>
+  <!-- Minecraft Block Pattern Grid Overlay -->
+  <rect x="0" y="225" width="480" height="45" fill="#14532d" opacity="0.7"/>
+  <line x1="0" y1="225" x2="480" y2="225" stroke="#22c55e" stroke-width="3" opacity="0.6"/>
+  <!-- Thematic Badge Text -->
+  <rect x="24" y="24" width="140" height="26" rx="6" fill="#0f172a" fill-opacity="0.85" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="94" y="41" fill="#fbbf24" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">WORLD TEMPLATE</text>
+  <text x="24" y="252" fill="#86efac" font-family="monospace" font-size="11" font-weight="bold">Minecraft Bedrock DLC World Map</text>
+</svg>

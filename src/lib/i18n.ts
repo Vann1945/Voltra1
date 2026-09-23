@@ -2,21 +2,6 @@
 
 import { useAppShell } from '@/providers/AppShellProvider';
 
-/**
- * Dictionary i18n Voltra.
- *
- * Sebelumnya `language` di AppShellProvider hanya tersimpan di state +
- * localStorage tapi tidak pernah dipakai untuk mengganti teks apapun —
- * toggle di halaman Settings terlihat berfungsi (tersimpan), tapi UI
- * selalu tetap bahasa Inggris. File ini menyediakan dictionary + hook
- * `useT()` supaya komponen bisa benar-benar merender teks sesuai
- * `language` ('id' | 'en') yang aktif.
- *
- * Cara pakai di komponen:
- *   const t = useT();
- *   <button>{t('nav.explore')}</button>
- */
-
 export const translations = {
   en: {
     'nav.explore': 'Explore',
@@ -69,6 +54,65 @@ export const translations = {
     'common.loading': 'Loading…',
     'common.save': 'Save',
     'common.cancel': 'Cancel',
+    'market.searchPlaceholder': 'Find an add-on, world, or creator',
+    'market.filters': 'Filters',
+    'market.backHome': 'Back to home',
+    'market.seeAll': 'See all',
+    'market.more': 'More',
+    'market.pickedForYou': 'Picked for you',
+    'market.newReleases': 'New Releases',
+    'market.newReleasesHint': 'Just landed in the catalog',
+    'market.addons': 'Add-Ons',
+    'market.addonsHint': 'Mobs, blocks, and new gameplay',
+    'market.worlds': 'Worlds',
+    'market.worldsHint': 'Ready-to-explore maps',
+    'market.textures': 'Texture Packs',
+    'market.texturesHint': 'Give your world a new look',
+    'market.skins': 'Skin Packs',
+    'market.skinsHint': 'New looks for your character',
+    'market.mashups': 'Mash-Ups',
+    'market.mashupsHint': 'Bundles that mix a few things',
+    'market.chipAll': 'All',
+    'market.chipAddons': 'Add-Ons',
+    'market.chipWorlds': 'Worlds',
+    'market.chipTextures': 'Texture Packs',
+    'market.chipSkins': 'Skin Packs',
+    'market.chipMashups': 'Mash-Ups',
+    'market.sort': 'Sort',
+    'market.added': 'Added',
+    'market.tag': 'Tag',
+    'market.clearFilters': 'Clear filters',
+    'market.explore': 'Explore',
+    'market.everything': 'Everything in the catalog',
+    'market.showingMatches': 'Showing matches for “{q}”',
+    'market.loading': 'Loading…',
+    'market.onPage': '{n} on this page · {total} total',
+    'market.nothingMatched': 'Nothing matched that',
+    'market.nothingHint': 'Try a shorter name, or jump back home and browse by category.',
+    'market.official': 'Official marketplace',
+    'market.community': 'Community',
+    'market.get': 'Get',
+    'market.gotIt': 'Got it',
+    'market.opening': 'Opening…',
+    'market.saved': 'Saved for later',
+    'market.unsaved': 'Removed from saved',
+    'market.by': 'by {name}',
+    'market.marketplacePack': 'Marketplace pack',
+    'settings.preferences': 'Preferences',
+    'settings.intro': 'Choose how Voltra looks and how packs are laid out. Saved on this device only.',
+    'settings.layoutMarketplace': 'Marketplace layout',
+    'settings.layoutMarketplaceDesc': 'Grid for covers, or list when you want to scan faster.',
+    'settings.layoutBookmarks': 'Bookmarks layout',
+    'settings.layoutBookmarksDesc': 'How saved packs appear on your Bookmarks page.',
+    'settings.layoutProfile': 'Profile layout',
+    'settings.layoutProfileDesc': 'Grid or list for your uploads and likes.',
+    'settings.themeLightDesc': 'Warm parchment surfaces',
+    'settings.themeDarkDesc': 'Easier on the eyes at night',
+    'settings.themeOledDesc': 'True black for OLED screens',
+    'settings.layoutGridDesc': 'See covers at a glance',
+    'settings.layoutListDesc': 'Scan more packs in less space',
+    'admin.shelves': 'Home shelves',
+    'admin.shelvesDesc': 'Pick which official packs show in each home category row.',
   },
   id: {
     'nav.explore': 'Jelajahi',
@@ -121,17 +165,70 @@ export const translations = {
     'common.loading': 'Memuat…',
     'common.save': 'Simpan',
     'common.cancel': 'Batal',
+    'market.searchPlaceholder': 'Cari add-on, world, atau kreator',
+    'market.filters': 'Filter',
+    'market.backHome': 'Kembali ke beranda',
+    'market.seeAll': 'Lihat semua',
+    'market.more': 'Lainnya',
+    'market.pickedForYou': 'Pilihan untukmu',
+    'market.newReleases': 'Rilis Baru',
+    'market.newReleasesHint': 'Baru masuk katalog',
+    'market.addons': 'Add-On',
+    'market.addonsHint': 'Mob, block, dan gameplay baru',
+    'market.worlds': 'World',
+    'market.worldsHint': 'Map siap dijelajahi',
+    'market.textures': 'Texture Pack',
+    'market.texturesHint': 'Ganti tampilan duniamu',
+    'market.skins': 'Skin Pack',
+    'market.skinsHint': 'Tampilan baru untuk karaktermu',
+    'market.mashups': 'Mash-Up',
+    'market.mashupsHint': 'Paket campur yang digabung jadi satu',
+    'market.chipAll': 'Semua',
+    'market.chipAddons': 'Add-On',
+    'market.chipWorlds': 'World',
+    'market.chipTextures': 'Texture Pack',
+    'market.chipSkins': 'Skin Pack',
+    'market.chipMashups': 'Mash-Up',
+    'market.sort': 'Urutkan',
+    'market.added': 'Ditambahkan',
+    'market.tag': 'Tag',
+    'market.clearFilters': 'Hapus filter',
+    'market.explore': 'Jelajahi',
+    'market.everything': 'Semua di katalog',
+    'market.showingMatches': 'Hasil untuk “{q}”',
+    'market.loading': 'Memuat…',
+    'market.onPage': '{n} di halaman ini · total {total}',
+    'market.nothingMatched': 'Tidak ada yang cocok',
+    'market.nothingHint': 'Coba nama yang lebih pendek, atau kembali ke beranda dan jelajahi per kategori.',
+    'market.official': 'Marketplace resmi',
+    'market.community': 'Komunitas',
+    'market.get': 'Ambil',
+    'market.gotIt': 'Selesai',
+    'market.opening': 'Membuka…',
+    'market.saved': 'Disimpan',
+    'market.unsaved': 'Dihapus dari tersimpan',
+    'market.by': 'oleh {name}',
+    'market.marketplacePack': 'Paket marketplace',
+    'settings.preferences': 'Preferensi',
+    'settings.intro': 'Atur tampilan Voltra dan susunan paket. Preferensi disimpan di perangkat ini saja.',
+    'settings.layoutMarketplace': 'Tata letak marketplace',
+    'settings.layoutMarketplaceDesc': 'Grid untuk melihat cover, atau daftar biar lebih cepat scan.',
+    'settings.layoutBookmarks': 'Tata letak markah',
+    'settings.layoutBookmarksDesc': 'Cara paket tersimpan ditampilkan di halaman Markah.',
+    'settings.layoutProfile': 'Tata letak profil',
+    'settings.layoutProfileDesc': 'Grid atau daftar untuk unggahan dan yang kamu sukai.',
+    'settings.themeLightDesc': 'Permukaan parchment hangat',
+    'settings.themeDarkDesc': 'Lebih nyaman di malam hari',
+    'settings.themeOledDesc': 'Hitam pekat untuk layar OLED',
+    'settings.layoutGridDesc': 'Lihat cover sekilas',
+    'settings.layoutListDesc': 'Lebih banyak paket di satu layar',
+    'admin.shelves': 'Rak beranda',
+    'admin.shelvesDesc': 'Pilih paket resmi yang muncul di setiap baris kategori beranda.',
   },
 } as const;
 
 export type TranslationKey = keyof typeof translations['en'];
 
-/**
- * Hook untuk komponen client. Mengambil `language` dari AppShellProvider
- * (sudah ada & sudah tersambung ke Settings) dan mengembalikan fungsi
- * `t(key)` yang fallback ke dictionary Inggris (lalu ke key itu sendiri)
- * kalau suatu key belum diterjemahkan.
- */
 export function useT() {
   const { language } = useAppShell();
   return function t(key: TranslationKey): string {

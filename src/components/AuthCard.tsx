@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mail, Lock, Send, AlertCircle, CheckCircle2, User as UserIcon } from '@/components/icons/animated';
+import { Mail, Lock, Send, AlertCircle, CheckCircle2, User as UserIcon, Eye, EyeOff } from '@/components/icons/animated';
 import { AnimatedGlyph } from '@/components/icons/AnimatedIcon';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { getButtonClasses, getInputClasses } from '@/lib/designSystem';
-import { motion, AnimatePresence } from 'motion/react';
 import { loadRecaptcha } from '@/lib/recaptcha.client';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'unverified';
@@ -92,6 +91,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const [nameError, setNameError] = useState('');
@@ -188,9 +188,11 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
       setNameError(nErr);
       setEmailError(eErr);
       setPasswordError(pErr);
+      const firstInvalidId = nErr ? 'auth-name' : eErr ? 'auth-email' : 'auth-password';
+      window.requestAnimationFrame(() => document.getElementById(firstInvalidId)?.focus());
       return;
     }
-    if (view !== 'forgot' && !requireRecaptcha()) return;
+    if (!requireRecaptcha()) return;
 
     setLoading(true);
     setError('');
@@ -235,31 +237,38 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
   };
 
   const handleResendVerification = async () => {
+    setLoading(true);
+    setError('');
+    setSuccessMsg('');
     try {
-      await fetch('/api/resend-verification', {
+      const res = await fetch('/api/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      setSuccessMsg('Verification email resent!');
-    } catch {
-      setError('Failed to resend verification email.');
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'Failed to resend verification email.');
+      setSuccessMsg('Verification email resent. Check your inbox.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to resend verification email.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const inputClass = (hasError: boolean) => cn(getInputClasses(hasError), 'pl-12');
+  const inputClass = (hasError: boolean) => cn(getInputClasses(hasError), 'pl-12 pr-12');
 
   return (
     <div className="w-full max-w-[420px]">
       <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-6 shadow-card sm:p-8">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-ink-900 tracking-tight">
+          <h1 id="auth-dialog-title" className="pr-12 text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
             {view === 'login' && 'Welcome back'}
             {view === 'register' && 'Create account'}
             {view === 'forgot' && 'Reset password'}
             {view === 'unverified' && 'Verify email'}
           </h1>
-          <p className="text-sm text-ink-900/70 mt-1 font-medium">
+          <p id="auth-dialog-description" className="mt-2 max-w-[32ch] text-sm font-medium leading-6 text-ink-900/70">
             {view === 'login' && 'Enter your details to sign in.'}
             {view === 'register' && 'Sign up to get started.'}
             {view === 'forgot' && 'Enter your email to get a reset link.'}
@@ -267,36 +276,30 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           </p>
         </div>
 
-        <AnimatePresence mode="wait">
+
           {error && (
-            <motion.div
+            <div
               key="error"
-              initial={{ opacity: 0, y: -8, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -8, height: 0 }}
               className="mb-6 overflow-hidden"
             >
               <div role="alert" aria-live="assertive" className="p-4 bg-danger/[0.06] border border-danger/20 rounded-lg flex items-start gap-3">
                 <AlertCircle className="text-danger shrink-0 mt-0.5" size={16} />
                 <p className="text-sm text-ink-900 font-medium">{error}</p>
               </div>
-            </motion.div>
+            </div>
           )}
           {successMsg && (
-            <motion.div
+            <div
               key="success"
-              initial={{ opacity: 0, y: -8, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, y: -8, height: 0 }}
               className="mb-6 overflow-hidden"
             >
               <div role="status" aria-live="polite" className="p-4 bg-success/[0.08] border border-success/20 rounded-lg flex items-start gap-3">
                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={16} />
                 <p className="text-sm text-ink-900 font-medium">{successMsg}</p>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+
 
         {view === 'unverified' ? (
           <div className="text-center space-y-5 py-4">
@@ -321,13 +324,10 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <AnimatePresence>
+
               {view === 'register' && (
-                <motion.div
+                <div
                   key="name-field"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
                   className="space-y-1 overflow-hidden"
                 >
                   <label htmlFor="auth-name" className="block text-xs font-bold text-ink-900">
@@ -349,9 +349,9 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                     />
                   </div>
                   {nameError && <p id="auth-name-error" className="text-xs font-bold text-danger">{nameError}</p>}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+
 
             <div className="space-y-1">
 <label htmlFor="auth-email" className="block text-xs font-bold text-ink-900">
@@ -362,6 +362,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                     <input
                       id="auth-email"
                       type="email"
+                      data-auth-initial-focus={view === 'forgot' || view === 'register' ? true : undefined}
                       value={email}
                   onChange={handleEmailChange}
                   onBlur={() => setEmailError(validateEmail(email))}
@@ -376,13 +377,10 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               {emailError && <p id="auth-email-error" className="text-xs font-bold text-danger">{emailError}</p>}
             </div>
 
-            <AnimatePresence mode="wait">
+
               {view !== 'forgot' && (
-                <motion.div
+                <div
                   key="password-field"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
                   className="space-y-1 overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
@@ -403,7 +401,7 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-900/50 pointer-events-none" />
                     <input
                       id="auth-password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={handlePasswordChange}
                       onBlur={() => setPasswordError(validatePassword(password))}
@@ -412,15 +410,28 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
                       aria-invalid={!!passwordError}
                       aria-describedby={passwordError ? 'auth-password-error' : undefined}
                       autoComplete={view === 'register' ? 'new-password' : 'current-password'}
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
+                      data-auth-initial-focus={view === 'login' ? true : undefined}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(value => !value)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword}
+                      className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-ink-900/50 transition-colors hover:bg-ink-900/[0.05] hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                   </div>
                   {passwordError && <p id="auth-password-error" className="text-xs font-bold text-danger">{passwordError}</p>}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
 
-            <RecaptchaWidget onChange={setRecaptchaToken} />
+
+            <div>
+              <RecaptchaWidget onChange={setRecaptchaToken} />
+              <p className="mt-2 text-xs leading-5 text-ink-900/55">A quick security check protects sign-in and reset requests.</p>
+            </div>
 
             <button
               type="submit"
@@ -428,15 +439,10 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               className={`mt-2 w-full disabled:cursor-not-allowed disabled:opacity-50 ${getButtonClasses('primary', 'lg')}`}
             >
               {loading ? (
-                <div className="w-full">
-                  <div className="h-7 w-full">
-                    <div className="">
-                      <div className="relative">
-                        <div className="h-7 w-full rounded-lg bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <>
+                  <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-paper/45 border-t-paper" />
+                  <span>Working…</span>
+                </>
               ) : (
                 <>
                   <span>
@@ -459,44 +465,42 @@ export function AuthCard({ onSuccess }: AuthCardProps) {
               <div className="flex-1 h-[2px] bg-ink-900/20" />
             </div>
 
-            {loading ? (
-              <div className="w-full bg-parchment-raised rounded-lg py-3.5 px-4" />
-            ) : (
             <button
               type="button"
               onClick={handleGoogle}
               disabled={loading}
-              className={`w-full disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
+              aria-busy={loading}
+              className={`w-full disabled:cursor-not-allowed disabled:opacity-50 ${getButtonClasses('secondary', 'md')}`}
             >
-              <AnimatedGlyph preset="pop-clean">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                </svg>
-              </AnimatedGlyph>
-              Continue with Google
+              {loading ? <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-ink-900/20 border-t-ink-900" /> : (
+                <AnimatedGlyph preset="pop-clean">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                  </svg>
+                </AnimatedGlyph>
+              )}
+              <span>{loading ? 'Signing in…' : 'Continue with Google'}</span>
             </button>
-            )}
 
-            {loading ? (
-              <div className="w-full mt-3 bg-parchment-raised rounded-lg py-3.5 px-4" />
-            ) : (
             <button
               type="button"
               onClick={handleGithub}
               disabled={loading}
-              className={`w-full mt-3 disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses('secondary', 'md')}`}
+              aria-busy={loading}
+              className={`mt-3 w-full disabled:cursor-not-allowed disabled:opacity-50 ${getButtonClasses('secondary', 'md')}`}
             >
-              <AnimatedGlyph preset="pop-clean">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#000">
-                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.7 5.39-5.27 5.67.42.36.78 1.07.78 2.15 0 1.56-.01 2.81-.01 3.19 0 .3.21.66.79.55A10.99 10.99 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
-                </svg>
-              </AnimatedGlyph>
-              Continue with GitHub
+              {loading ? <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-ink-900/20 border-t-ink-900" /> : (
+                <AnimatedGlyph preset="pop-clean">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#000">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.42 7.86 10.96.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.7 5.39-5.27 5.67.42.36.78 1.07.78 2.15 0 1.56-.01 2.81-.01 3.19 0 .3.21.66.79.55A10.99 10.99 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+                  </svg>
+                </AnimatedGlyph>
+              )}
+              <span>{loading ? 'Signing in…' : 'Continue with GitHub'}</span>
             </button>
-            )}
           </>
         )}
       </div>

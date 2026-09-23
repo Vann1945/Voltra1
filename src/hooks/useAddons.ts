@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Addon } from '@/types';
 import { PROFILE_UPDATED_EVENT, ProfileUpdate, useAuth } from './useAuth';
 import { AddonUploadInput } from '@/lib/utils';
+import { fetchToolcoinCatalogPage, toolcoinItemToAddon, mergeAddons, clientToolcoinBase } from '@/lib/toolcoin';
 
 const BACKGROUND_POLL_INTERVAL_MS = 90000;
+const TOOLCOIN_PAGE_SIZE = 50;
 
 export function useAddons() {
   const { user } = useAuth();
@@ -15,7 +17,74 @@ export function useAddons() {
   const [loading, setLoading] = useState(true);
   const lastFetchedAtRef = useRef(0);
   const addonsRequestRef = useRef<AbortController | null>(null);
-  const MIN_REFETCH_GAP_MS = 15000; // Increase to 15s to avoid spamming the DB on fast tab switching
+  const MIN_REFETCH_GAP_MS = 15000;
+
+  const communityRef = useRef<Addon[]>([]);
+  const [officialAddons, setOfficialAddons] = useState<Addon[]>([]);
+  const [toolcoinPage, setToolcoinPage] = useState(1);
+  const [toolcoinTotal, setToolcoinTotal] = useState(0);
+  const [toolcoinHasMore, setToolcoinHasMore] = useState(false);
+  const [toolcoinLoadingPage, setToolcoinLoadingPage] = useState(false);
+  const officialFilterRef = useRef({ q: '', category: 'all', tag: '', sort: 'newest' });
+  const toolcoinReqRef = useRef<AbortController | null>(null);
+
+  const loadOfficialPage = useCallback(async (page: number, signal?: AbortSignal, filters = officialFilterRef.current) => {
+    setToolcoinLoadingPage(true);
+    try {
+      const data = await fetchToolcoinCatalogPage({
+        page,
+        limit: TOOLCOIN_PAGE_SIZE,
+        q: filters.q,
+        category: filters.category,
+        tag: filters.tag,
+        sort: filters.sort,
+        signal,
+      });
+      const base = data.downloadBase || clientToolcoinBase();
+      const official = data.items
+        .filter((it) => it?.id && it?.title)
+        .map((it) => toolcoinItemToAddon(it, base));
+      setOfficialAddons(official);
+      setToolcoinPage(page);
+      setToolcoinTotal(data.total);
+      setToolcoinHasMore(data.has_more);
+      setAddons(mergeAddons(communityRef.current, official));
+      console.info(`[toolcoin] page ${page}: ${official.length}/${data.total}`);
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') {
+        console.warn('[toolcoin] page load failed', err);
+      }
+    } finally {
+      setToolcoinLoadingPage(false);
+    }
+  }, []);
+
+  const searchOfficial = useCallback(async (filters: { q?: string; category?: string; tag?: string; sort?: string }, page = 1) => {
+    officialFilterRef.current = {
+      q: filters.q?.trim() || '',
+      category: filters.category || 'all',
+      tag: filters.tag?.trim() || '',
+      sort: filters.sort || 'newest',
+    };
+    toolcoinReqRef.current?.abort();
+    const controller = new AbortController();
+    toolcoinReqRef.current = controller;
+    await loadOfficialPage(page, controller.signal, officialFilterRef.current);
+  }, [loadOfficialPage]);
+
+  const goToOfficialPage = useCallback(async (page: number) => {
+    if (page < 1) return;
+    toolcoinReqRef.current?.abort();
+    const controller = new AbortController();
+    toolcoinReqRef.current = controller;
+    await loadOfficialPage(page, controller.signal, officialFilterRef.current);
+  }, [loadOfficialPage]);
+
+  // keep loadMoreOfficial as next-page helper for compatibility
+  const loadMoreOfficial = useCallback(async () => {
+    if (!toolcoinHasMore || toolcoinLoadingPage) return;
+    await goToOfficialPage(toolcoinPage + 1);
+  }, [toolcoinHasMore, toolcoinLoadingPage, toolcoinPage, goToOfficialPage]);
 
   const fetchAddons = useCallback(async (isBackground = false) => {
     addonsRequestRef.current?.abort();
@@ -24,25 +93,27 @@ export function useAddons() {
     lastFetchedAtRef.current = Date.now();
     if (!isBackground) setLoading(true);
     try {
-      const res = await fetch('/api/addons', {
+      const communityRes = await fetch('/api/addons', {
         credentials: 'include',
         headers: { Accept: 'application/json' },
         signal: controller.signal,
       });
-      const contentType = res.headers.get('content-type') || '';
-      if (!res.ok) {
-        if (res.status === 404) {
-          if (!controller.signal.aborted) setAddons([]);
-          return;
-        }
-        throw new Error(`Failed to retrieve addons (${res.status})`);
+
+      let community: Addon[] = [];
+      const contentType = communityRes.headers.get('content-type') || '';
+      if (communityRes.ok && contentType.includes('application/json')) {
+        const data = await communityRes.json();
+        if (Array.isArray(data.addons)) community = data.addons;
+      } else if (communityRes.status !== 404 && !controller.signal.aborted) {
+        console.warn(`Community addons unavailable (${communityRes.status})`);
       }
-      if (!contentType.includes('application/json')) {
-        if (!controller.signal.aborted) setAddons([]);
-        return;
+
+      communityRef.current = community;
+      if (!controller.signal.aborted) {
+        setAddons(mergeAddons(community, []));
+        officialFilterRef.current = { q: '', category: 'all', tag: '', sort: 'newest' };
+        await loadOfficialPage(1, controller.signal, officialFilterRef.current);
       }
-      const data = await res.json();
-      if (!controller.signal.aborted && Array.isArray(data.addons)) setAddons(data.addons);
     } catch (err) {
       if ((err as Error)?.name !== 'AbortError') console.error('Error fetching addons:', err);
     } finally {
@@ -51,7 +122,8 @@ export function useAddons() {
         setLoading(false);
       }
     }
-  }, []);
+  }, [loadOfficialPage]);
+
 
   const fetchBookmarks = useCallback(async () => {
     if (!user) {
@@ -221,5 +293,5 @@ export function useAddons() {
     return data.id as string;
   }, [user, fetchAddons]);
 
-  return { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, createAddon, removeAddon, refetchAddons: fetchAddons };
+  return { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, createAddon, removeAddon, refetchAddons: fetchAddons, loadMoreOfficial, goToOfficialPage, searchOfficial, toolcoinPage, toolcoinTotal, toolcoinHasMore, toolcoinLoadingPage, toolcoinPageSize: TOOLCOIN_PAGE_SIZE };
 }

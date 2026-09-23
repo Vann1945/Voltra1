@@ -93,7 +93,7 @@ export function PanoramaViewer({ src, alt }: PanoramaViewerProps) {
         </button>
       </div>
 
-      <div className="relative bg-ink-900">
+      <div className="group relative bg-ink-900">
         <div
           ref={viewportRef}
           tabIndex={hasError ? -1 : 0}
@@ -105,7 +105,7 @@ export function PanoramaViewer({ src, alt }: PanoramaViewerProps) {
           onPointerUp={stopDragging}
           onPointerCancel={stopDragging}
           onScroll={updateProgress}
-          className={`group relative flex h-[260px] select-none overflow-x-auto overflow-y-hidden overscroll-x-contain outline-none [scrollbar-width:none] sm:h-[360px] [&::-webkit-scrollbar]:hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-terracotta`}
+          className={`relative flex h-[260px] select-none overflow-x-auto overflow-y-hidden overscroll-x-contain outline-none [scrollbar-width:none] sm:h-[360px] [&::-webkit-scrollbar]:hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-terracotta`}
           style={{ touchAction: 'pan-x', WebkitUserSelect: 'none' }}
         >
           {!isLoaded && !hasError && (

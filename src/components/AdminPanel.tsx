@@ -12,6 +12,13 @@ import { Skeleton, SkeletonCard } from './Skeleton';
 import { getButtonClasses } from '@/lib/designSystem';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { BarChart, DonutChart, LineChart } from '@/components/AnalyticsChart';
+import {
+  fetchToolcoinCatalogPage,
+  toolcoinItemToAddon,
+  clientToolcoinBase,
+  type ToolcoinCatalogPage,
+} from '@/lib/toolcoin';
+
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('id-ID').format(value);
@@ -69,6 +76,19 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   const [selectedPendingIds, setSelectedPendingIds] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
   const [userSearch, setUserSearch] = useState('');
+  // Official Marketplace (ToolCoin) admin browser — full 9k+ catalog
+  const [addonsScope, setAddonsScope] = useState<'community' | 'official'>('official');
+  const [officialAddons, setOfficialAddons] = useState<Addon[]>([]);
+  const [officialTotal, setOfficialTotal] = useState(0);
+  const [officialPage, setOfficialPage] = useState(1);
+  const [officialQuery, setOfficialQuery] = useState('');
+  const [officialDebounced, setOfficialDebounced] = useState('');
+  const [officialLoading, setOfficialLoading] = useState(false);
+  const [featuredIds, setFeaturedIds] = useState<Set<string>>(new Set());
+  const [homeShelves, setHomeShelves] = useState<Record<string, string[]>>({});
+  const [shelfCategory, setShelfCategory] = useState<string>('Add-Ons');
+
+  const OFFICIAL_PAGE_SIZE = 24;
   useBodyScrollLock(!!confirmDeleteAddonId || !!confirmDeleteUserId || !!editingAddon);
 
   useEffect(() => {
@@ -123,6 +143,75 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
       }
     }
   }, [user, activeTab, reports.length, users.length, channelSearch, channelStatusFilter]);
+
+  // Debounce official catalog search
+  useEffect(() => {
+    const t = window.setTimeout(() => setOfficialDebounced(officialQuery.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [officialQuery]);
+
+  // Load featured pin ids from ToolCoin backend
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return;
+    let cancelled = false;
+    (async () => {
+      try {
+        try {
+          let res = await fetch('/api/toolcoin/featured', { cache: 'no-store' });
+          if (!res.ok) {
+            try {
+              const raw = localStorage.getItem('toolcoin_featured_ids');
+              if (raw) {
+                const ids = JSON.parse(raw);
+                if (Array.isArray(ids)) setFeaturedIds(new Set(ids.map(String)));
+              }
+            } catch { /* ignore */ }
+          }
+          if (res.ok) {
+            const data = await res.json();
+            const ids = Array.isArray(data.ids) ? data.ids : [];
+            if (!cancelled) setFeaturedIds(new Set(ids.map(String)));
+          }
+        } catch { /* ignore */ }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // Load official marketplace page (same catalog as public marketplace)
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return;
+    if (activeTab !== 'addons' || addonsScope !== 'official') return;
+    let cancelled = false;
+    setOfficialLoading(true);
+    fetchToolcoinCatalogPage({
+      page: officialPage,
+      limit: OFFICIAL_PAGE_SIZE,
+      q: officialDebounced,
+      category: 'all',
+      sort: 'newest',
+    })
+      .then((page: ToolcoinCatalogPage) => {
+        if (cancelled) return;
+        const base = page.downloadBase || clientToolcoinBase();
+        const mapped = (page.items || []).map((item) => {
+          const a = toolcoinItemToAddon(item, base);
+          if (featuredIds.has(a.id) || (item as any).is_featured || (item as any).featured) {
+            a.isFeatured = true;
+          }
+          return a;
+        });
+        setOfficialAddons(mapped);
+        setOfficialTotal(page.total || mapped.length);
+      })
+      .catch(() => {
+        if (!cancelled) showToast('Could not load official catalog.', 'error');
+      })
+      .finally(() => {
+        if (!cancelled) setOfficialLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [user, activeTab, addonsScope, officialPage, officialDebounced, featuredIds]);
 
   if (!user || user.role !== 'admin') {
     return (
@@ -209,26 +298,92 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     }
   };
 
-  const handleFeatureToggle = async (addonId: string, currentFeatured: boolean) => {
+  const handleFeatureToggle = async (addonId: string, currentFeatured: boolean, source?: string) => {
     setProcessingId(addonId);
+    const next = !currentFeatured;
     try {
+      if (source === 'toolcoin') {
+        // Same-origin proxy → Railway (avoids CORS NetworkError)
+        const res = await fetch(
+          `/api/toolcoin/featured/${encodeURIComponent(addonId)}?on=${next ? 'true' : 'false'}`,
+          { method: 'POST', cache: 'no-store' },
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(
+            data?.detail || data?.error || data?.message || `Feature failed (${res.status})`,
+          );
+        }
+        setFeaturedIds((prev) => {
+          const n = new Set(prev);
+          if (next) n.add(addonId);
+          else n.delete(addonId);
+          try {
+            localStorage.setItem('toolcoin_featured_ids', JSON.stringify(Array.from(n)));
+          } catch { /* ignore */ }
+          return n;
+        });
+        setOfficialAddons((prev) => prev.map((a) => (a.id === addonId ? { ...a, isFeatured: next } : a)));
+        showToast(next ? 'Pinned to featured on the marketplace.' : 'Removed from featured.', 'success');
+        return;
+      }
       const res = await fetch(`/api/addons?id=${addonId}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isFeatured: !currentFeatured }),
+        body: JSON.stringify({ isFeatured: next }),
       });
-      if (!res.ok) throw new Error('failed');
-      showToast(`Add-on ${!currentFeatured ? 'featured' : 'unfeatured'} successfully.`, 'success');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Could not update feature (${res.status})`);
+      }
+      showToast(next ? 'Pinned to featured.' : 'Removed from featured.', 'success');
       onAddonsChanged();
     } catch (error) {
-      showToast('Failed to update feature status.', 'error');
+      showToast(error instanceof Error ? error.message : 'Could not update featured status.', 'error');
     } finally {
       setProcessingId(null);
     }
   };
 
+  const handleShelfPin = async (addonId: string, category: string, currentlyOn: boolean) => {
+    const next = !currentlyOn;
+    try {
+      const res = await fetch(
+        `/api/toolcoin/home-shelves`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
+          body: JSON.stringify({
+            shelves: {
+              ...homeShelves,
+              [category]: next
+                ? [addonId, ...(homeShelves[category] || []).filter((x) => x !== addonId)].slice(0, 24)
+                : (homeShelves[category] || []).filter((x) => x !== addonId),
+            },
+          }),
+        },
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || data?.detail || 'Shelf update failed');
+      if (data.shelves) setHomeShelves(data.shelves);
+      else {
+        setHomeShelves((prev) => ({
+          ...prev,
+          [category]: next
+            ? [addonId, ...(prev[category] || []).filter((x) => x !== addonId)].slice(0, 24)
+            : (prev[category] || []).filter((x) => x !== addonId),
+        }));
+      }
+      showToast(next ? `Pinned to ${category} shelf` : `Removed from ${category} shelf`, 'success');
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Could not update shelf', 'error');
+    }
+  };
+
   const handleDeleteAddon = async () => {
+
     if (!confirmDeleteAddonId) return;
     setProcessingId(confirmDeleteAddonId);
     try {
@@ -322,7 +477,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
   // Reusable editorial action button
   const ActionButton = ({
     onClick, disabled, icon, label, tone = 'default',
-  }: { onClick: () => void; disabled?: boolean; icon: React.ReactNode; label: string; tone?: 'default' | 'success' | 'danger' | 'warn' | 'info' }) => {
+  }: { onClick: () => void; disabled?: boolean; icon?: React.ReactNode; label: string; tone?: 'default' | 'success' | 'danger' | 'warn' | 'info' }) => {
     const toneToVariant: Record<string, 'primary' | 'secondary' | 'danger' | 'ghost'> = {
       default: 'secondary',
       success: 'primary',
@@ -332,9 +487,10 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
     };
     return (
       <button
+        type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses(toneToVariant[tone], 'sm')}`}
+        className={`inline-flex items-center justify-center gap-1.5 flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses(toneToVariant[tone], 'sm')}`}
       >
         {icon}
         {label}
@@ -455,6 +611,134 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
 
         {activeTab === 'addons' && (
           <>
+            {/* Scope: community vs official 9k+ catalog */}
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="grid grid-cols-2 rounded-xl border border-parchment-border bg-parchment p-1 w-full sm:w-auto">
+                <button type="button" onClick={() => setAddonsScope('official')} className={`min-h-10 rounded-lg px-4 text-sm font-bold ${addonsScope === 'official' /* shelves */ ? 'bg-ink-900 text-paper' : 'text-ink-900/55 hover:bg-ink-900/[0.05]'}`}>Official Marketplace</button>
+                <button type="button" onClick={() => setAddonsScope('community')} className={`min-h-10 rounded-lg px-4 text-sm font-bold ${addonsScope === 'community' ? 'bg-ink-900 text-paper' : 'text-ink-900/55 hover:bg-ink-900/[0.05]'}`}>Community</button>
+              </div>
+              <p className="text-sm text-ink-900/55">{addonsScope === 'official' ? `${officialTotal.toLocaleString('id-ID')} official packs` : `${addons.length} community submissions`}</p>
+            </div>
+
+            {addonsScope === 'official' && (
+              <section className="mb-16 space-y-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-ink-900 tracking-tight">Official catalog</h2>
+                    <p className="mt-1 text-sm text-ink-900/55">Same search as the public marketplace. Feature pins show on the home strip.</p>
+                  </div>
+                  <label className="relative block w-full sm:w-80">
+                    <span className="sr-only">Search official packs</span>
+                    <Search size={16} className="absolute left-3 top-3.5 text-ink-900/40" />
+                    <input
+                      value={officialQuery}
+                      onChange={(e) => { setOfficialQuery(e.target.value); setOfficialPage(1); }}
+                      placeholder="Search title, creator…"
+                      className="min-h-11 w-full rounded-xl border border-parchment-border bg-parchment-raised pl-9 pr-3 text-sm font-medium text-ink-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+                    />
+                  </label>
+                </div>
+                {officialLoading ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+                  </div>
+                ) : officialAddons.length === 0 ? (
+                  <div className="rounded-2xl border border-parchment-border bg-parchment-raised p-12 text-center">
+                    <p className="font-bold text-ink-900">No packs match this search</p>
+                    <p className="mt-1 text-sm text-ink-900/55">Try another keyword — the full catalog is about {officialTotal || '9,000'}+ items.</p>
+                  </div>
+                ) : (
+                  <>
+                  <div className="mb-4 rounded-2xl border border-parchment-border bg-parchment p-4">
+                    <p className="text-sm font-bold text-ink-900">Home shelves</p>
+                    <p className="mt-1 text-xs text-ink-900/55">
+                      Pick a shelf, then pin packs below. Those pins show on the marketplace home row for that category.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {['Add-Ons', 'World', 'Resource Packs', 'Skin Pack', 'Customization'].map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setShelfCategory(c)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
+                            shelfCategory === c
+                              ? 'border-ink-900 bg-ink-900 text-paper'
+                              : 'border-parchment-border bg-parchment-raised text-ink-900/70'
+                          }`}
+                        >
+                          {c}
+                          {(homeShelves[c] || []).length ? ` (${homeShelves[c].length})` : ''}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {officialAddons.map((addon) => (
+                      <div key={addon.id} className="flex flex-col gap-4 rounded-2xl border border-parchment-border bg-parchment-raised p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-4">
+                          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-ink-900">
+                            <FadeImage src={addon.imageUrl} alt={addon.title} containerClassName="h-full w-full" className="h-full w-full object-cover" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="truncate text-base font-bold text-ink-900">{addon.title}</h3>
+                              {addon.isFeatured && <span className="rounded-full bg-terracotta/20 px-2 py-0.5 text-[10px] font-bold text-terracotta-text">Featured</span>}
+                              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Official</span>
+                            </div>
+                            <p className="mt-1 truncate text-sm text-ink-900/55">{addon.authorName} · {addon.category}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <ActionButton
+                            onClick={() => handleFeatureToggle(addon.id, !!addon.isFeatured, 'toolcoin')}
+                            disabled={processingId === addon.id}
+                            tone={addon.isFeatured ? 'success' : 'default'}
+                            icon={<Sparkles size={16} />}
+                            label={addon.isFeatured ? 'Unfeature' : 'Feature'}
+                          />
+                          <ActionButton
+                            onClick={() =>
+                              handleShelfPin(
+                                addon.id,
+                                shelfCategory,
+                                (homeShelves[shelfCategory] || []).includes(addon.id),
+                              )
+                            }
+                            tone={(homeShelves[shelfCategory] || []).includes(addon.id) ? 'success' : 'default'}
+                            icon={<CheckSquare size={16} />}
+                            label={(homeShelves[shelfCategory] || []).includes(addon.id)
+                              ? `On ${shelfCategory}`
+                              : `Pin → ${shelfCategory}`}
+                          />
+                          <ActionButton
+                            onClick={() => {
+                              // Match public routes: /texture-pack|add-on|world/...
+                              const cat = (addon.category || '').toLowerCase();
+                              const seg = cat.includes('resource') ? 'texture-pack' : cat.includes('world') ? 'world' : cat.includes('skin') ? 'skin-pack' : 'add-on';
+                              window.location.href = `/${seg}/${encodeURIComponent(addon.id)}`;
+                            }}
+                            tone="info"
+                            icon={<LayoutGrid size={16} />}
+                            label="Open"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  </>
+                )}
+                {officialTotal > OFFICIAL_PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button type="button" disabled={officialPage <= 1 || officialLoading} onClick={() => setOfficialPage((p) => Math.max(1, p - 1))} className={getButtonClasses('secondary', 'sm')}>Previous</button>
+                    <span className="text-sm font-bold text-ink-900/60">Page {officialPage} / {Math.max(1, Math.ceil(officialTotal / OFFICIAL_PAGE_SIZE))}</span>
+                    <button type="button" disabled={officialPage * OFFICIAL_PAGE_SIZE >= officialTotal || officialLoading} onClick={() => setOfficialPage((p) => p + 1)} className={getButtonClasses('secondary', 'sm')}>Next</button>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {addonsScope === 'community' && (
+              <>
             {/* Pending Add-ons */}
             <section>
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -553,7 +837,7 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                       {addon.status === 'approved' && (
                         <>
                           <ActionButton
-                            onClick={() => handleFeatureToggle(addon.id, !!addon.isFeatured)}
+                            onClick={() => handleFeatureToggle(addon.id, !!addon.isFeatured, addon.source)}
                             disabled={processingId === addon.id}
                             tone={addon.isFeatured ? 'success' : 'default'}
                             icon={processingId === addon.id ? <div className="h-4 w-4 rounded-full bg-ink-900/[0.06] border border-parchment-border before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-ink/10 before:to-transparent" /> : <Sparkles size={16} />}
@@ -590,6 +874,8 @@ export function AdminPanel({ addons, loading, onNavigate, onAddonsChanged }: Adm
                 )}
               </motion.div>
             </section>
+              </>
+            )}
           </>
         )}
 

@@ -85,7 +85,6 @@
   --color-linen-100: var(--color-parchment);
   --color-linen-200: var(--color-parchment-border);
   --color-linen-muted: #633b29;
-  /* Alias dihapus untuk konsistensi */
 }
 
 .oled {
@@ -102,8 +101,6 @@
   --shadow-card: 0 0 0 1px rgba(255, 139, 75, 0.12), 0 4px 12px rgba(0, 0, 0, 0.6);
   --shadow-card-hover: 0 0 0 1px rgba(255, 139, 75, 0.20), 0 8px 20px rgba(0, 0, 0, 0.8);
   --shadow-card-float: 0 0 0 1px rgba(255, 139, 75, 0.16), 0 16px 32px rgba(0, 0, 0, 0.9);
-
-  /* Alias dihapus untuk konsistensi */
   --color-parchment: #000000;
   --color-parchment-raised: #0b0705;
   --color-parchment-border: #3c1f14;
@@ -126,17 +123,6 @@
   box-shadow: var(--shadow-card);
 }
 
-/* =========================================================================
-   Icon micro-animations — murni CSS (compositor thread), dipicu lewat satu
-   class toggle dari AnimatedIcon.tsx. Ini pengganti motion/react yang lama
-   biar ringan dipakai di ratusan icon sekaligus di satu halaman.
-   Easing dipakai cubic-bezier(0.22, 1, 0.36, 1) — "ease-out-expo": start
-   cepat, mendarat halus tanpa overshoot. Dikombinasi sama amplitudo gerak
-   yang sedikit lebih besar dari sebelumnya biar animasinya kerasa lebih
-   "hidup", tapi TETAP TIDAK "bouncy" (nggak ada overshoot scale ganda /
-   settle balik-balik kayak spring) — tiap preset gerakannya beda karakter,
-   bukan cuma variasi arah dari satu gerakan yang sama.
-   ========================================================================= */
 @media (prefers-reduced-motion: no-preference) {
   .icon-anim-spin-once { animation: icon-spin-once 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-spin-ccw { animation: icon-spin-ccw 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -152,9 +138,6 @@
   .icon-anim-slide-right { animation: icon-slide-right 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-pop-clean { animation: icon-pop-clean 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
   .icon-anim-squeeze { animation: icon-squeeze 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
-  /* stroke-dash cuma berlaku di elemen SVG (path/circle), bukan di <span>
-     pembungkusnya — makanya animasinya ditarget ke child svg, bukan ke
-     class itu sendiri. */
   .icon-anim-draw svg * { stroke-dasharray: 48; animation: icon-draw 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-glow-pulse { animation: icon-glow-pulse 0.6s ease-in-out; }
   .icon-anim-flicker { animation: icon-flicker 0.5s steps(1, end); }
@@ -167,16 +150,9 @@
   .icon-anim-blur-focus { animation: icon-blur-focus 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-corner-peek { animation: icon-corner-peek 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-fade-flip { animation: icon-fade-flip 0.4s ease-in-out; }
-
-  /* 3 preset khusus bottom nav mobile */
   .icon-anim-tap-glow { animation: icon-tap-glow 0.42s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-tap-fold { animation: icon-tap-fold 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
   .icon-anim-tap-spin { animation: icon-tap-spin 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-
-  /* 5 preset baru — dipakai di Creator Dashboard & Admin Panel (analytics,
-     notifikasi, earnings) supaya icon di area itu kerasa lebih "hidup" dan
-     punya karakter gerak sendiri, konsisten sama filosofi motion existing
-     (CSS keyframe murni, tanpa overshoot ganda). */
   .icon-anim-bounce-pop { animation: icon-bounce-pop 0.56s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .icon-anim-heartbeat { animation: icon-heartbeat 0.6s ease-in-out; }
   .icon-anim-orbit-spin { position: relative; animation: icon-orbit-spin-self 0.6s cubic-bezier(0.22, 1, 0.36, 1); }

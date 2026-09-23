@@ -9,8 +9,6 @@ export type LayoutMode = 'grid' | 'list';
 export type Language = 'id' | 'en';
 
 interface AppShellContextValue {
-  // data addons (dulu di-fetch di dalam AppShell App.tsx, sekarang dipindah ke sini
-  // supaya tidak refetch tiap pindah halaman App Router)
   addons: Addon[];
   loading: boolean;
   userLikes: Set<string>;
@@ -20,8 +18,15 @@ interface AppShellContextValue {
   removeAddon: (addonId: string) => void;
   refetchAddons: () => Promise<void>;
   createAddon: (input: any) => Promise<string>;
+  loadMoreOfficial: () => Promise<void>;
+  goToOfficialPage: (page: number) => Promise<void>;
+  searchOfficial: (filters: { q?: string; category?: string; tag?: string; sort?: string }, page?: number) => Promise<void>;
+  toolcoinPage: number;
+  toolcoinTotal: number;
+  toolcoinHasMore: boolean;
+  toolcoinLoadingPage: boolean;
+  toolcoinPageSize: number;
 
-  // theme & layout
   theme: Theme;
   isDarkMode: boolean;
   queueThemeChange: (next: Theme) => void;
@@ -35,7 +40,6 @@ interface AppShellContextValue {
   language: Language;
   setLanguage: (language: Language) => void;
 
-  // modal global (Upload & Auth) — dulu useState lokal di AppShell
   isUploadOpen: boolean;
   openUpload: () => void;
   closeUpload: () => void;
@@ -47,7 +51,7 @@ interface AppShellContextValue {
 const AppShellContext = createContext<AppShellContextValue | undefined>(undefined);
 
 export function AppShellProvider({ children }: { children: React.ReactNode }) {
-  const { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, removeAddon, refetchAddons, createAddon } = useAddons();
+  const { addons, loading, userLikes, userBookmarks, toggleLike, toggleBookmark, removeAddon, refetchAddons, createAddon, loadMoreOfficial, goToOfficialPage, searchOfficial, toolcoinPage, toolcoinTotal, toolcoinHasMore, toolcoinLoadingPage, toolcoinPageSize } = useAddons();
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -142,6 +146,14 @@ export function AppShellProvider({ children }: { children: React.ReactNode }) {
     removeAddon,
     refetchAddons,
     createAddon,
+    loadMoreOfficial,
+    goToOfficialPage,
+    searchOfficial,
+    toolcoinPage,
+    toolcoinTotal,
+    toolcoinHasMore,
+    toolcoinLoadingPage,
+    toolcoinPageSize,
     theme,
     isDarkMode,
     queueThemeChange,

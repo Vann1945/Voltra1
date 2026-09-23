@@ -42,6 +42,7 @@ export interface Addon {
   imageUrls?: string[];
   downloadUrl: string;
   demoUrl?: string;
+  panoramaUrl?: string;
   authorId: string;
   authorName: string;
   authorPhoto?: string | null;
@@ -64,6 +65,12 @@ export interface Addon {
   allowComments?: boolean;
   socials?: AddonSocial[];
   collaborators?: AddonCollaborator[];
+  /** Community DB item vs official Minecraft Marketplace (ToolCoin) */
+  source?: 'community' | 'toolcoin';
+  /** AES key / pack key from ToolCoin catalog when source is toolcoin */
+  marketplaceKey?: string;
+  /** Raw ToolCoin type string e.g. addon, resourcepack, world_template */
+  toolcoinType?: string;
 }
 
 export interface Like {
